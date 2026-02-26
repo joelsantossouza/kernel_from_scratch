@@ -1,3 +1,8 @@
+Checkers
+    Implement code documentation checker
+    Implement basic assembly directives checker
+    Norminette Usage
+
 Bootloader:
     Set up project structure and Makefile dependencies
     Set up the MBR (Master Boot Record)
