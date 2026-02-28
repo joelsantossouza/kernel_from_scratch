@@ -139,7 +139,7 @@ def check_file_header(file: str, option: str,
     try:
         extension: str = os.path.splitext(file)[1]
         file = os.path.join(root, file)
-        if extension == ".c":
+        if extension == ".c" or extension == ".h":
             check_header(file, CHeader)
         elif extension == ".asm":
             check_header(file, AsmHeader)
