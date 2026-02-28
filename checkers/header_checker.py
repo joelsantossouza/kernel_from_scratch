@@ -1,7 +1,10 @@
 from typing import TextIO, Optional
+from datetime import date
 import re
 import os
 import sys
+
+AUTHOR = "Joel Souza"
 
 
 class LangHeader:
@@ -10,7 +13,7 @@ class LangHeader:
 
 class PythonHeader:
     pattern: list[str] = [
-        r"# File:\s+\w+\.py",
+        r"# File:\s+",
         r"# Author:\s+[A-Za-z]+ [A-Za-z]+",
         r"# Date:\s+\d{4}-\d{2}-\d{2}",
         r"# Description:\s+\S.*",
@@ -26,7 +29,7 @@ class PythonHeader:
 class CHeader:
     pattern: list[str] = [
         r"/\*+",
-        r"\s*\*\s+File:\s+\w+\.[ch]",
+        r"\s*\*\s+File:\s+",
         r"\s*\*\s+Author:\s+[A-Za-z]+ [A-Za-z]+",
         r"\s*\*\s+Date:\s+\d{4}-\d{2}-\d{2}",
         r"\s*\*\s+Description:\s+\S.*",
@@ -44,7 +47,7 @@ class CHeader:
 
 class AsmHeader:
     pattern: list[str] = [
-        r";\s+File:\s+\w+\.asm",
+        r";\s+File:\s+",
         r";\s+Author:\s+[A-Za-z]+ [A-Za-z]+",
         r";\s+Date:\s+\d{4}-\d{2}-\d{2}",
         r";\s+Description:\s+\S.*",
@@ -60,7 +63,12 @@ class AsmHeader:
 def check_header(filepath: str, header: LangHeader,
                  with_example: bool = False) -> None:
     """Check if the file contain a valid header pattern"""
-    pattern: list[str] = header.pattern
+    filename: str = os.path.basename(filepath)
+    pattern: list[str] = header.pattern.copy()
+    for i, p in enumerate(pattern):
+        if r"File:\s+" in p:
+            pattern[i] = p + re.escape(filename)
+            break
     with open(filepath, "r") as file:
         is_valid_header: bool = True
         for i, pattern_line in enumerate(pattern, start=1):
@@ -78,7 +86,48 @@ def check_header(filepath: str, header: LangHeader,
         raise ValueError(error_message)
 
 
-def check_file_header(file: str, root: Optional[str] = "") -> None:
+def fill_file_header(filepath: str) -> None:
+    """Add a standard header to the file if it doesn't have one"""
+    filename = os.path.basename(filepath)
+    ext = os.path.splitext(filepath)[1]
+    today = date.today().strftime("%Y-%m-%d")
+
+    headers = {
+        ".py": (
+            f"# File: {filename}\n"
+            f"# Author: {AUTHOR}\n"
+            f"# Date: {today}\n"
+            f"# Description: \n\n"
+        ),
+        ".c": (
+            f"/*\n"
+            f" * File: {filename}\n"
+            f" * Author: {AUTHOR}\n"
+            f" * Date: {today}\n"
+            f" * Description: \n"
+            f" */\n\n"
+        ),
+        ".asm": (
+            f"; File: {filename}\n"
+            f"; Author: {AUTHOR}\n"
+            f"; Date: {today}\n"
+            f"; Description: \n\n"
+        ),
+    }
+
+    header = headers.get(ext)
+    if header is None:
+        raise ValueError(f"Unsupported file type: {ext}")
+
+    with open(filepath, "r") as f:
+        content = f.read()
+
+    with open(filepath, "w") as f:
+        f.write(header + content)
+
+
+def check_file_header(file: str, option: str,
+                      root: Optional[str] = "") -> None:
     """
     Check if a file contain proper header.
     Support to python, Assembly and c files
@@ -91,15 +140,20 @@ def check_file_header(file: str, root: Optional[str] = "") -> None:
         elif extension == ".asm":
             check_header(file, AsmHeader)
     except Exception as e:
+        if option == "--fill":
+            fill_file_header(file)
         print(f"{file} => {e}")
 
 
 if __name__ == "__main__":
     base_path: str = "./"
+    flags: str = ""
     if len(sys.argv) > 1:
         base_path = sys.argv[1]
+    if len(sys.argv) > 2:
+        flags = sys.argv[2]
     if os.path.isfile(base_path):
-        check_file_header(base_path)
+        check_file_header(base_path, flags)
     for root, dirs, files in os.walk(base_path):
         for file in files:
-            check_file_header(file, root)
+            check_file_header(file, flags, root)
