@@ -4,10 +4,6 @@ import os
 import sys
 
 
-class LangHeader:
-    pass
-
-
 class PythonHeader:
     pattern: list[str] = [
         r"# File:\s+\w+\.py",
@@ -57,10 +53,9 @@ class AsmHeader:
     ]
 
 
-def check_header(filepath: str, header: LangHeader,
-                 with_example: bool = False) -> None:
+def check_header(filepath: str, pattern: list[str],
+                 example: Optional[list[str]] = None) -> None:
     """Check if the file contain a valid header pattern"""
-    pattern: list[str] = header.pattern
     with open(filepath, "r") as file:
         is_valid_header: bool = True
         for i, pattern_line in enumerate(pattern, start=1):
@@ -70,8 +65,7 @@ def check_header(filepath: str, header: LangHeader,
         if is_valid_header is True:
             return
         error_message: str = f"Invalid Header in line {i}!"
-        if with_example:
-            example: list[str] = header.example
+        if example:
             error_message += "\nExample:\n"
             for example_line in example:
                 error_message += f"{example_line}\n"
@@ -87,9 +81,9 @@ def check_file_header(file: str, root: Optional[str] = "") -> None:
         extension: str = os.path.splitext(file)[1]
         file = os.path.join(root, file)
         if extension == ".c":
-            check_header(file, CHeader)
+            check_header(file, )
         elif extension == ".asm":
-            check_header(file, AsmHeader)
+            check_func_doc(file, AsmPattern)
     except Exception as e:
         print(f"{file} => {e}")
 
@@ -99,7 +93,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         base_path = sys.argv[1]
     if os.path.isfile(base_path):
-        check_file_header(base_path)
+        check_file_doc_func(base_path)
     for root, dirs, files in os.walk(base_path):
         for file in files:
-            check_file_header(file, root)
+            check_file_doc_func(file, root)

@@ -1,4 +1,4 @@
-from typing import Iterator, TextIO
+from typing import Iterator, Optional
 import re
 import sys
 import os
@@ -17,7 +17,7 @@ class AsmPattern:
 class CPattern:
     doc_start: str = r"/\*"
     doc_end: str = r" \* \*/"
-    func: str = r"(?!#)\s*\w+\s+\w+\s*\(.*\)"
+    func: str = r"(?!#)\w+\s+\w+\s*\(.*\)"
 
 
 def read_comment_block(file_iter: Iterator[str], i: int,
@@ -76,18 +76,28 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
                     f"Line {i}: No function declaration after documentation")
 
 
+def check_file_doc_func(file: str, root: Optional[str] = "") -> None:
+    """
+    Check if a file contain any documentation missing.
+    Support to Assembly and c files
+    """
+    try:
+        extension: str = os.path.splitext(file)[1]
+        file = os.path.join(root, file)
+        if extension == ".c":
+            check_func_doc(file, CPattern)
+        elif extension == ".asm":
+            check_func_doc(file, AsmPattern)
+    except Exception as e:
+        print(f"{file} => {e}")
+
+
 if __name__ == "__main__":
-    base_dir: str = "./"
+    base_path: str = "./"
     if len(sys.argv) > 1:
-        base_dir = sys.argv[1]
-    for root, dirs, files in os.walk(base_dir):
+        base_path = sys.argv[1]
+    if os.path.isfile(base_path):
+        check_file_doc_func(base_path)
+    for root, dirs, files in os.walk(base_path):
         for file in files:
-            try:
-                extension: str = os.path.splitext(file)[1]
-                file = os.path.join(root, file)
-                if extension == ".c":
-                    check_func_doc(file, CPattern)
-                elif extension == ".asm":
-                    check_func_doc(file, AsmPattern)
-            except Exception as e:
-                print(f"{file} => {e}")
+            check_file_doc_func(file, root)
