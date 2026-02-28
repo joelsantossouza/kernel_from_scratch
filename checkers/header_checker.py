@@ -1,4 +1,8 @@
-from typing import TextIO, Optional
+# Author: Joel Souza
+# Description: Python program to check if C and
+#              assembly files contain proper headers
+
+from typing import Optional
 from datetime import date
 import re
 import os
@@ -154,6 +158,7 @@ if __name__ == "__main__":
         flags = sys.argv[2]
     if os.path.isfile(base_path):
         check_file_header(base_path, flags)
-    for root, dirs, files in os.walk(base_path):
-        for file in files:
-            check_file_header(file, flags, root)
+    else:
+        for root, dirs, files in os.walk(base_path):
+            for file in files:
+                check_file_header(file, flags, root)

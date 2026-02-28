@@ -1,5 +1,5 @@
 Checkers
-    Implement code documentation checker
+    ✅Implement code documentation checker
     Implement basic assembly directives checker
     Norminette Usage
 

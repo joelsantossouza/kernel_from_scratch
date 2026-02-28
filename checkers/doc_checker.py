@@ -1,3 +1,8 @@
+# Author: Joel Souza
+# Description: Python program to check if C and
+#              Assembly files contain proper function
+#              documentation
+
 from typing import Iterator, Optional
 import re
 import sys
@@ -98,6 +103,7 @@ if __name__ == "__main__":
         base_path = sys.argv[1]
     if os.path.isfile(base_path):
         check_file_doc_func(base_path)
-    for root, dirs, files in os.walk(base_path):
-        for file in files:
-            check_file_doc_func(file, root)
+    else:
+        for root, dirs, files in os.walk(base_path):
+            for file in files:
+                check_file_doc_func(file, root)
