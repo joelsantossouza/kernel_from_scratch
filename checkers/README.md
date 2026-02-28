@@ -110,7 +110,7 @@ python3 doc_checker.py ./src
 
 ---
 
-## ⚙️ asm_bits_checker.py
+## 🔧 asm_bits_checker.py
 
 Validates that every **Assembly** file explicitly declares a `[BITS X]`
 directive, enforcing processor mode declaration and preventing silent bugs
