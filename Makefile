@@ -1,0 +1,51 @@
+# =============================================================================
+# PROJECT
+# =============================================================================
+NAME			:=
+SRCS_DIR		:= ./src
+
+# =============================================================================
+# CHECKER
+# =============================================================================
+SHELL			:= /bin/bash
+PYTHON			:= python3
+PIP				:= pip3
+PIP_PKG			:= python3-pip
+NORMINETTE		:= norminette
+
+CHECKERS_DIR	:= ./checkers
+CHECKERS		:= $(addprefix $(CHECKERS_DIR)/, \
+				   header_checker.py \
+				   asm_bits_checker.py \
+				   doc_checker.py \
+)
+
+check: check-deps $(CHECKERS)
+	$(NORMINETTE) $(SRCS_DIR)
+
+check-deps:
+	@if ! which $(PYTHON) > /dev/null 2>&1; then \
+		echo "$(PYTHON) is not installed."; \
+		read -p "Do you want to install it? [y/N] " ans; \
+		if [ "$${ans^^}" = "Y" ]; then \
+			sudo apt-get install -y $(PYTHON); \
+		else \
+			echo "Skipping $(PYTHON)."; \
+		fi \
+	fi
+	@if ! which $(NORMINETTE) > /dev/null 2>&1; then \
+		echo "$(NORMINETTE) is not installed."; \
+		read -p "Do you want to install it? [y/N] " ans; \
+		if [ "$${ans^^}" = "Y" ]; then \
+			if ! which $(PIP) > /dev/null 2>&1; then \
+				echo "$(PIP) not found, installing..."; \
+				sudo apt-get install -y $(PIP_PKG); \
+			fi; \
+			pip3 install $(NORMINETTE); \
+		else \
+			echo "Skipping $(NORMINETTE)."; \
+		fi \
+	fi
+
+$(CHECKERS_DIR)/%:
+	$(PYTHON) $@ $(SRCS_DIR)
