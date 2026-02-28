@@ -1,7 +1,7 @@
 Checkers
     ✅Implement code documentation checker
-    Implement basic assembly directives checker
-    Norminette Usage
+    ✅Implement basic assembly directives checker
+    ✅Norminette Usage
 
 Bootloader:
     Set up project structure and Makefile dependencies
