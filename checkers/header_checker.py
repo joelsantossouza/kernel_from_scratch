@@ -1,3 +1,5 @@
+#!/bin/python3
+
 # Author: Joel Souza
 # Description: Python program to check if C and
 #              assembly files contain proper headers

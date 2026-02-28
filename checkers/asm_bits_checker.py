@@ -1,3 +1,5 @@
+#!/bin/python3
+
 # Author: Joel Souza
 # Description: Python program to check if Assembly files
 #              contains its BITS directive
