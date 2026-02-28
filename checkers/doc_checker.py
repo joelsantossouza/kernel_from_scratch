@@ -1,113 +1,93 @@
-# File: test.py
-# Author: Joel Souza
-# Date: 2026-02-27
-# Description: Checker to validate C, Assembly and python headers
-#              and function documentation
-
-from typing import TextIO, Optional, Callable, Iterator
+from typing import Iterator, TextIO
 import re
+import sys
+import os
 
 
-class HeaderPattern:
-    """Contain all HeaderPatterns (x86 Assembly, python and C)"""
-    python: list[str] = [
-        r"# File:\s+\w+\.py",
-        r"# Author:\s+[A-Za-z]+ [A-Za-z]+",
-        r"# Date:\s+\d{4}-\d{2}-\d{2}",
-        r"# Description:\s+\S.*",
-    ]
-    python_example: list[str] = [
-        "# File: test.py",
-        "# Author: Joel Souza",
-        "# Date: 2026-02-27",
-        "# Description: Testing header checker",
-    ]
-
-    c: list[str] = [
-        r"/\*+",
-        r"\s*\*\s+File:\s+\w+\.[ch]",
-        r"\s*\*\s+Author:\s+[A-Za-z]+ [A-Za-z]+",
-        r"\s*\*\s+Date:\s+\d{4}-\d{2}-\d{2}",
-        r"\s*\*\s+Description:\s+\S.*",
-        r"\s*\*+/",
-    ]
-    c_example: list[str] = [
-        "/**",
-        " * File: main.c",
-        " * Author: Joel Souza",
-        " * Date: 2026-02-27",
-        " * Description: Testing header checker",
-        " */",
-    ]
-
-    asm: list[str] = [
-        r";\s+File:\s+\w+\.asm",
-        r";\s+Author:\s+[A-Za-z]+ [A-Za-z]+",
-        r";\s+Date:\s+\d{4}-\d{2}-\d{2}",
-        r";\s+Description:\s+\S.*",
-    ]
-    asm_example: list[str] = [
-        "; File: main.asm",
-        "; Author: Joel Souza",
-        "; Date: 2026-02-27",
-        "; Description: Testing header checker",
-    ]
+class LangPattern:
+    pass
 
 
-def check_header(file: TextIO, pattern: list[str],
-                 example: Optional[list[str]] = None) -> None:
-    """Check if the file contain a valid header pattern"""
-    is_valid_header: bool = True
-    for i, pattern_line in enumerate(pattern):
-        if not re.fullmatch(pattern_line, file.readline().rstrip()):
-            is_valid_header = False
-            break
-    if is_valid_header is True:
-        return
-    error_message: str = f"Invalid Header in line {i}!"
-    if example:
-        error_message += "\nExample:\n"
-        for example_line in example:
-            error_message += f"{example_line}\n"
-    raise ValueError(error_message)
+class AsmPattern:
+    doc_start: str = r";+"
+    doc_end: str = r";+"
+    func: str = r"\w+:"
 
 
-class FuncDocPattern:
+class CPattern:
+    doc_start: str = r"/\*"
+    doc_end: str = r" \* \*/"
+    func: str = r"(?!#)\s*\w+\s+\w+\s*\(.*\)"
+
+
+def read_comment_block(file_iter: Iterator[str], i: int,
+                       doc_end: str) -> tuple[str, int]:
     """
-    Describes function documentation pattern
-    and function declarations in Assembly and C
-    with regex
+    Read all lines between doc_start and doc_end
+    and return as a single string
     """
-    c_doc: list[str] = [
-
-    ]
-    c_function: str = r"(?!#)\w+\s+\w+\s*\(.*\)"
-
-
-def check_func_doc(file: TextIO, pattern: list[str], func_pattern: str,
-                   example: Optional[list[str]] = None) -> None:
-    """
-    Check if Assembly and C functions
-    contain proper documentation
-    """
-    file_iter: Iterator = iter(file)
-    i: int = -1
+    block: list[str] = []
     for line in file_iter:
+        line = line.rstrip()
         i += 1
-        if is_function(line):
-            raise ValueError("Line {i}: Function without documentation.")
-        if not re.fullmatch(pattern[0], line):
-            continue
-        for pat_line in pattern:
-            if not re.fullmatch(pat_line, line):
-                raise ValueError(f"Line {i}: Doc missing {pat_line}")
-            line = next(line)
+        if re.fullmatch(doc_end, line):
+            return "\n".join(block), i
+        block.append(line)
+    raise ValueError(f"Line {i}: Unclosed comment block")
+
+
+def check_func_doc(filepath: str, pattern: LangPattern) -> None:
+    """
+    Check if every function in the file
+    has proper documentation above it
+    """
+    with open(filepath, "r") as file:
+        file_iter: Iterator[str] = iter(file)
+        i: int = 0
+        for line in file_iter:
+            line = line.rstrip()
             i += 1
-        line = next(line)
-        i += 1
-        if not is_function(line):
-            raise ValueError(f"Line {i}: No function just after documentation")
+            if re.fullmatch(pattern.func, line):
+                raise ValueError(f"Line {i}: Function without documentation")
+            if not re.fullmatch(pattern.doc_start, line):
+                continue
+            doc_idx: int = i
+            content, i = read_comment_block(file_iter, i, pattern.doc_end)
+            if not re.search(r"\w+\s+-\s+\S.*", content):
+                raise ValueError(
+                    f"Document {doc_idx}: Missing 'funcname - description'"
+                )
+            if not re.search(r"DESCRIPTION", content):
+                raise ValueError(
+                    f"Document {doc_idx}: Missing DESCRIPTION section"
+                )
+            if not re.search(r"RETURN VALUE", content):
+                raise ValueError(
+                    f"Document {doc_idx}: Missing RETURN VALUE section"
+                )
+            line = next(file_iter).rstrip()
+            i += 1
+            if re.fullmatch(pattern.func, line):
+                continue
+            line = next(file_iter).rstrip()
+            i += 1
+            if not re.fullmatch(pattern.func, line):
+                raise ValueError(
+                    f"Line {i}: No function declaration after documentation")
 
 
-with open("./doc_checker.py", "r") as file:
-    check_header(file, HeaderPattern.python, HeaderPattern.python_example)
+if __name__ == "__main__":
+    base_dir: str = "./"
+    if len(sys.argv) > 1:
+        base_dir = sys.argv[1]
+    for root, dirs, files in os.walk(base_dir):
+        for file in files:
+            try:
+                extension: str = os.path.splitext(file)[1]
+                file = os.path.join(root, file)
+                if extension == ".c":
+                    check_func_doc(file, CPattern)
+                elif extension == ".asm":
+                    check_func_doc(file, AsmPattern)
+            except Exception as e:
+                print(f"{file} => {e}")
