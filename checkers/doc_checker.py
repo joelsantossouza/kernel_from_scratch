@@ -16,8 +16,8 @@ class LangPattern:
 
 
 class AsmPattern:
-    doc_start: str = r";+"
-    doc_end: str = r";+"
+    doc_start: str = r";{2,}"
+    doc_end: str = r";{2,}"
     func: str = r"\w+:"
 
 
@@ -91,7 +91,7 @@ def check_file_doc_func(file: str, root: Optional[str] = "") -> None:
     try:
         extension: str = os.path.splitext(file)[1]
         file = os.path.join(root, file)
-        if extension == ".c":
+        if extension == ".c" or extension == ".h":
             check_func_doc(file, CPattern)
         elif extension == ".asm":
             check_func_doc(file, AsmPattern)

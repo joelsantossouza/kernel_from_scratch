@@ -7,5 +7,5 @@ SRCS		+= $(addprefix $(SRCS_DIR)/$(THIS)/, \
 OBJS		+= $(patsubst $(SRCS_DIR)/%, $(OBJS_DIR)/%.o, $(SRCS))
 
 HEADER		+= $(addprefix $(INCLUDES_DIR)/$(THIS), \
-				config.asm \
+				config.inc \
 )

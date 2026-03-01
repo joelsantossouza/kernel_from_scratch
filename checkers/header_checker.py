@@ -143,7 +143,7 @@ def check_file_header(file: str, option: str,
         file = os.path.join(root, file)
         if extension == ".c" or extension == ".h":
             check_header(file, CHeader)
-        elif extension == ".asm":
+        elif extension == ".asm" or extension == ".inc":
             check_header(file, AsmHeader)
     except Exception as e:
         if option == "--fill":

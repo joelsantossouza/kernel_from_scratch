@@ -10,7 +10,6 @@ AFLAGS			:=
 
 SRCS_DIR		:= src
 OBJS_DIR		:= build
-BINS_DIR		:= bin
 INCLUDES_DIR	:= include
 
 SRCS			:=
