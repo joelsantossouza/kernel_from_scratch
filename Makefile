@@ -5,6 +5,7 @@ NAME			:=
 SRCS_DIR		:= ./src
 OBJS_DIR		:= ./build
 BINS_DIR		:= ./bin
+INCLUDES_DIR	:= ./include
 
 # =============================================================================
 # CHECKER
@@ -22,7 +23,11 @@ CHECKERS		:= $(addprefix $(CHECKERS_DIR)/, \
 				   doc_checker.py \
 )
 
-check: check-deps $(CHECKERS)
+check: check-deps
+	@for checker in $(CHECKERS); do \
+		$(PYTHON) $$checker $(SRCS_DIR); \
+		$(PYTHON) $$checker $(INCLUDES_DIR); \
+	done
 	$(NORMINETTE) $(SRCS_DIR)
 
 check-deps:
@@ -48,9 +53,6 @@ check-deps:
 			echo "Skipping $(NORMINETTE)."; \
 		fi \
 	fi
-
-$(CHECKERS_DIR)/%:
-	$(PYTHON) $@ $(SRCS_DIR)
 
 # =============================================================================
 # 

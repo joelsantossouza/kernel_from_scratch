@@ -25,7 +25,7 @@ def check_asm_bits(filename: str, root: Optional[str] = "") -> None:
                 if re.fullmatch(REGEX_BITS, line.rstrip()):
                     return
             raise ValueError(
-                f"{filepath} don't contain [BITS <16||32||64>] directive"
+                "Missing [BITS <16||32||64>] directive"
             )
     except Exception as e:
         print(f"{filepath} => {e}")
