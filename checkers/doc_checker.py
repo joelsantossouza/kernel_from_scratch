@@ -55,7 +55,9 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
             line = line.rstrip()
             i += 1
             if re.fullmatch(pattern.func, line):
-                raise ValueError(f"Line {i}: Function without documentation")
+                raise ValueError(
+                    f"Line {i}: Function/label without documentation"
+                )
             if not re.fullmatch(pattern.doc_start, line):
                 continue
             doc_idx: int = i

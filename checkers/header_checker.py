@@ -120,6 +120,8 @@ def fill_file_header(filepath: str) -> None:
             f"; Description: \n\n"
         ),
     }
+    headers[".h"] = headers[".c"]
+    headers[".inc"] = headers[".asm"]
 
     header = headers.get(ext)
     if header is None:

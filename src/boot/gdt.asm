@@ -6,10 +6,11 @@
 
 [BITS 16]
 
-gdt_start:
+gdt:
+.null:
 	dq	0x0
 
-gdt_kernel_code:
+.kernel_code:
 	dw	0xffff
 	dw	0x0
 	db	0x0
@@ -17,16 +18,15 @@ gdt_kernel_code:
 	db	11001111b
 	db	0x0
 
-gdt_kernel_data:
+.kernel_data:
 	dw	0xffff
 	dw	0x0
 	db	0x0
 	db	10011010b
 	db	11001111b
 	db	0x0
-
-gdt_end:
+.end:
 
 gdt_descriptor:
-	dw	gdt_end - gdt_start - 1
-	dd	gdt_start
+	dw	gdt.end - gdt - 1
+	dd	gdt

@@ -6,14 +6,17 @@
 
 [BITS 16]
 %include "drivers/disk/config.inc"
-%include "kernel/gdt.inc"
+%include "cpu/gdt.inc"
+%include "cpu/cr0.inc"
 %include "boot/config.inc"
+
+extern	boot_stage2
 
 section	.mbr
 jmp	short boot_start
 nop
 
-%include "./gdt.asm"
+%include "src/boot/gdt.asm"
 
 ;;
 ; boot_start - Boot code
@@ -28,7 +31,6 @@ nop
 ;	None
 ;;
 boot_start:
-	
 .enter_32bit_mode:
 	cli
 	lgdt	[gdt_descriptor]
