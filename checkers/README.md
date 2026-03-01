@@ -41,7 +41,7 @@ with all required fields correctly filled.
  */
 ```
 
-**Assembly** (`.asm`)
+**Assembly** (`.asm` / `.inc`)
 ```asm
 ; File: boot.asm
 ; Author: Joel Souza
@@ -85,6 +85,7 @@ sections in the correct order.
 
 ### Example
 
+**C** (`.c` / `.h`)
 ```c
 /*
  * strcpy - copy source string into destination string
@@ -97,6 +98,23 @@ sections in the correct order.
  *     Returns a pointer to the destination string dst.
  * */
 char    *strcpy(char *dst, const char *src)
+```
+
+**Assembly** (`.asm`)
+
+> ⚠️ ASM documentation blocks must open and close with `;;` (two or more
+> semicolons) to distinguish them from regular inline comments.
+```asm
+;;
+; boot_start - Bootloader entry point
+;
+; DESCRIPTION
+;   Loads GDT, enters protected mode and jumps to stage 2
+;
+; RETURN VALUE
+;   None
+;;
+boot_start:
 ```
 
 ### Usage
