@@ -4,8 +4,5 @@
 ; Description: Provide Bootloader configuration constants and macros
 
 %define SECTOR_SIZE			512
+%define BYTES_WRITTEN		($ - $$)
 %define BOOTABLE_SIGNATURE	0xaa55
-
-%macro BYTES_WRITTEN 0
-	($ - $$)
-%endmacro
