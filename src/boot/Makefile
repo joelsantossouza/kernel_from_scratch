@@ -5,7 +5,7 @@ ROOT	:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-BINS	:= mbr.bin stage2.bin
+BINS	:= mbr.bin boot_stage2.bin
 
 all: $(BINS)
 

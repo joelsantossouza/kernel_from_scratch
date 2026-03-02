@@ -1,4 +1,4 @@
-; File: stage2.asm
+; File: boot_stage2.asm
 ; Author: Joel Souza
 ; Date: 2026-03-01
 ; Description: Once MBR has a limited size to boot code (only 446 bytes),

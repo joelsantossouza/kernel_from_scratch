@@ -23,12 +23,12 @@ class AsmPattern:
 
 class CPattern:
     doc_start: str = r"/\*"
-    doc_end: str = r" \* \*/"
+    doc_end: str = r" \*/"
     func: str = r"(?!#)\w+\s+\w+\s*\(.*\)"
 
 
-def read_comment_block(file_iter: Iterator[str], i: int,
-                       doc_end: str) -> tuple[str, int]:
+def read_comment_block(filepath: str, file_iter: Iterator[str],
+                       i: int, doc_end: str) -> tuple[str, int]:
     """
     Read all lines between doc_start and doc_end
     and return as a single string
@@ -40,7 +40,7 @@ def read_comment_block(file_iter: Iterator[str], i: int,
         if re.fullmatch(doc_end, line):
             return "\n".join(block), i
         block.append(line)
-    raise ValueError(f"Line {i}: Unclosed comment block")
+    raise ValueError(f"{filepath}:{i}> Unclosed comment block")
 
 
 def check_func_doc(filepath: str, pattern: LangPattern) -> None:
@@ -62,7 +62,9 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
             if not re.fullmatch(pattern.doc_start, line):
                 continue
             doc_idx: int = i
-            content, i = read_comment_block(file_iter, i, pattern.doc_end)
+            content, i = read_comment_block(
+                filepath, file_iter, i, pattern.doc_end
+            )
             if not re.search(r"\w+\s+-\s+\S.*", content):
                 print(
                     f"{filepath}:{doc_idx}> Missing 'funcname - description'"

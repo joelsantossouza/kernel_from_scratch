@@ -3,5 +3,10 @@
 ; Date: 2026-03-01
 ; Description: Gdt descriptors offsets
 
-%define KERNEL_CODE_SEG	0x08
-%define KERNEL_DATA_SEG	0x10
+%ifndef GDT_INC
+%define GDT_INC
+
+%define GDT_KERNEL_CODE	0x08
+%define GDT_KERNEL_DATA	0x10
+
+%endif

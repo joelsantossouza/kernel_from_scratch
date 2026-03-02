@@ -5,11 +5,9 @@
  * Description: Constant configurations of File Systems
  */
 
-#ifndef FS_CONFIG_H
-# define FS_CONFIG_H
+#ifndef VFS_CONFIG_H
+# define VFS_CONFIG_H
 
-# define FS_MAX_HEADER	512
-
-# define FS_MAX_MOUNTS	3
+# define VFS_MAX_MOUNTS	3
 
 #endif

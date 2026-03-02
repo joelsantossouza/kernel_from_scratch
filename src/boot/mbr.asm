@@ -70,13 +70,13 @@ boot_start:
 	cli
 	lgdt	[gdt_descriptor]
 	mov		eax, cr0
-	or		eax, CR0_PE
+	or		eax, CPU_CR0_PE
 	mov		cr0, eax
-	jmp		KERNEL_CODE_SEG:.init_32bit_mode
+	jmp		GDT_KERNEL_CODE:.init_32bit_mode
 
 [BITS 32]
 .init_32bit_mode:
-	mov	ax, KERNEL_DATA_SEG
+	mov	ax, GDT_KERNEL_DATA
 	mov	ds, ax
 	mov	ss, ax
 	mov	es, ax
@@ -86,7 +86,7 @@ boot_start:
 .load_stage2:
 	jmp	boot_stage2
 
-times	SECTOR_SIZE - BYTES_WRITTEN - SIGNATURE_SIZE db 0
-dw		BOOTABLE_SIGNATURE
+times	DISK_SECTOR_SIZE - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
+dw		BOOT_SIGNATURE
 
 boot_stage2:

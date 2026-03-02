@@ -20,7 +20,7 @@ KERNEL_DIR		:= $(SRCS_DIR)/kernel
 # IMAGE'S DEPENDENCIES
 # ====================================
 MBR_BIN			:= $(BOOT_DIR)/mbr.bin
-BOOT_BIN		:= $(BOOT_DIR)/stage2.bin
+BOOT_BIN		:= $(BOOT_DIR)/boot_stage2.bin
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.bin
 
 BINS			:= $(MBR_BIN) \

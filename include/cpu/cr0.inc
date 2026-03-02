@@ -3,4 +3,9 @@
 ; Date: 2026-03-01
 ; Description: Constants bitmasks for cr0 flags
 
-%define CR0_PE	0x1		; Protected Enable
+%ifndef CR0_INC
+%define CR0_INC
+
+%define CPU_CR0_PE	0x1		; Protected Enable
+
+%endif

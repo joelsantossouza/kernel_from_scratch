@@ -3,4 +3,9 @@
 ; Date: 2026-03-01
 ; Description: Provide hard disk driver's configuration constants
 
-%define SECTOR_SIZE	512
+%ifndef DISK_CONFIG_INC
+%define DISK_CONFIG_INC
+
+%define DISK_SECTOR_SIZE	512
+
+%endif
