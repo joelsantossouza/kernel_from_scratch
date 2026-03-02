@@ -55,25 +55,29 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
             line = line.rstrip()
             i += 1
             if re.fullmatch(pattern.func, line):
-                raise ValueError(
-                    f"Line {i}: Function/label without documentation"
+                print(
+                    f"{filepath}:{i}> Function/label without documentation"
                 )
+                continue
             if not re.fullmatch(pattern.doc_start, line):
                 continue
             doc_idx: int = i
             content, i = read_comment_block(file_iter, i, pattern.doc_end)
             if not re.search(r"\w+\s+-\s+\S.*", content):
-                raise ValueError(
-                    f"Document {doc_idx}: Missing 'funcname - description'"
+                print(
+                    f"{filepath}:{doc_idx}> Missing 'funcname - description'"
                 )
+                continue
             if not re.search(r"DESCRIPTION", content):
-                raise ValueError(
-                    f"Document {doc_idx}: Missing DESCRIPTION section"
+                print(
+                    f"{filepath}:{doc_idx}> Missing DESCRIPTION section"
                 )
+                continue
             if not re.search(r"RETURN VALUE", content):
-                raise ValueError(
-                    f"Document {doc_idx}: Missing RETURN VALUE section"
+                print(
+                    f"{filepath}:{doc_idx}> Missing RETURN VALUE section"
                 )
+                continue
             line = next(file_iter).rstrip()
             i += 1
             if re.fullmatch(pattern.func, line):
@@ -81,8 +85,10 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
             line = next(file_iter).rstrip()
             i += 1
             if not re.fullmatch(pattern.func, line):
-                raise ValueError(
-                    f"Line {i}: No function declaration after documentation")
+                print(
+                    f"{filepath}:{i}> No function after documentation"
+                )
+                continue
 
 
 def check_file_doc_func(file: str, root: Optional[str] = "") -> None:
@@ -90,15 +96,12 @@ def check_file_doc_func(file: str, root: Optional[str] = "") -> None:
     Check if a file contain any documentation missing.
     Support to Assembly and c files
     """
-    try:
-        extension: str = os.path.splitext(file)[1]
-        file = os.path.join(root, file)
-        if extension == ".c" or extension == ".h":
-            check_func_doc(file, CPattern)
-        elif extension == ".asm":
-            check_func_doc(file, AsmPattern)
-    except Exception as e:
-        print(f"{file} => {e}")
+    extension: str = os.path.splitext(file)[1]
+    file = os.path.join(root, file)
+    if extension == ".c" or extension == ".h":
+        check_func_doc(file, CPattern)
+    elif extension == ".asm":
+        check_func_doc(file, AsmPattern)
 
 
 if __name__ == "__main__":
