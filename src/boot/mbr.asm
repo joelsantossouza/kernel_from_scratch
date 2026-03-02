@@ -10,13 +10,48 @@
 %include "cpu/cr0.inc"
 %include "boot/config.inc"
 
-extern	boot_stage2
-
-section	.mbr
 jmp	short boot_start
 nop
 
-%include "src/boot/gdt.asm"
+;;
+; gdt - Global Descriptor Table
+;
+; DESCRIPTION
+;	Initial setup of Global Descriptor Table to
+;	enter in Protected Mode.
+;;
+gdt:
+.null:
+	dq	0x0
+
+.kernel_code:
+	dw	0xffff
+	dw	0x0
+	db	0x0
+	db	10011010b
+	db	11001111b
+	db	0x0
+
+.kernel_data:
+	dw	0xffff
+	dw	0x0
+	db	0x0
+	db	10011010b
+	db	11001111b
+	db	0x0
+.end:
+
+;;
+; gdt_descriptor - GDT address information
+;
+; DESCRIPTION
+;	Describes where in memory the GDT is stored
+;	and its size. This 6 bytes structure will be
+;	loaded to CPU with lgdt instruction
+;;
+gdt_descriptor:
+	dw	gdt.end - gdt - 1
+	dd	gdt
 
 ;;
 ; boot_start - Boot code
@@ -53,3 +88,5 @@ boot_start:
 
 times	SECTOR_SIZE - BYTES_WRITTEN - SIGNATURE_SIZE db 0
 dw		BOOTABLE_SIGNATURE
+
+boot_stage2:
