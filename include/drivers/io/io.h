@@ -10,6 +10,9 @@
 
 # include <stdint.h>
 
+# define IOP_ATA_DATA		0x1F0
+# define IOP_ATA_DRVHEAD	0x1F6
+
 uint8_t		io_inb(uint16_t port);
 uint16_t	io_inw(uint16_t port);
 uint32_t	io_ind(uint16_t port);

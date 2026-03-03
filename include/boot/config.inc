@@ -7,6 +7,6 @@
 %define BOOT_CONFIG_INC
 
 %define BOOT_SIGNATURE_SIZE	2
-%define BOOT_SIGNATURE		0xaa55
+%define BOOT_SIGNATURE		0xAA55
 
 %endif

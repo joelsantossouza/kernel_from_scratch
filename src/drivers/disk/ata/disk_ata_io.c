@@ -7,8 +7,9 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+#include "drivers/disk/vdl/vdl.h"
+#include "drivers/io/io.h"
 
-ssize_t	disk_ata_read(const t_disk *disk, uint32_t lba, uint8_t nsectors)
+ssize_t	disk_ata_read(const t_vdl_disk *disk, uint32_t lba, uint16_t *buf, uint8_t nsectors)
 {
-
 }
