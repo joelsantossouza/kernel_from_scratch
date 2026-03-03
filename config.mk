@@ -16,5 +16,12 @@ HEADERS			:= $(addprefix $(INCLUDES_DIR)/, \
 					boot/config.inc \
 					cpu/cr0.inc \
 					cpu/gdt.inc \
-					drivers/disk/config.inc \
+					drivers/disk/ata/ata.h \
+					drivers/disk/vdl/config.inc \
+					drivers/disk/vdl/vdl.h \
+					drivers/io/io.h \
+					fs/fat16/fat16.h \
+					fs/vfs/config.h \
+					fs/vfs/vfs.h \
+					kernel/config.h \
 )

@@ -21,11 +21,11 @@ typedef union u_vfs_metadata
 
 typedef struct s_vfs_partition
 {
-	const t_disk	*disk;
-	const t_vfs		*vfs;
 	t_vfs_metadata	vfs_metadata;
 	char			mount_path[KERNEL_MAX_PATH];
 	size_t			pathlen;
+	const t_disk	*disk;
+	const t_vfs		*vfs;
 }	t_vfs_partition;
 
 #endif

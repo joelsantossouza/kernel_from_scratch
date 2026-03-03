@@ -5,7 +5,7 @@
 ; 			   the hard disk. It will load the stage 2 of boot into RAM.
 
 [BITS 16]
-%include "drivers/disk/config.inc"
+%include "drivers/disk/vdl/config.inc"
 %include "cpu/gdt.inc"
 %include "cpu/cr0.inc"
 %include "boot/config.inc"
@@ -86,7 +86,7 @@ boot_start:
 .load_stage2:
 	jmp	boot_stage2
 
-times	DISK_SECTOR_SIZE - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
+times	VDL_SECTOR_SIZE - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
 dw		BOOT_SIGNATURE
 
 boot_stage2:

@@ -19,8 +19,8 @@ typedef struct s_vdl
 
 typedef struct s_vdl_disk
 {
-	uint8_t		no;
 	const t_vdl	*vdl;
+	uint8_t		no;
 }	t_vdl_disk;
 
 #endif
