@@ -21,4 +21,8 @@
 # define ATAO_DRIVE		0x6
 # define ATAO_CMD		0x7
 
+// ATA Flags
+# define ATAF_LBA_MODE	0xE0
+# define ATAF_CHS_MODE	0xA0
+
 #endif

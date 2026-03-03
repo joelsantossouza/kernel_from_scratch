@@ -15,7 +15,7 @@ static inline
 void	disk_ata_exec(uint8_t disk_no, uint8_t cmd, uint32_t lba, uint8_t nsectors)
 {
 	const uint16_t	bus_port = disk_no < 2 ? ATAB_BUS1 : ATAB_BUS2;
-	const uint8_t	flags = find_good_name_to_me | ((disk_no & 0x01) << 4);
+	const uint8_t	flags = ATAF_LBA_MODE | ((disk_no & 0x01) << 4);
 
 	io_outb(IOP(bus_port, ATAO_DRIVE),		(uint8_t)((lba >> 24) | flags));
 	io_outb(IOP(bus_port, ATAO_NSECTORS),	(uint8_t)nsectors);
