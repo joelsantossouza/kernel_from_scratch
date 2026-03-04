@@ -12,6 +12,22 @@
 #include "drivers/disk/ata/ata.h"
 #include "drivers/disk/ata/config.h"
 
+/*
+ * ata_request_rw - Request Read/Write on disk data via ATA controller
+ *
+ * DESCRIPTION
+ *	Sends a read or write request to ATA controller setting the
+ *	LBA address, sector count and command into ATA registers.
+ *
+ *	bus_port	-> ATAB_BUS1 or ATAB_BUS2
+ *	drive		-> 0 = Master, 1 = Slave
+ *	rw_cmd		-> ATAC_READ or ATAC_WRITE
+ *	lba			-> starting sector index
+ *	nsectors	-> number of sectors to read/write
+ *
+ * RETURN VALUE
+ *	None
+ * */
 static inline
 void	ata_request_rw(uint16_t bus_port, uint8_t drive, uint8_t rw_cmd, uint32_t lba, uint8_t nsectors)
 {
