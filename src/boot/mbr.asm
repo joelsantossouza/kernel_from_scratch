@@ -4,7 +4,6 @@
 ; Description: Master Boot Record. This is the first sector (512 bytes size) of
 ; 			   the hard disk. It will load the stage 2 of boot into RAM.
 
-[BITS 16]
 %include "drivers/disk/vdl/config.inc"
 %include "cpu/gdt.inc"
 %include "cpu/cr0.inc"
@@ -57,6 +56,7 @@ gdt_descriptor:
 ; boot_start - Boot code
 ;
 ; DESCRIPTION
+;	-> Load boot stage 2 in RAM
 ;	-> Loads GDT
 ;	-> Enter in Protected Mode
 ;	-> Init segment registers
@@ -66,6 +66,10 @@ gdt_descriptor:
 ;	None
 ;;
 boot_start:
+[BITS 16]
+.load_stage2:
+; TODO: Write load of stage2
+
 .enter_32bit_mode:
 	cli
 	lgdt	[gdt_descriptor]
@@ -83,7 +87,6 @@ boot_start:
 	mov	fs, ax
 	mov	gs, ax
 
-.load_stage2:
 	jmp	boot_stage2
 
 times	VDL_SECTOR_BYTES - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
