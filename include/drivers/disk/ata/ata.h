@@ -36,6 +36,7 @@
 # define ATAS_DRQ		0b00001000
 # define ATAS_DF		0b00100000
 # define ATAS_BSY		0b10000000
+# define ATAS_HAS_ERROR	0b00100001
 
 // ATA Errors
 # define ATAE_SUCCESS	0x0000

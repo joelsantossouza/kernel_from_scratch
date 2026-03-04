@@ -86,7 +86,7 @@ boot_start:
 .load_stage2:
 	jmp	boot_stage2
 
-times	VDL_SECTOR_SIZE - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
+times	VDL_SECTOR_BYTES - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
 dw		BOOT_SIGNATURE
 
 boot_stage2:

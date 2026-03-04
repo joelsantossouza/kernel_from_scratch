@@ -23,8 +23,8 @@ class AsmPattern:
 
 class CPattern:
     doc_start: str = r"/\*"
-    doc_end: str = r" \*/"
-    func: str = r"(?!#)\w+\s+\w+\s*\(.*\)"
+    doc_end: str = r" \* \*/"
+    func: str = r"(?!#)\w+[\s\*]+\w+\s*\(.*\)"
 
 
 def read_comment_block(filepath: str, file_iter: Iterator[str],
@@ -43,6 +43,38 @@ def read_comment_block(filepath: str, file_iter: Iterator[str],
     raise ValueError(f"{filepath}:{i}> Unclosed comment block")
 
 
+def skip_header(file_iter: Iterator[str]) -> int:
+    """Skip the first header comment block"""
+    i: int = 0
+    for line in file_iter:
+        i += 1
+        if line.rstrip() == "":
+            return i
+    return i
+
+
+MAX_LINES_AFTER_DOC: int = 3
+
+
+def max_lines_after_doc(filepath: str, line_no: int, file_iter: Iterator[str],
+                        pattern: LangPattern) -> int:
+    """
+    Check if there's a function declaration at maximum
+    MAX_LINES_AFTER_DOC lines below the doc block
+    """
+    i: int = 0
+    for _ in range(MAX_LINES_AFTER_DOC):
+        try:
+            line = next(file_iter).rstrip()
+        except StopIteration:
+            break
+        i += 1
+        if re.fullmatch(pattern.func, line):
+            return i
+    print(f"{filepath}:{line_no + i}: No function after documentation")
+    return i
+
+
 def check_func_doc(filepath: str, pattern: LangPattern) -> None:
     """
     Check if every function in the file
@@ -50,7 +82,7 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
     """
     with open(filepath, "r") as file:
         file_iter: Iterator[str] = iter(file)
-        i: int = 0
+        i = skip_header(file_iter)
         for line in file_iter:
             line = line.rstrip()
             i += 1
@@ -80,17 +112,7 @@ def check_func_doc(filepath: str, pattern: LangPattern) -> None:
                     f"{filepath}:{doc_idx}> Missing RETURN VALUE section"
                 )
                 continue
-            line = next(file_iter).rstrip()
-            i += 1
-            if re.fullmatch(pattern.func, line):
-                continue
-            line = next(file_iter).rstrip()
-            i += 1
-            if not re.fullmatch(pattern.func, line):
-                print(
-                    f"{filepath}:{i}> No function after documentation"
-                )
-                continue
+            i += max_lines_after_doc(filepath, i, file_iter, pattern)
 
 
 def check_file_doc_func(file: str, root: Optional[str] = "") -> None:

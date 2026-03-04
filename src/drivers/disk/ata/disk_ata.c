@@ -25,11 +25,27 @@ void	ata_request_rw(uint16_t bus_port, uint8_t drive, uint8_t rw_cmd, uint32_t l
 	io_outb(IOP(bus_port, ATAO_CMD),		(uint8_t)rw_cmd);
 }
 
+/*
+ * ata_poll - Helper function to wait ATA controller status flags
+ *
+ * DESCRIPTION
+ * 	Polls the status register of a given ATA bus port, waiting
+ * 	until the ata_status masked with wait_mask equals wait_value.
+ *
+ * 	ata_poll waits for a limited number of cycles (ATA_TIMEOUT_CYCLES).
+ *
+ * RETURN VALUE
+ * 	On success returns 0 (ATAE_SUCCESS). On failure, sets err_code
+ * 	with the respective ATAE_* error code and returns ATAE_FAIL.
+ *
+ * 	If the waiting time exceeds the ATA_TIMEOUT_CYCLES, err_code is
+ * 	set to ATAE_TIMEOUT.
+ * */
 static inline
-uint16_t	ata_poll(uint16_t bus_port, uint16_t *err_code)
+uint16_t	ata_poll(uint16_t bus_port, uint8_t wait_mask,
+					uint8_t wait_value, uint16_t *err_code)
 {
 	const uint16_t	ata_status_register = IOP(bus_port, ATAO_STATUS);
-	const uint8_t	has_error = ATAS_ERROR | ATAS_DF;
 	uint8_t			ata_status;
 	uint32_t		timeout;
 
@@ -37,32 +53,52 @@ uint16_t	ata_poll(uint16_t bus_port, uint16_t *err_code)
 	while (timeout-- > 0)
 	{
 		ata_status = io_inb(ata_status_register);
-		if (ata_status & has_error)
+		if (ata_status & ATAS_HAS_ERROR)
 		{
 			*err_code = io_inb(IOP(bus_port, ATAO_ERROR));
 			return (ATAE_FAIL);
 		}
-		if ((ata_status & ATAS_BSY) == 0 && (ata_status & ATAS_DRQ))
+		if ((ata_status & wait_mask) == wait_value)
 			return (ATAE_SUCCESS);
 	}
 	*err_code = ATAE_TIMEOUT;
 	return (ATAE_FAIL);
 }
 
-uint16_t	disk_ata_read(const t_vdl_disk *disk, uint32_t lba, uint16_t *buf, uint8_t nsectors)
+/*
+ * disk_ata_read - ATA controller disk read
+ *
+ * DESCRIPTION
+ * 	Read sectors from disk using ATA controller interface. You must provide
+ * 	the disk that will be read, the Logical Block Address (LBA) start sector,
+ * 	the buffer where the memory will be stored in, and the number of sectors
+ * 	to be read.
+ *
+ * 	buf must have at least nsectors * VDL_SECTOR_BYTES BYTES.
+ * 	See disk/vdl/config.h
+ *
+ * RETURN VALUE
+ * 	Fills the buffer with disk data and returns 0 (ATAE_SUCCESS) on success,
+ * 	or an ATAE_* error code on failure. See ata.h to check ATA Error values.
+ * */
+uint16_t	disk_ata_read(const t_vdl_disk *disk, uint32_t lba,
+						uint16_t *buf, uint8_t nsectors)
 {
 	const uint16_t	bus_port = disk->no < 2 ? ATAB_BUS1 : ATAB_BUS2;
 	const uint16_t	ata_data_register = IOP(bus_port, ATAO_DATA);
-	uint16_t		nwords;
+	const uint8_t	ata_ready_mask = ATAS_BSY | ATAS_DRQ;
+	uint16_t		words_remaining;
 	uint16_t		err_code;
 
+	if (ata_poll(bus_port, ATAS_BSY, 0, &err_code) == ATAE_FAIL)
+		return (err_code);
 	ata_request_rw(bus_port, disk->no, ATAC_READ, lba, nsectors);
 	while (nsectors-- > 0)
 	{
-		if (ata_poll(bus_port, &err_code) == ATAE_FAIL)
+		if (ata_poll(bus_port, ata_ready_mask, ATAS_DRQ, &err_code) == ATAE_FAIL)
 			return (err_code);
-		nwords = VDL_SECTOR_WORDS;
-		while (nwords-- > 0)
+		words_remaining = VDL_SECTOR_WORDS;
+		while (words_remaining-- > 0)
 			*buf++ = io_inw(ata_data_register);
 	}
 	return (ATAE_SUCCESS);
