@@ -6,6 +6,7 @@
 [BITS 32]
 
 section	.asm
+;;
 ; io_inb, io_inw, io_ind - Read byte/word/double word from I/O port
 ;
 ; uint8_t	io_inb(uint16_t port);
@@ -18,6 +19,7 @@ section	.asm
 ;
 ; RETURN VALUE
 ;	Return the byte/word/double word read from the port
+;;
 io_inb:
 	push	ebp
 	mov		ebp, esp
@@ -48,6 +50,7 @@ io_ind:
 	pop		ebp
 	ret
 
+;;
 ; io_outb, io_outw, io_outd - Write byte/word/double word to I/O port
 ;
 ; void	io_outb(uint16_t port, uint8_t value);
@@ -60,6 +63,7 @@ io_ind:
 ;
 ; RETURN VALUE
 ;	None
+;;
 io_outb:
 	push	ebp
 	mov		ebp, esp

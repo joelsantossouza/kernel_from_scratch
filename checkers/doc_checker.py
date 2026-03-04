@@ -24,7 +24,7 @@ class AsmPattern:
 class CPattern:
     doc_start: str = r"/\*"
     doc_end: str = r" \* \*/"
-    func: str = r"(?!#)\w+[\s\*]+\w+\s*\(.*\)"
+    func: str = r"(?!#)\w+[\s\*]+\w+\s*\(.*"
 
 
 def read_comment_block(filepath: str, file_iter: Iterator[str],
