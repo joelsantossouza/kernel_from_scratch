@@ -6,5 +6,16 @@
 ;			   here in the sector 1 until sector 2047 (~1MB MBR gap)
 
 [BITS 32]
+
+extern disk_ata_read ; WARNING: DELETE ME
+BUF: times 512 db 0 ; WARNING: DELETE ME
+
+section	.asm
 boot_stage2:
-	jmp	$
+	; WARNING: DELETE ME
+	push	1
+	push	BUF
+	push	2
+	push	0
+	call	disk_ata_read
+	add		esp, 16

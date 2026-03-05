@@ -139,6 +139,8 @@ boot_start:
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
+	mov	ebp, BOOT_LOAD_ADDR
+	mov	esp, ebp
 
 	jmp	boot_stage2
 

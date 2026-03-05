@@ -20,7 +20,9 @@ KERNEL_DIR		:= $(SRCS_DIR)/kernel
 # DEPENDENCIES
 # ====================================
 MBR_ELF			:= $(BOOT_DIR)/mbr.elf
-MBR_ADDR		:= 0x7c00
+MBR_ADDR		:= 0x7C00
+BOOT_ELF		:= $(BOOT_DIR)/boot_stage2.elf
+BOOT_ADDR		:= $(shell printf '0x%X' $$(( $(MBR_ADDR) + $(SECTOR_SIZE) )))
 
 MBR_BIN			:= $(BOOT_DIR)/mbr.bin
 BOOT_BIN		:= $(BOOT_DIR)/boot_stage2.bin
@@ -46,8 +48,10 @@ all: part-deps $(DISK_IMG)
 
 debug: all
 	qemu-system-i386 -drive format=raw,file=$(DISK_IMG) -S -gdb tcp::1234 -d int,cpu_reset 2>$(QEMU_LOG) &
-	gdb --tui -ex "set confirm off" \
+	gdb --tui \
+		-ex "set confirm off" \
 		-ex "add-symbol-file $(MBR_ELF) $(MBR_ADDR)" \
+		-ex "add-symbol-file $(BOOT_ELF) $(BOOT_ADDR)" \
 		-ex "target remote localhost:1234"
 
 $(DISK_IMG): $(BINS) $(PART1_IMG)

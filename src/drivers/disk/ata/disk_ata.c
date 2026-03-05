@@ -7,7 +7,6 @@
 
 #include <stdint.h>
 #include "drivers/io/io.h"
-#include "drivers/disk/vdl/vdl.h"
 #include "drivers/disk/vdl/config.h"
 #include "drivers/disk/ata/ata.h"
 #include "drivers/disk/ata/config.h"
@@ -97,10 +96,10 @@ uint16_t	ata_poll(uint16_t bus_port, uint8_t wait_mask,
  * 	Fills the buffer with disk data and returns 0 (ATAE_SUCCESS) on success,
  * 	or an ATAE_* error code on failure. See ata.h to check ATA Error values.
  * */
-uint16_t	disk_ata_read(const t_vdl_disk *disk, uint32_t lba,
+uint16_t	disk_ata_read(uint8_t disk_no, uint32_t lba,
 						uint16_t *buf, uint8_t nsectors)
 {
-	const uint16_t	bus_port = disk->no < 2 ? ATAB_BUS1 : ATAB_BUS2;
+	const uint16_t	bus_port = disk_no < 2 ? ATAB_BUS1 : ATAB_BUS2;
 	const uint16_t	ata_data_register = IOP(bus_port, ATAO_DATA);
 	const uint8_t	ata_ready_mask = ATAS_BSY | ATAS_DRQ;
 	uint16_t		words_remaining;
@@ -108,7 +107,7 @@ uint16_t	disk_ata_read(const t_vdl_disk *disk, uint32_t lba,
 
 	if (ata_poll(bus_port, ATAS_BSY, 0, &err_code) == ATAE_FAIL)
 		return (err_code);
-	ata_request_rw(bus_port, disk->no, ATAC_READ, lba, nsectors);
+	ata_request_rw(bus_port, disk_no, ATAC_READ, lba, nsectors);
 	while (nsectors-- > 0)
 	{
 		if (ata_poll(bus_port, ata_ready_mask, ATAS_DRQ, &err_code) == ATAE_FAIL)
