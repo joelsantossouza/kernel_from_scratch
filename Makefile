@@ -42,15 +42,15 @@ QEMU_LOG		:= qemu.log
 # =============================================================================
 .PHONY: all part-deps fclean re build-boot build-kernel
 
-all: $(DISK_IMG)
+all: part-deps $(DISK_IMG)
 
-debug: $(DISK_IMG)
-	qemu-system-i386 -hda $(DISK_IMG) -S -gdb tcp::1234 -d int,cpu_reset -no-reboot 2>$(QEMU_LOG) &
+debug: all
+	qemu-system-i386 -drive format=raw,file=$(DISK_IMG) -S -gdb tcp::1234 -d int,cpu_reset 2>$(QEMU_LOG) &
 	gdb --tui -ex "set confirm off" \
 		-ex "add-symbol-file $(MBR_ELF) $(MBR_ADDR)" \
 		-ex "target remote localhost:1234"
 
-$(DISK_IMG): part-deps $(BINS) $(PART1_IMG)
+$(DISK_IMG): $(BINS) $(PART1_IMG)
 	$(DD) if=/dev/zero		of=$(DISK_IMG) seek=0 count=$(DISK_SECTORS)
 	$(DD) if=$(MBR_BIN)		of=$(DISK_IMG) seek=0 count=1					
 	$(DD) if=$(BOOT_BIN)	of=$(DISK_IMG) seek=1 count=$(MBR_GAP_SECTORS)	
