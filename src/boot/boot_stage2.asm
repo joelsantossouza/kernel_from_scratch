@@ -7,3 +7,4 @@
 
 [BITS 32]
 boot_stage2:
+	jmp	$

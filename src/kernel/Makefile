@@ -9,6 +9,8 @@ BIN		:= kernel.bin
 OBJS	:= kernel.asm.o
 LINKER	:= linker.ld
 
+.PHONY: all clean fclean re
+
 all: $(BIN)
 
 $(BIN): $(OBJS)

@@ -10,6 +10,10 @@
 %include "cpu/gdt.inc"
 %include "cpu/cr0.inc"
 
+%ifidn __OUTPUT_FORMAT__, bin
+ [ORG BOOT_LOAD_ADDR]
+%endif
+
 jmp	short boot_start
 nop
 
@@ -64,7 +68,7 @@ gdt_descriptor:
 ; RETURN VALUE
 ;	None
 ;;
-BOOT_PANIC_STR:		db "Error: Could not boot system"
+BOOT_PANIC_STR:		db "Error: Could not boot system!"
 BOOT_PANIC_STRLEN	equ $ - BOOT_PANIC_STR
 boot_panic:
 	mov	ah, BIOS_STR_WRITE

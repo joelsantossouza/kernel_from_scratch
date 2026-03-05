@@ -30,12 +30,13 @@ BINS			:= $(MBR_BIN) \
 PART1_IMG		:= partition1.img
 PART1_SECTORS	:= 32768
 
-# COMMANDS
-# ====================================
 DD				:= dd bs=$(SECTOR_SIZE) conv=notrunc
 
-# RULES
-# ====================================
+# =============================================================================
+# BUILD
+# =============================================================================
+.PHONY: all part-deps fclean re build-boot build-kernel
+
 all: part-deps $(DISK_IMG)
 
 $(DISK_IMG): $(BINS) $(PART1_IMG)
@@ -44,13 +45,13 @@ $(DISK_IMG): $(BINS) $(PART1_IMG)
 	$(DD) if=$(BOOT_BIN)	of=$(DISK_IMG) seek=1 count=$(MBR_GAP_SECTORS)	
 	$(DD) if=$(PART1_IMG)	of=$(DISK_IMG) seek=$(PARTS_START)
 
-$(MBR_BIN) $(BOOT_BIN):
+$(MBR_BIN) $(BOOT_BIN): build-boot
 	$(MAKE) -C $(BOOT_DIR)
 
-$(KERNEL_BIN):
+$(KERNEL_BIN): build-kernel
 	$(MAKE) -C $(KERNEL_DIR)
 
-$(PART1_IMG):
+$(PART1_IMG): $(KERNEL_BIN)
 	$(DD) if=/dev/zero of=$(PART1_IMG) count=$(PART1_SECTORS)
 	mkfs.fat -F 16 $(PART1_IMG)
 	mmd -i $(PART1_IMG) ::/boot
@@ -73,6 +74,7 @@ fclean:
 	$(MAKE) fclean -C $(BOOT_DIR)
 	$(MAKE) fclean -C $(KERNEL_DIR)
 
+
 re: fclean all
 
 # =============================================================================
@@ -90,6 +92,8 @@ CHECKERS		:= $(addprefix $(CHECKERS_DIR)/, \
 				   asm_bits_checker.py \
 				   doc_checker.py \
 )
+
+.PHONY: check check-deps
 
 check: check-deps
 	@for checker in $(CHECKERS); do \
