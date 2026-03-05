@@ -1,18 +1,18 @@
 # =============================================================================
-# DISK DRIVERS
+# IO DRIVERS
 # =============================================================================
 ROOT	:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-OBJS	:= ata/disk_ata.c.o
+OBJS	:= io.asm.o
 
 .PHONY: all fclean
 
 all: $(OBJS)
 
-%.c.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+%.asm.o: %.asm $(HEADERS)
+	$(AS) $(AFLAGS_ELF) $(INCLUDES) $< -o $@
 
 fclean:
 	rm -f $(OBJS)

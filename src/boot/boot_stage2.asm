@@ -7,15 +7,21 @@
 
 [BITS 32]
 
-extern disk_ata_read ; WARNING: DELETE ME
-BUF: times 512 db 0 ; WARNING: DELETE ME
+global boot_stage2
 
-section	.asm
 boot_stage2:
-	; WARNING: DELETE ME
-	push	1
-	push	BUF
-	push	2
-	push	0
-	call	disk_ata_read
-	add		esp, 16
+	jmp $
+
+;extern disk_ata_read ; WARNING: DELETE ME
+;
+;section	.asm
+;boot_stage2:
+;	; WARNING: DELETE ME
+;	push	1
+;	push	BUF
+;	push	2
+;	push	0
+;	call	disk_ata_read
+;	add		esp, 16
+;
+;BUF: times 512 db 0 ; WARNING: DELETE ME

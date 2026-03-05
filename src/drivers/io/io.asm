@@ -5,6 +5,13 @@
 
 [BITS 32]
 
+global	io_inb
+global	io_inw
+global	io_ind
+global	io_outb
+global	io_outw
+global	io_outd
+
 section	.asm
 ;;
 ; io_inb, io_inw, io_ind - Read byte/word/double word from I/O port

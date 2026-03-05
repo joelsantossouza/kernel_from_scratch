@@ -47,7 +47,7 @@ QEMU_LOG		:= qemu.log
 all: part-deps $(DISK_IMG)
 
 debug: all
-	qemu-system-i386 -drive format=raw,file=$(DISK_IMG) -S -gdb tcp::1234 -d int,cpu_reset 2>$(QEMU_LOG) &
+	qemu-system-i386 -drive format=raw,file=$(DISK_IMG) -s -S -d int,cpu_reset 2>$(QEMU_LOG) &
 	gdb --tui \
 		-ex "set confirm off" \
 		-ex "add-symbol-file $(MBR_ELF) $(MBR_ADDR)" \

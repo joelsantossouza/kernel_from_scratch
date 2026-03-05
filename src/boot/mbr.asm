@@ -142,9 +142,7 @@ boot_start:
 	mov	ebp, BOOT_LOAD_ADDR
 	mov	esp, ebp
 
-	jmp	boot_stage2
+	jmp	BOOT_STAGE2_ADDR
 
 times	VDL_SECTOR_BYTES - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
 dw		BOOT_SIGNATURE
-
-boot_stage2:

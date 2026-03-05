@@ -1,28 +1,29 @@
+ENTRY(boot_stage2)
 SECTIONS
 {
-	. = 0x7C00;
-	.text : ALIGN(4096)
+	. = 0x7E00;
+	.text :
 	{
-		*(.text)
+		*(.text*)
 	}
 
-	.rodata : ALIGN(4096)
+	.rodata :
 	{
-		*(.rodata)
+		*(.rodata*)
 	}
 
-	.data : ALIGN(4096)
+	.data :
 	{
-		*(.data)
+		*(.data*)
 	}
 
-	.bss : ALIGN(4096)
+	.bss :
 	{
-		*(.COMMON)
-		*(.bss)
+		*(.COMMON*)
+		*(.bss*)
 	}
 
-	.asm : ALIGN(4096)
+	.asm :
 	{
 		*(.asm)
 	}
