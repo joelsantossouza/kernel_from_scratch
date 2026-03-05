@@ -107,7 +107,7 @@ boot_start:
 	mov	ss, ax
 	mov	es, ax
 	mov	fs, ax
-	mov gs, ax
+	mov	gs, ax
 
 .load_stage2:
 	mov	ah, BIOS_DRIVE_READ
@@ -115,7 +115,7 @@ boot_start:
 	mov	ch, BOOT_STAGE2_CYLINDER
 	mov	cl, BOOT_STAGE2_SECTOR
 	mov	dh, BOOT_STAGE2_HEAD
-	mov	dl, BOOT_DRIVE_NO
+	mov	dl, [BOOT_DRIVE_NO]
 	mov	bx, BOOT_STAGE2_ADDR
 	int	BIOS_INT_DRIVE
 

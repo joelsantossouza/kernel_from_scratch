@@ -17,8 +17,11 @@ SRCS_DIR		:= src
 BOOT_DIR		:= $(SRCS_DIR)/boot
 KERNEL_DIR		:= $(SRCS_DIR)/kernel
 
-# IMAGE'S DEPENDENCIES
+# DEPENDENCIES
 # ====================================
+MBR_ELF			:= $(BOOT_DIR)/mbr.elf
+MBR_ADDR		:= 0x7c00
+
 MBR_BIN			:= $(BOOT_DIR)/mbr.bin
 BOOT_BIN		:= $(BOOT_DIR)/boot_stage2.bin
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.bin
@@ -32,14 +35,22 @@ PART1_SECTORS	:= 32768
 
 DD				:= dd bs=$(SECTOR_SIZE) conv=notrunc
 
+QEMU_LOG		:= qemu.log
+
 # =============================================================================
 # BUILD
 # =============================================================================
 .PHONY: all part-deps fclean re build-boot build-kernel
 
-all: part-deps $(DISK_IMG)
+all: $(DISK_IMG)
 
-$(DISK_IMG): $(BINS) $(PART1_IMG)
+debug: $(DISK_IMG)
+	qemu-system-i386 -hda $(DISK_IMG) -S -gdb tcp::1234 -d int,cpu_reset -no-reboot 2>$(QEMU_LOG) &
+	gdb --tui -ex "set confirm off" \
+		-ex "add-symbol-file $(MBR_ELF) $(MBR_ADDR)" \
+		-ex "target remote localhost:1234"
+
+$(DISK_IMG): part-deps $(BINS) $(PART1_IMG)
 	$(DD) if=/dev/zero		of=$(DISK_IMG) seek=0 count=$(DISK_SECTORS)
 	$(DD) if=$(MBR_BIN)		of=$(DISK_IMG) seek=0 count=1					
 	$(DD) if=$(BOOT_BIN)	of=$(DISK_IMG) seek=1 count=$(MBR_GAP_SECTORS)	
@@ -71,6 +82,7 @@ part-deps:
 fclean:
 	rm -f $(PART1_IMG)
 	rm -f $(DISK_IMG)
+	rm -f $(QEMU_LOG)
 	$(MAKE) fclean -C $(BOOT_DIR)
 	$(MAKE) fclean -C $(KERNEL_DIR)
 
