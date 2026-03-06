@@ -15,6 +15,7 @@ PARTS_START		:= 2048
 # ====================================
 SRCS_DIR		:= src
 BOOT_DIR		:= $(SRCS_DIR)/boot
+DISK_DIR		:= $(SRCS_DIR)/drivers/disk
 KERNEL_DIR		:= $(SRCS_DIR)/kernel
 
 # DEPENDENCIES
@@ -23,6 +24,7 @@ MBR_ELF			:= $(BOOT_DIR)/mbr.elf
 MBR_ADDR		:= 0x7C00
 BOOT_ELF		:= $(BOOT_DIR)/boot_stage2.elf
 BOOT_ADDR		:= $(shell printf '0x%X' $$(( $(MBR_ADDR) + $(SECTOR_SIZE) )))
+DISK_ELF		:= $(DISK_DIR)/ata/disk_ata.elf
 
 MBR_BIN			:= $(BOOT_DIR)/mbr.bin
 BOOT_BIN		:= $(BOOT_DIR)/boot_stage2.bin

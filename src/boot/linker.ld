@@ -1,4 +1,3 @@
-ENTRY(boot_stage2)
 SECTIONS
 {
 	. = 0x7E00;
@@ -21,10 +20,5 @@ SECTIONS
 	{
 		*(.COMMON*)
 		*(.bss*)
-	}
-
-	.asm :
-	{
-		*(.asm)
 	}
 }

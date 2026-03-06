@@ -7,21 +7,21 @@
 
 [BITS 32]
 
-global boot_stage2
+%include "drivers/disk/ata/ata.inc"
 
+section	.text
 boot_stage2:
-	jmp $
+	; WARNING: DELETE ME
+	push	1
+	push	BUF
+	push	2
+	push	0
+	call	disk_ata_read
+	add		esp, 16
 
-;extern disk_ata_read ; WARNING: DELETE ME
-;
-;section	.asm
-;boot_stage2:
-;	; WARNING: DELETE ME
-;	push	1
-;	push	BUF
-;	push	2
-;	push	0
-;	call	disk_ata_read
-;	add		esp, 16
-;
-;BUF: times 512 db 0 ; WARNING: DELETE ME
+.halt:
+	hlt
+	jmp		.halt
+
+section	.data
+BUF: times 509 db 0 ; WARNING: DELETE ME
