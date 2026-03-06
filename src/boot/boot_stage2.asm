@@ -8,20 +8,39 @@
 [BITS 32]
 
 %include "drivers/disk/ata/ata.inc"
+%include "drivers/io/io.inc"
 
-section	.text
+section	.boot_stage2
 boot_stage2:
-	; WARNING: DELETE ME
 	push	1
 	push	BUF
-	push	2
+	push	4
 	push	0
 	call	disk_ata_read
 	add		esp, 16
 
-.halt:
-	hlt
-	jmp		.halt
+	push	BUF
+	call	print
+	add		esp, 4
+	jmp		$
 
-section	.data
-BUF: times 509 db 0 ; WARNING: DELETE ME
+print:
+	push	ebp
+	mov		ebp, esp
+
+	mov		ecx, 0xb8000
+	mov		ebx, [ebp + 8]
+	mov		ah, 0xf
+.loop:
+	mov		al, byte [ebx]
+	cmp		al, 0
+	je		.end
+	mov		word [ecx], ax
+	add		ebx, 1
+	add		ecx, 2
+	jmp		.loop
+.end:
+	pop		ebp
+	ret
+
+BUF: times 513 db 0
