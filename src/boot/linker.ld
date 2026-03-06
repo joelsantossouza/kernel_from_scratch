@@ -3,9 +3,8 @@ SECTIONS
 	. = 0x7E00;
 	.text :
 	{
-		*(.boot_stage2*)
-		*(.asm*)
 		*(.text*)
+		*(.asm*)
 	}
 
 	.rodata :
