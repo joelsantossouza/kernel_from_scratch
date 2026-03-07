@@ -7,5 +7,6 @@
 
 [BITS 32]
 
+section	.text
 boot_stage2:
 	jmp	$

@@ -13,7 +13,7 @@ DISK_OBJS	:= $(DISK_DIR)/ata/disk_ata.c.o
 STAGE2_OBJS	:= boot_stage2.asm.o
 
 ASM_OBJS	:= $(STAGE2_OBJS)
-BOOT_OBJS	:= $(ASM_OBJS) $(IO_OBJS) $(DISK_OBJS)
+BOOT_OBJS	:= $(STAGE2_OBJS) $(IO_OBJS) $(DISK_OBJS)
 
 BOOT_BIN	:= boot_stage2.bin
 BOOT_ELF	:= boot_stage2.elf
@@ -48,7 +48,7 @@ $(DISK_OBJS): build-disk
 ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 -include	$(ASM_DEPS)
 %.asm.o: %.asm
-	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
+	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) -MP $< -o $@
 
 fclean:
 	rm -f $(BINS)
