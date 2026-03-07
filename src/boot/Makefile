@@ -10,7 +10,10 @@ DISK_DIR	:= ../drivers/disk
 
 IO_OBJS		:= $(IO_DIR)/io.asm.o
 DISK_OBJS	:= $(DISK_DIR)/ata/disk_ata.c.o
-BOOT_OBJS	:= boot_stage2.asm.o $(IO_OBJS) $(DISK_OBJS)
+STAGE2_OBJS	:= boot_stage2.asm.o
+
+ASM_OBJS	:= $(STAGE2_OBJS)
+BOOT_OBJS	:= $(ASM_OBJS) $(IO_OBJS) $(DISK_OBJS)
 
 BOOT_BIN	:= boot_stage2.bin
 BOOT_ELF	:= boot_stage2.elf
@@ -36,18 +39,21 @@ $(IO_OBJS): build-io
 $(DISK_OBJS): build-disk
 	$(MAKE) -C $(DISK_DIR)
 
-%.bin: %.asm $(HEADERS)
+%.bin: %.asm
 	$(AS) $(AFLAGS_BIN) $(INCLUDES) $< -o $@
 
-%.elf: %.asm $(HEADERS)
+%.elf: %.asm
 	$(AS) $(AFLAGS_ELF) $(INCLUDES) $< -o $@
 
-%.asm.o: %.asm $(HEADERS)
-	$(AS) $(AFLAGS_ELF) $(INCLUDES) $< -o $@
+ASM_DEPS	:= $(ASM_OBJS:.o=.d)
+-include	$(ASM_DEPS)
+%.asm.o: %.asm
+	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
 
 fclean:
 	rm -f $(BINS)
 	rm -f $(ELFS)
+	rm -f $(ASM_DEPS)
 	rm -f $(BOOT_OBJS)
 	$(MAKE) fclean -C $(IO_DIR)
 	$(MAKE) fclean -C $(DISK_DIR)

@@ -1,20 +1,24 @@
 # =============================================================================
 # IO DRIVERS
 # =============================================================================
-ROOT	:= $(shell git rev-parse --show-toplevel)
+ROOT		:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-OBJS	:= io.asm.o
+ASM_OBJS	:= io.asm.o
+OBJS		:= $(ASM_OBJS)
 
 .PHONY: all fclean
 
 all: $(OBJS)
 
-%.asm.o: %.asm $(HEADERS)
-	$(AS) $(AFLAGS_ELF) $(INCLUDES) $< -o $@
+ASM_DEPS	:= $(ASM_OBJS:.o=.d)
+-include	$(ASM_DEPS)
+%.asm.o: %.asm
+	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
 
 fclean:
+	rm -f $(ASM_DEPS)
 	rm -f $(OBJS)
 
 re: fclean all
