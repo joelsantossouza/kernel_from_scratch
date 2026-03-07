@@ -8,7 +8,7 @@
 #include "fs/vfs/config.h"
 #include "fs/vfs/partition.h"
 
-static t_partition	vfs_mount_table[VFS_MAX_MOUNTS];
+static t_partition	g_vfs_mount_table[VFS_MAX_MOUNTS];
 
 int	vfs_mount(const t_disk *disk, uint8_t partition_index, const char *path)
 {

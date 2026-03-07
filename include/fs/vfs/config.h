@@ -8,6 +8,6 @@
 #ifndef VFS_CONFIG_H
 # define VFS_CONFIG_H
 
-# define VFS_MAX_MOUNTS	3
+# define VFS_MOUNTS_MAX	3
 
 #endif

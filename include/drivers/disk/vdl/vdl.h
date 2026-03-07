@@ -9,18 +9,19 @@
 # define VDL_H
 
 # include <stdint.h>
-# include <sys/types.h>
+# include "drivers/disk/vdl/config.h"
 
-typedef struct s_vdl_disk	t_vdl_disk;
-
-typedef struct s_vdl
+typedef struct s_vdl_cache
 {
-}	t_vdl;
+	uint8_t		data[VDL_CACHE_BYTES];
+	uint32_t	addr_start;
+	uint32_t	addr_end;
+	uint32_t	cycle;
+}	t_vdl_cache;
 
 typedef struct s_vdl_disk
 {
-	const t_vdl	*vdl;
-	uint8_t		no;
+	uint8_t	no;
 }	t_vdl_disk;
 
 #endif
