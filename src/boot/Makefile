@@ -7,13 +7,14 @@ include $(ROOT)/config.mk
 
 IO_DIR		:= ../drivers/io
 DISK_DIR	:= ../drivers/disk
+STRING_DIR	:= ../../lib/string
 
-IO_OBJS		:= $(IO_DIR)/io.asm.o
-DISK_OBJS	:= $(DISK_DIR)/ata/disk_ata.c.o
-STAGE2_OBJS	:= boot_stage2.asm.o
+BOOT_OBJS	:= boot_stage2.asm.o \
+			   $(IO_DIR)/io.asm.o \
+			   $(DISK_DIR)/ata/disk_ata.c.o \
+			   $(STRING_DIR)/memcpy.asm.o
 
-ASM_OBJS	:= $(STAGE2_OBJS)
-BOOT_OBJS	:= $(STAGE2_OBJS) $(IO_OBJS) $(DISK_OBJS)
+ASM_OBJS	:= $(filter %.asm.o, $(BOOT_OBJS))
 
 BOOT_BIN	:= boot_stage2.bin
 BOOT_ELF	:= boot_stage2.elf
@@ -25,7 +26,11 @@ LINKER		:= linker.ld
 
 .PHONY: all fclean re build-io build-disk
 
-all: $(BINS) $(ELFS)
+all: build-io build-disk $(BINS) $(ELFS)
+
+# =============================================================================
+# Boot Stage2 Build
+# =============================================================================
 
 $(BOOT_BIN): $(BOOT_OBJS)
 	$(CC) $(LDFLAGS) -T $(LINKER) -Wl,--oformat,binary $^ -o $@
@@ -33,11 +38,19 @@ $(BOOT_BIN): $(BOOT_OBJS)
 $(BOOT_ELF): $(BOOT_OBJS)
 	$(CC) $(LDFLAGS) -T $(LINKER) $^ -o $@
 
-$(IO_OBJS): build-io
+# =============================================================================
+# Boot Stage2 Objects Build
+# =============================================================================
+
+build-io:
 	$(MAKE) -C $(IO_DIR)
 
-$(DISK_OBJS): build-disk
+build-disk:
 	$(MAKE) -C $(DISK_DIR)
+
+# =============================================================================
+# General builds
+# =============================================================================
 
 %.bin: %.asm
 	$(AS) $(AFLAGS_BIN) $(INCLUDES) $< -o $@
@@ -49,6 +62,10 @@ ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 -include	$(ASM_DEPS)
 %.asm.o: %.asm
 	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) -MP $< -o $@
+
+# =============================================================================
+# Clean up
+# =============================================================================
 
 fclean:
 	rm -f $(BINS)

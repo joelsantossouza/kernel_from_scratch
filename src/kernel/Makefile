@@ -5,23 +5,35 @@ ROOT	:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-ASM_OBJS	:= kernel.asm.o
-
-OBJS		:= $(ASM_OBJS)
+OBJS		:= kernel.asm.o
 BIN			:= kernel.bin
 LINKER		:= linker.ld
+
+ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
 
 .PHONY: all clean fclean re
 
 all: $(BIN)
 
+# =============================================================================
+# Kernel Build
+# =============================================================================
+
 $(BIN): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -T $(LINKER) $< -o $@
+
+# =============================================================================
+# General Build
+# =============================================================================
 
 ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 -include	$(ASM_DEPS)
 %.asm.o: %.asm
 	$(AS) -f elf32 $(AFLAGS) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
+
+# =============================================================================
+# Clean up
+# =============================================================================
 
 clean:
 	rm -f $(OBJS)

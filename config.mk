@@ -13,5 +13,6 @@ AFLAGS_BIN		:= $(AFLAGS) -f bin
 AFLAGS_ELF		:= $(AFLAGS) -f elf32 -g -F dwarf
 
 INCLUDES_DIR	:= $(ROOT)/include
+LIBS_DIR		:= $(ROOT)/lib
 
-INCLUDES		:= -I$(INCLUDES_DIR)
+INCLUDES		:= -I$(INCLUDES_DIR) -I$(LIBS_DIR)

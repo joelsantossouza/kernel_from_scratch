@@ -7,17 +7,25 @@ include $(ROOT)/config.mk
 
 ATA_OBJS	:= ata/disk_ata.c.o
 
-C_OBJS		:= $(ATA_OBJS)
-OBJS		:= $(C_OBJS)
+OBJS		:= $(ATA_OBJS)
+C_OBJS		:= $(filter %.c.o, $(OBJS))
 
 .PHONY: all fclean
 
 all: $(OBJS)
 
+# =============================================================================
+# Disk Drivers Build
+# =============================================================================
+
 C_DEPS		:= $(C_OBJS:.o=.d)
 -include	$(C_DEPS)
 %.c.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
+
+# =============================================================================
+# Clean up
+# =============================================================================
 
 fclean:
 	rm -f $(OBJS)

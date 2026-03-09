@@ -5,17 +5,25 @@ ROOT		:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-ASM_OBJS	:= io.asm.o
-OBJS		:= $(ASM_OBJS)
+OBJS		:= io.asm.o
+ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
 
 .PHONY: all fclean
 
 all: $(OBJS)
 
+# =============================================================================
+# IO Drivers Build
+# =============================================================================
+
 ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 -include	$(ASM_DEPS)
 %.asm.o: %.asm
 	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
+	
+# =============================================================================
+# Clean up
+# =============================================================================
 
 fclean:
 	rm -f $(ASM_DEPS)

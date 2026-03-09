@@ -7,6 +7,17 @@
 
 [BITS 32]
 
+%include "string/string.inc"
+
 section	.text
 boot_stage2:
+	push	7
+	push	SRC
+	push	DST
+	call	memcpy
+	add		esp, 12
 	jmp	$
+
+section	.data
+DST: times 8 db 0
+SRC: db "Hello world"
