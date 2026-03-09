@@ -3,15 +3,17 @@
  * Author: Joel Souza
  * Date: 2026-03-07
  * Description: Virtual Disk Layer interface to communicate with different
- *				disk types using cache to optimize performance.
+ * 				disk types using cache to optimize performance.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "drivers/disk/vdl/vdl.h"
 #include "drivers/disk/vdl/config.h"
+#include "kernel/config.h"
 
 t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
+uint32_t	g_vdl_cache_cycle = 0;
 
 enum e_vdl_cache_stat
 {
@@ -55,11 +57,11 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr_s
 		addr_start %= VDL_CACHE_BYTES;
 	}
 	else if (addr_end < cache->addr_end)
-		return (SOMETHING_HERE);
+		return (KERNEL_SUCCESS);
 	cache->addr_start = addr_start;
 	cache->addr_end = MIN(cache->addr_start + VDL_CACHE_BYTES, addr_end);
-	cache->cycle = g_vdl_cycle;
-	read_status = disk->driver->read(disk->no, );
+	cache->cycle = g_vdl_cache_cycle++;
+	read_status = disk->drivers->read(disk->no, );
 }
 
 int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
@@ -67,25 +69,25 @@ int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t byt
 	const uint32_t	addr_end = addr + bytes;
 	const uint32_t	addr_unalign = addr % VDL_CACHE_BYTES;
 	t_vdl_cache		*cache;
-	uint32_t		bytes_read;
+	uint32_t		bytes_to_read;
 	int				err_code;
 
 	if (addr_unalign)
 	{
 		vdl_cache_select(disk, addr, &cache);
 		err_code = vdl_cache_update(disk, cache, addr, addr_end);
-		if (err_code != SOMETHING_SUCCESS)
+		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
-		bytes_read = MIN(VDL_CACHE_BYTES - addr_unalign, bytes);
-		buf = mempcpy(buf, cache->data + addr_unalign, bytes_read);
-		addr += bytes_read;
-		bytes -= bytes_read;
+		bytes_to_read = MIN(VDL_CACHE_BYTES - addr_unalign, bytes);
+		buf = mempcpy(buf, cache->data + addr_unalign, bytes_to_read);
+		addr += bytes_to_read;
+		bytes -= bytes_to_read;
 	}
-	while (bytes > VDL_CACHE_BYTES)
+	while (bytes >= VDL_CACHE_BYTES)
 	{
 		vdl_cache_select(disk, addr, &cache);
 		err_code = vdl_cache_update(disk, cache, addr, addr_end);
-		if (err_code != SOMETHING_SUCCESS)
+		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
 		buf = mempcpy(buf, cache->data, VDL_CACHE_BYTES);
 		addr += VDL_CACHE_BYTES;
@@ -95,8 +97,9 @@ int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t byt
 	{
 		vdl_cache_select(disk, addr, &cache);
 		err_code = vdl_cache_update(disk, cache, addr, addr_end);
-		if (err_code != SOMETHING_SUCCESS)
+		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
 		mempcpy(buf, cache->data, bytes);
 	}
+	return (KERNEL_SUCCESS);
 }

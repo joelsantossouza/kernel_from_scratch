@@ -8,6 +8,8 @@
 #ifndef KERNEL_CONFIG_H
 # define KERNEL_CONFIG_H
 
+# define KERNEL_SUCCESS		0
+
 # define KERNEL_PATH_MAX	100
 
 #endif
