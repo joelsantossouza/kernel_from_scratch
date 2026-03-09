@@ -21,9 +21,17 @@ typedef struct s_vdl_cache
 	bool		is_free;
 }	t_vdl_cache;
 
+typedef uint16_t (*t_disk_read_f)(uint8_t disk_no, uint32_t lba,
+								uint16_t *buf, uint8_t nsectors);
+typedef struct s_vdl_driver
+{
+	t_disk_read_f	read;
+}	t_vdl_driver;
+
 typedef struct s_vdl_disk
 {
-	uint8_t	no;
+	const t_vdl_driver	*driver;
+	uint8_t				no;
 }	t_vdl_disk;
 
 #endif

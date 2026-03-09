@@ -11,6 +11,8 @@
 #include "drivers/disk/vdl/vdl.h"
 #include "drivers/disk/vdl/config.h"
 #include "kernel/config.h"
+#include "string/string.h"
+#include "math/math.h"
 
 t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
 uint32_t	g_vdl_cache_cycle = 0;
@@ -54,14 +56,17 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr_s
 	if (cache->is_free == true)
 	{
 		cache->is_free = false;
-		addr_start %= VDL_CACHE_BYTES;
+		cache->addr_start = ALIGN_DOWN(addr_start, VDL_CACHE_BYTES);
+		cache->addr_end = 0;
 	}
-	else if (addr_end < cache->addr_end)
+	else if (addr_end <= cache->addr_end)
 		return (KERNEL_SUCCESS);
-	cache->addr_start = addr_start;
-	cache->addr_end = MIN(cache->addr_start + VDL_CACHE_BYTES, addr_end);
+	addr_end = ALIGN_UP(addr_end, VDL_SECTOR_BYTES);
+	addr_end = MIN(addr_end, cache->addr_start + VDL_CACHE_BYTES);
 	cache->cycle = g_vdl_cache_cycle++;
-	read_status = disk->drivers->read(disk->no, );
+	read_status = disk->driver->read(
+		disk->no,
+	);
 }
 
 int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
