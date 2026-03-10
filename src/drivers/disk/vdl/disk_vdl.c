@@ -32,6 +32,7 @@ static inline
 void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selected)
 {
 	const uint8_t	disk_no = disk->no;
+	const uint32_t	find_lba_start = BYTES_TO_CACHE_LBA(addr);
 	t_vdl_cache		*oldest;
 	uint8_t			i;
 
@@ -43,7 +44,7 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
 			oldest = &g_vdl_cache[i];
 		if (g_vdl_cache[i].disk_no != disk_no)
 			continue ;
-		if (addr < g_vdl_cache[i].addr_start || addr >= g_vdl_cache[i].addr_end)
+		if (g_vdl_cache[i].lba_start != find_lba_start)
 			continue ;
 		*selected = &g_vdl_cache[i];
 		return ;
@@ -53,38 +54,34 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
 }
 
 static inline
-int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr_start, uint32_t addr_end)
+int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, uint32_t lba_end)
 {
-	int			read_status;
-	uint32_t	lba;
-	void		*cache_offset;
-	uint32_t	nsectors;
+	int		read_status;
+	void	*cache_offset;
 
-	if (cache->is_free == true)
-	{
-		cache->is_free = false;
-		cache->addr_start = ALIGN_DOWN(addr_start, VDL_CACHE_BYTES);
-		cache->addr_end = cache->addr_start;
-	}
-	else if (addr_end <= cache->addr_end)
-		return (KERNEL_SUCCESS);
-	addr_end = ALIGN_UP(addr_end, VDL_SECTOR_BYTES);
-	addr_end = MIN(addr_end, cache->addr_start + VDL_CACHE_BYTES);
-
-	lba = BYTES_TO_SECTOR(cache->addr_end);
-	cache_offset = cache->data + OFFSET(cache->addr_end, VDL_CACHE_BYTES);
-	nsectors = BYTES_TO_SECTOR(addr_end - cache->addr_end);
-	read_status = disk->driver->read(disk->no, lba, cache_offset, nsectors);
-	cache->addr_end = addr_end;
 	cache->cycle = g_vdl_cache_cycle++;
 	if (g_vdl_cache_cycle == UINT32_MAX)
 		vdl_cache_cycle_reset();
+	if (cache->is_free == true)
+	{
+		cache->is_free = false;
+		cache->lba_start = BYTES_TO_CACHE_LBA(addr);
+		cache->lba_end = cache->lba_start;
+	}
+	else if (lba_end <= cache->lba_end)
+		return (KERNEL_SUCCESS);
+	lba_end = MIN(lba_end, cache->lba_start + VDL_CACHE_SECTORS);
+	cache_offset = cache->data + SECTORS_TO_BYTES(cache->lba_end - cache->lba_start);
+	read_status = disk->driver->read(
+		disk->no, cache->lba_end, cache_offset, lba_end - cache->lba_end
+	);
+	cache->lba_end = lba_end;
 	return (-read_status);
 }
 
 int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
 {
-	const uint32_t	addr_end = addr + bytes;
+	const uint32_t	lba_end = BYTES_TO_SECTORS_CEIL(addr + bytes);
 	const uint32_t	addr_unalign = OFFSET(addr, VDL_CACHE_BYTES);
 	t_vdl_cache		*cache;
 	uint32_t		bytes_to_read;
@@ -93,7 +90,7 @@ int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t byt
 	if (addr_unalign)
 	{
 		vdl_cache_select(disk, addr, &cache);
-		err_code = vdl_cache_update(disk, cache, addr, addr_end);
+		err_code = vdl_cache_update(disk, cache, addr, lba_end);
 		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
 		bytes_to_read = MIN(VDL_CACHE_BYTES - addr_unalign, bytes);
@@ -104,7 +101,7 @@ int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t byt
 	while (bytes >= VDL_CACHE_BYTES)
 	{
 		vdl_cache_select(disk, addr, &cache);
-		err_code = vdl_cache_update(disk, cache, addr, addr_end);
+		err_code = vdl_cache_update(disk, cache, addr, lba_end);
 		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
 		buf = mempcpy(buf, cache->data, VDL_CACHE_BYTES);
@@ -114,7 +111,7 @@ int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t byt
 	if (bytes > 0)
 	{
 		vdl_cache_select(disk, addr, &cache);
-		err_code = vdl_cache_update(disk, cache, addr, addr_end);
+		err_code = vdl_cache_update(disk, cache, addr, lba_end);
 		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
 		mempcpy(buf, cache->data, bytes);

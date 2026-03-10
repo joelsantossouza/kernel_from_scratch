@@ -14,8 +14,8 @@
 typedef struct s_vdl_cache
 {
 	uint8_t		data[VDL_CACHE_BYTES];
-	uint32_t	addr_start;
-	uint32_t	addr_end;
+	uint32_t	lba_start;
+	uint32_t	lba_end;
 	uint32_t	cycle;
 	uint8_t		disk_no;
 	bool		is_free;
