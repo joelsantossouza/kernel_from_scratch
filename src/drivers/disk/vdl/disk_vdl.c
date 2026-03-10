@@ -56,7 +56,7 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
 static inline
 int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, uint32_t lba_end)
 {
-	const t_vdl_driver	*driver;
+	const t_vdl_driver	*driver = disk->driver;
 	int					read_status;
 	void				*cache_offset;
 
@@ -84,15 +84,27 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, 
  * disk_vdl_read - Disk read abstraction
  *
  * DESCRIPTION
- * 	Read n bytes from memory address on disk into buf.
- * 	It uses polymorphism to be compatible with any disk type.
- * 	It has a local cache that stores recent data read from
- * 	disk, avoiding unnecessary re-read from disk to
- * 	optimize performance
+ * 	Read 'bytes' bytes from disk offset 'addr' into 'buf'.
+ * 	Uses disk drivers polymorphism for compatibility with any disk type.
+ *
+ * IMPLEMENTATION
+ * 	Cache optimization to decrease number of requests to drivers.
+ * 	g_vdl_cache is the table of VDL_CACHE_MAX entries, each storing
+ * 	VDL_CACHE_BYTES bytes. If cache is full, it selects the oldest
+ * 	entry to overwrite it.
+ *
+ * 	Three read phases:
+ * 	1. Partial read to align addr to VDL_CACHE_BYTES.
+ * 	2. Full VDL_CACHE_BYTES chunks read.
+ * 	3. Remainder bytes of a cache-chunk.
  *
  * RETURN VALUE
- * 	Returns 0 (KERNEL_SUCCESS) on success and -errno in
- * 	failure.
+ * 	0 == success
+ * 	-ETIME == ATA controller request timeout
+ * 	-ENXIO == CHS address not found on disk
+ * 	-EIO == I/O error, uncorrectable data, bad block detected
+ * 	-EREMCHG == Media changed during read
+ * 	-ENOENT == LBA ID not found on disk
  * */
 int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
 {

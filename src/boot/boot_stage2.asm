@@ -12,16 +12,9 @@
 
 section	.text
 boot_stage2:
-	push	512
+	push	0xffffffff
 	push	buffer1
-	push	10249
-	push	disk
-	call	disk_vdl_read
-	add		esp, 16
-
-	push	5
-	push	buffer2
-	push	10752
+	push	0xffffffff
 	push	disk
 	call	disk_vdl_read
 	add		esp, 16
@@ -31,10 +24,10 @@ boot_stage2:
 section	.data
 driver:
 	dd disk_ata_read
+	dd disk_ata_to_errno
 
 disk:
 	dd driver
 	db 0
 
 buffer1: times 512 db 0
-buffer2: times 512 db 0

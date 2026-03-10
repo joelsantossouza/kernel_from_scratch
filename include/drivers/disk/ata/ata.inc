@@ -7,5 +7,6 @@
 %define ATA_INC
 
 extern	disk_ata_read
+extern	disk_ata_to_errno
 
 %endif
