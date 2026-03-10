@@ -17,14 +17,19 @@
 t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
 uint32_t	g_vdl_cache_cycle = 0;
 
-enum e_vdl_cache_stat
+static inline
+void	vdl_cache_cycle_reset(void)
 {
-	VDL_CACHE_HIT	= 0,
-	VDL_CACHE_MISS	= 1,
-};
+	uint8_t	i;
+
+	i = -1;
+	while (++i < VDL_CACHE_MAX)
+		g_vdl_cache[i].cycle = 0;
+	g_vdl_cache_cycle = 0;
+}
 
 static inline
-enum e_vdl_cache_stat	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selected)
+void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selected)
 {
 	const uint8_t	disk_no = disk->no;
 	t_vdl_cache		*oldest;
@@ -41,11 +46,10 @@ enum e_vdl_cache_stat	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_
 		if (addr < g_vdl_cache[i].addr_start || addr >= g_vdl_cache[i].addr_end)
 			continue ;
 		*selected = &g_vdl_cache[i];
-		return (VDL_CACHE_HIT);
+		return ;
 	}
 	oldest->is_free = true;
 	*selected = oldest;
-	return (VDL_CACHE_MISS);
 }
 
 static inline
@@ -64,17 +68,17 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr_s
 	}
 	else if (addr_end <= cache->addr_end)
 		return (KERNEL_SUCCESS);
-	cache->cycle = g_vdl_cache_cycle++;
 	addr_end = ALIGN_UP(addr_end, VDL_SECTOR_BYTES);
 	addr_end = MIN(addr_end, cache->addr_start + VDL_CACHE_BYTES);
 
-	lba = BYTES_TO_SECTOR(cache->addr_end, VDL_SECTOR_BYTES);
+	lba = BYTES_TO_SECTOR(cache->addr_end);
 	cache_offset = cache->data + OFFSET(cache->addr_end, VDL_CACHE_BYTES);
-	nsectors = BYTES_TO_SECTOR(addr_end - cache->addr_end, VDL_SECTOR_BYTES);
-	read_status = disk->driver->read(
-		disk->no, lba, cache_offset, nsectors
-	);
+	nsectors = BYTES_TO_SECTOR(addr_end - cache->addr_end);
+	read_status = disk->driver->read(disk->no, lba, cache_offset, nsectors);
 	cache->addr_end = addr_end;
+	cache->cycle = g_vdl_cache_cycle++;
+	if (g_vdl_cache_cycle == UINT32_MAX)
+		vdl_cache_cycle_reset();
 	return (-read_status);
 }
 

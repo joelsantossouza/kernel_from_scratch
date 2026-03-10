@@ -21,8 +21,15 @@
 })
 
 # define ALIGN_UP(n, align) ({ \
+	__typeof__(align) _align = (align); \
+	__typeof__(n) _n = _align - 1 + (n); \
+	_n - _n % _align; \
+})
+
+# define OFFSET(n, align) ({ \
 	__typeof__(n) _n = (n); \
 	__typeof__(align) _align = (align); \
+	_n % _align; \
 })
 
 #endif

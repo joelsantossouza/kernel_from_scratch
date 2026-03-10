@@ -5,9 +5,9 @@ ROOT	:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-OBJS		:= kernel.asm.o
 BIN			:= kernel.bin
 LINKER		:= linker.ld
+OBJS		:= kernel.asm.o
 
 ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
 

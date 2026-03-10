@@ -5,9 +5,9 @@ ROOT		:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-ATA_OBJS	:= ata/disk_ata.c.o
+OBJS		:= ata/disk_ata.c.o \
+			   vdl/disk_vdl.c.o
 
-OBJS		:= $(ATA_OBJS)
 C_OBJS		:= $(filter %.c.o, $(OBJS))
 
 .PHONY: all fclean
