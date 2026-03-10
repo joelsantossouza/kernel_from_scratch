@@ -14,4 +14,15 @@
 	_a < _b ? _a : _b; \
 })
 
+# define ALIGN_DOWN(n, align) ({ \
+	__typeof__(n) _n = (n); \
+	__typeof__(align) _align = (align); \
+	_n - _n % _align; \
+})
+
+# define ALIGN_UP(n, align) ({ \
+	__typeof__(n) _n = (n); \
+	__typeof__(align) _align = (align); \
+})
+
 #endif

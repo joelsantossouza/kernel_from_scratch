@@ -51,28 +51,37 @@ enum e_vdl_cache_stat	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_
 static inline
 int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr_start, uint32_t addr_end)
 {
-	int	read_status;
+	int			read_status;
+	uint32_t	lba;
+	void		*cache_offset;
+	uint32_t	nsectors;
 
 	if (cache->is_free == true)
 	{
 		cache->is_free = false;
 		cache->addr_start = ALIGN_DOWN(addr_start, VDL_CACHE_BYTES);
-		cache->addr_end = 0;
+		cache->addr_end = cache->addr_start;
 	}
 	else if (addr_end <= cache->addr_end)
 		return (KERNEL_SUCCESS);
+	cache->cycle = g_vdl_cache_cycle++;
 	addr_end = ALIGN_UP(addr_end, VDL_SECTOR_BYTES);
 	addr_end = MIN(addr_end, cache->addr_start + VDL_CACHE_BYTES);
-	cache->cycle = g_vdl_cache_cycle++;
+
+	lba = BYTES_TO_SECTOR(cache->addr_end, VDL_SECTOR_BYTES);
+	cache_offset = cache->data + OFFSET(cache->addr_end, VDL_CACHE_BYTES);
+	nsectors = BYTES_TO_SECTOR(addr_end - cache->addr_end, VDL_SECTOR_BYTES);
 	read_status = disk->driver->read(
-		disk->no,
+		disk->no, lba, cache_offset, nsectors
 	);
+	cache->addr_end = addr_end;
+	return (-read_status);
 }
 
 int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
 {
 	const uint32_t	addr_end = addr + bytes;
-	const uint32_t	addr_unalign = addr % VDL_CACHE_BYTES;
+	const uint32_t	addr_unalign = OFFSET(addr, VDL_CACHE_BYTES);
 	t_vdl_cache		*cache;
 	uint32_t		bytes_to_read;
 	int				err_code;
