@@ -56,8 +56,9 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
 static inline
 int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, uint32_t lba_end)
 {
-	int		read_status;
-	void	*cache_offset;
+	const t_vdl_driver	*driver;
+	int					read_status;
+	void				*cache_offset;
 
 	cache->cycle = g_vdl_cache_cycle++;
 	if (g_vdl_cache_cycle == UINT32_MAX)
@@ -72,13 +73,27 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, 
 		return (KERNEL_SUCCESS);
 	lba_end = MIN(lba_end, cache->lba_start + VDL_CACHE_SECTORS);
 	cache_offset = cache->data + SECTORS_TO_BYTES(cache->lba_end - cache->lba_start);
-	read_status = disk->driver->read(
+	read_status = driver->read(
 		disk->no, cache->lba_end, cache_offset, lba_end - cache->lba_end
 	);
 	cache->lba_end = lba_end;
-	return (-read_status);
+	return (-driver->to_errno(read_status));
 }
 
+/*
+ * disk_vdl_read - Disk read abstraction
+ *
+ * DESCRIPTION
+ * 	Read n bytes from memory address on disk into buf.
+ * 	It uses polymorphism to be compatible with any disk type.
+ * 	It has a local cache that stores recent data read from
+ * 	disk, avoiding unnecessary re-read from disk to
+ * 	optimize performance
+ *
+ * RETURN VALUE
+ * 	Returns 0 (KERNEL_SUCCESS) on success and -errno in
+ * 	failure.
+ * */
 int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
 {
 	const uint32_t	lba_end = BYTES_TO_SECTORS_CEIL(addr + bytes);
