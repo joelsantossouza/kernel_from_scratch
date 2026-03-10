@@ -33,7 +33,7 @@ enum e_vdl_info
 
 // CACHE
 # define VDL_CACHE_MAX		8
-# define VDL_CACHE_SECTORS	1
+# define VDL_CACHE_SECTORS	2
 
 enum e_vdl_cache_info
 {
