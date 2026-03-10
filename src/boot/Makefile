@@ -12,6 +12,7 @@ STRING_DIR	:= ../../lib/string
 BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(IO_DIR)/io.asm.o \
 			   $(DISK_DIR)/ata/disk_ata.c.o \
+			   $(DISK_DIR)/vdl/disk_vdl.c.o \
 			   $(STRING_DIR)/memcpy.asm.o
 
 ASM_OBJS	:= $(filter %.asm.o, $(BOOT_OBJS))

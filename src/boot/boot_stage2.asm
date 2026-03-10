@@ -7,17 +7,34 @@
 
 [BITS 32]
 
-%include "string/string.inc"
+%include "drivers/disk/vdl/vdl.inc"
+%include "drivers/disk/ata/ata.inc"
 
 section	.text
 boot_stage2:
-	push	7
-	push	SRC
-	push	DST
-	call	memcpy
-	add		esp, 12
+	push	512
+	push	buffer1
+	push	10240
+	push	disk
+	call	disk_vdl_read
+	add		esp, 16
+
+	push	512
+	push	buffer2
+	push	10240
+	push	disk
+	call	disk_vdl_read
+	add		esp, 16
+
 	jmp	$
 
 section	.data
-DST: times 8 db 0
-SRC: db "Hello world"
+driver:
+	dd disk_ata_read
+
+disk:
+	dd driver
+	db 0
+
+buffer1: times 512 db 0
+buffer2: times 512 db 0
