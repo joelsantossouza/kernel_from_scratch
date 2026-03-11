@@ -17,6 +17,16 @@
 t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
 uint32_t	g_vdl_cache_cycle = 0;
 
+/*
+ * vdl_cache_cycle_reset - Reset cache entry cycles
+ *
+ * DESCRIPTION
+ * 	Sets all g_vdl_cache[i]->cycle to 0 and resets the global
+ * 	cache cycle counter (g_vdl_cache_cycle).
+ *
+ * RETURN VALUE
+ * 	None
+ * */
 static inline
 void	vdl_cache_cycle_reset(void)
 {
@@ -28,6 +38,21 @@ void	vdl_cache_cycle_reset(void)
 	g_vdl_cache_cycle = 0;
 }
 
+/*
+ * vdl_cache_select - Selects a cache entry for 'addr'
+ *
+ * DESCRIPTION
+ * 	Searches in g_vdl_cache[] for an entry matching disk number
+ * 	and cache-aligned LBA corresponding to 'addr'. If match found,
+ * 	sets '*selected' to matching cache entry.
+ *
+ * 	If no matching found, '*selected' is set to least recently used
+ * 	cache (the one with smallest cycle value). That entry is marked as
+ * 	free by setting oldest->is_free.
+ *
+ * RETURN VALUE
+ * 	None.
+ * */
 static inline
 void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selected)
 {
@@ -65,6 +90,11 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
  * 	capacity.
  *
  * 	If cached data already covers 'lba_end', returns immediately.
+ *
+ * LRU CACHE
+ * 	On every call, cache->cycle is set to g_vdl_cache_cycle current
+ * 	value and g_vdl_cache_cycle is incremented. If g_vdl_cache_cycle
+ * 	reaches UINT32_MAX, all cache cycles are reset to 0.
  *
  * RETURN VALUE
  * 	Return value is propagated from the disk driver read call.
