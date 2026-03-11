@@ -53,6 +53,28 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
 	*selected = oldest;
 }
 
+/*
+ * vdl_cache_update - Updates cache data
+ *
+ * DESCRIPTION
+ * 	If cache->is_free, the 'cache' is fully reinitialized with
+ * 	new disk data, starting at 'addr' aligned down to VDL_CACHE_BYTES.
+ *
+ * 	If cache already holds data and 'lba_end' exceeds the current
+ * 	cache's data end, new sectors are appended up to VDL_CACHE_BYTES
+ * 	capacity.
+ *
+ * 	If cached data already covers 'lba_end', returns immediately.
+ *
+ * RETURN VALUE
+ * 	Return value is propagated from the disk driver read call.
+ * 	0 == success
+ * 	-ETIME == ATA controller request timeout
+ * 	-ENXIO == CHS address not found on disk
+ * 	-EIO == I/O error, uncorrectable data, bad block detected
+ * 	-EREMCHG == Media changed during read
+ * 	-ENOENT == LBA ID not found on disk
+ * */
 static inline
 int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, uint32_t lba_end)
 {
