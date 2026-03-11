@@ -9,6 +9,7 @@
 # define VDL_H
 
 # include <stdint.h>
+# include <stdbool.h>
 # include "drivers/disk/vdl/config.h"
 
 typedef struct s_vdl_cache

@@ -1,0 +1,28 @@
+/*
+ * File: vfs_partition.c
+ * Author: Joel Souza
+ * Date: 2026-03-11
+ * Description: Virtual Partitions initialization and management functions
+ */
+
+#include "fs/vfs/vfs_partition.h"
+
+int	vfs_partition_init(t_vfs_partition *vfs_part, const t_vdl_disk *disk, uint8_t part_idx, const char *mount_path)
+{
+	t_phy_partition	phy_part;
+	uint16_t		mount_pathlen;
+	int				err_code;
+
+	err_code = disk_vdl_read(disk, VDL_PARTITION_TABLE_ADDR(part_idx), &phy_part, sizeof(phy_part));
+	if (err_code != KERNEL_SUCCESS)
+		return (err_code);
+	err_code = vdl_partition_get_fs();
+	if (err_code != KERNEL_SUCCESS)
+		return (err_code);
+	if (strnlen_strict(mount_path, VDL_PATH_MAX, &mount_pathlen) != KERNEL_SUCCESS)
+		return (PROPER -ERRNO);
+	memcpy(vfs_part->mount_path, mount_path, mount_pathlen + 1);
+	vfs_part->mount_pathlen = mount_pathlen;
+	vfs_part->disk = disk;
+	return (KERNEL_SUCCESS);
+}

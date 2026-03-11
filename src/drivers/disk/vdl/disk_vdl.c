@@ -14,8 +14,8 @@
 #include "string/string.h"
 #include "math/math.h"
 
-t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
-uint32_t	g_vdl_cache_cycle = 0;
+static t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
+static uint32_t		g_vdl_cache_cycle = 0;
 
 /*
  * vdl_cache_cycle_reset - Reset cache entry cycles
