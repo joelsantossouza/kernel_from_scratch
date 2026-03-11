@@ -11,7 +11,7 @@
 %include "cpu/cr0.inc"
 
 %ifidn __OUTPUT_FORMAT__, bin
- [ORG BOOT_LOAD_ADDR]
+ [ORG MBR_ADDR]
 %endif
 
 jmp	short boot_start
@@ -139,7 +139,7 @@ boot_start:
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
-	mov	ebp, BOOT_LOAD_ADDR
+	mov	ebp, MBR_ADDR
 	mov	esp, ebp
 
 	jmp	BOOT_STAGE2_ADDR

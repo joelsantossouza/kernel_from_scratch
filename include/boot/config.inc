@@ -6,11 +6,9 @@
 %ifndef BOOT_CONFIG_INC
 %define BOOT_CONFIG_INC
 
-%include "drivers/disk/vdl/config.inc"
+%include "boot/mbr.inc"
 
-%define BOOT_LOAD_ADDR			0x7C00
-
-%assign BOOT_STAGE2_ADDR		BOOT_LOAD_ADDR + VDL_SECTOR_BYTES
+%assign BOOT_STAGE2_ADDR		MBR_ADDR + MBR_BYTES
 %define BOOT_STAGE2_SECTORS		5
 %define BOOT_STAGE2_SECTOR		2
 %define BOOT_STAGE2_CYLINDER	0
