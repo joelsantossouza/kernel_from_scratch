@@ -8,6 +8,24 @@
 #include "drivers/disk/ata/ata.h"
 #include "errno.h"
 
+/*
+ * disk_ata_to_errno - Converts ATA errors to errno
+ *
+ * DESCRIPTION
+ * 	Converts ATA error status set on ATA error
+ * 	register to the equivalent errno value.
+ * 	
+ * 	Returns positive errno. Caller is responsible
+ * 	for negating.
+ *
+ * RETURN VALUE
+ * 	0 == success
+ * 	ETIME == ATA controller request timeout
+ * 	ENXIO == CHS address not found on disk
+ * 	EIO == I/O error, uncorrectable data, bad block detected
+ * 	EREMCHG == Media changed during read
+ * 	ENOENT == LBA ID not found on disk
+ * */
 int	disk_ata_to_errno(int ata_err)
 {
 	if (ata_err == ATAE_SUCCESS)
