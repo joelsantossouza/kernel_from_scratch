@@ -22,13 +22,13 @@ typedef struct s_vdl_cache
 	bool		is_free;
 }	t_vdl_cache;
 
-typedef uint16_t (*t_disk_read_f)(uint8_t disk_no, uint32_t lba,
+typedef uint16_t (*t_disk_read_fn)(uint8_t disk_no, uint32_t lba,
 								uint16_t *buf, uint8_t nsectors);
-typedef int (*t_to_errno_f)(int ata_err);
+typedef int (*t_to_errno_fn)(int ata_err);
 typedef struct s_vdl_driver
 {
-	t_disk_read_f	read;
-	t_to_errno_f	to_errno;
+	t_disk_read_fn	read;
+	t_to_errno_fn	to_errno;
 }	t_vdl_driver;
 
 typedef struct s_vdl_disk
