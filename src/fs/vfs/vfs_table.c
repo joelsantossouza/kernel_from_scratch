@@ -15,15 +15,21 @@ static const t_vfs_interface	*g_vfs_table_hash[VFS_TABLE_HASH_MAX] = {
 	[MBR_PART_TYPE_FAT16_LBA] = &g_fat16_interface,
 };
 
+static inline
+const t_vfs_interface	*vfs_table_hash_get(uint8_t	partition_type_code)
+{
+	return (g_vfs_table_hash[partition_type_code]);
+}
+
 static const t_vfs_interface	*g_vfs_table[VFS_TABLE_MAX] = {
 	&g_fat16_interface,
 };
-static uint8_t					g_vfs_table_size = ;
+static uint16_t					g_vfs_table_size = ;
 
 int	vfs_table_detect_fs(const t_phy_partition *phy_part, const t_vfs_interface **fs, t_vfs_metadata *metadata)
 {
 	const t_vfs_interface	*fs_hint = vfs_table_hash_get(phy_part->type_code);
-	uint8_t					i;
+	uint16_t				i;
 	int						exit_stat;
 
 	if (fs_hint != NULL)

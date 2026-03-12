@@ -32,4 +32,9 @@
 	_n % _align; \
 })
 
+# define IS_POWER_2(n) ({ \
+	__typeof__(n) _n = (n); \
+	_n != 0 && (_n & (_n - 1)) == 0; \
+})
+
 #endif
