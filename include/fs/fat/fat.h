@@ -17,4 +17,13 @@
 # define FAT_MEDIA_FIXED		0xF8
 # define FAT_MEDIA_REMOVABLE	0xF0
 
+// FAT errors
+# define FAT_EBAD_JMPBOOT			1
+# define FAT_EBAD_BYTES_PER_SECT	2
+# define FAT_EBAD_SECTS_PER_CLUS	3
+# define FAT_EBAD_RSVD_SECTS_CNT	4
+# define FAT_EBAD_FATS_CNT			5
+# define FAT_EBAD_TOTAL_SECTS		6
+# define FAT_EBAD_MEDIA				7
+
 #endif

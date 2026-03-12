@@ -10,6 +10,10 @@
 
 # include <stdint.h>
 
+// FAT16 errors
+# define FAT16_EBAD_ROOT_ENTS_CNT	8
+# define FAT16_EBAD_FAT_SECTS		9
+
 typedef struct s_phy_fat16_bpb
 {
 	uint8_t		jmpboot[3];

@@ -37,4 +37,6 @@ typedef struct s_vdl_disk
 	uint8_t				no;
 }	t_vdl_disk;
 
+int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes);
+
 #endif
