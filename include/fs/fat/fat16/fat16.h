@@ -47,4 +47,8 @@ typedef struct s_fat16_metadata
 
 }	t_fat16_metadata;
 
+typedef struct s_vdl_disk	t_vdl_disk;
+
+int	fat16_probe(const t_vdl_disk *disk, uint32_t lba, t_fat16_metadata *metadata, int *fs_err_code);
+
 #endif
