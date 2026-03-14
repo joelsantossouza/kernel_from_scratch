@@ -5,6 +5,8 @@
 
 [BITS 32]
 
+%include "errno.inc"
+
 section	.asm
 strnlen_strict:
 	push	ebp
@@ -17,12 +19,13 @@ strnlen_strict:
 	mov		ecx, ebx
 
 	repnz	scasb
-	test	[edi], [edi]
+	cmp		byte [edi], 0
 	je		.end
-	mov		eax, STRNLEN_STRICT_ERROR
+	mov		eax, -ENAMETOOLONG
 
 .end:
-	lea		[ebp + 16], [ebx - ecx]
+	sub		ebx, ecx
+	mov		[ebp + 16], ebx
 	pop		edi
 	pop		ebp
 	ret
