@@ -4,6 +4,10 @@ SECTIONS
 	.text :
 	{
 		*(.text*)
+	}
+
+	.asm :
+	{
 		*(.asm*)
 	}
 
