@@ -1,33 +1,26 @@
 # =============================================================================
-# KERNEL
+# STRING LIB
 # =============================================================================
-ROOT	:= $(shell git rev-parse --show-toplevel)
+ROOT		:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-BIN			:= kernel.bin
-LINKER		:= linker.ld
-OBJS		:= kernel.asm.o
+OBJS		:= memcpy.asm.o \
+			   strlen.asm.o
 
 ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean
 
-all: $(BIN)
-
-# =============================================================================
-# Kernel Build
-# =============================================================================
-$(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -T $(LINKER) $< -o $@
+all: $(OBJS)
 
 # =============================================================================
-# General Build
+# String Lib Build
 # =============================================================================
 ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 -include	$(ASM_DEPS)
 %.asm.o: %.asm
-	$(AS) -f elf32 $(AFLAGS) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
+	$(AS) $(AFLAGS_ELF) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
 
 # =============================================================================
 # Clean up
@@ -37,6 +30,5 @@ clean:
 	rm -f $(ASM_DEPS)
 
 fclean: clean
-	rm -f $(BIN)
 
 re: fclean all

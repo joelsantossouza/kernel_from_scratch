@@ -44,7 +44,7 @@ QEMU_LOG		:= qemu.log
 # =============================================================================
 # BUILD
 # =============================================================================
-.PHONY: all part-deps fclean re build-boot build-kernel
+.PHONY: all part-deps clean fclean re build-boot build-kernel
 
 all: part-deps $(DISK_IMG)
 
@@ -85,10 +85,15 @@ part-deps:
 		fi \
 	fi
 
-fclean:
+# =============================================================================
+# CLEAN UP
+# =============================================================================
+clean:
 	rm -f $(PART1_IMG)
-	rm -f $(DISK_IMG)
 	rm -f $(QEMU_LOG)
+
+fclean: clean
+	rm -f $(DISK_IMG)
 	$(MAKE) fclean -C $(BOOT_DIR)
 	$(MAKE) fclean -C $(KERNEL_DIR)
 

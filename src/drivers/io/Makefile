@@ -8,14 +8,13 @@ include $(ROOT)/config.mk
 OBJS		:= io.asm.o
 ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
 
-.PHONY: all fclean
+.PHONY: all clean fclean
 
 all: $(OBJS)
 
 # =============================================================================
 # IO Drivers Build
 # =============================================================================
-
 ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 -include	$(ASM_DEPS)
 %.asm.o: %.asm
@@ -24,9 +23,10 @@ ASM_DEPS	:= $(ASM_OBJS:.o=.d)
 # =============================================================================
 # Clean up
 # =============================================================================
-
-fclean:
+clean:
 	rm -f $(ASM_DEPS)
 	rm -f $(OBJS)
+
+fclean: clean
 
 re: fclean all
