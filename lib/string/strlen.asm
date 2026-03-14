@@ -7,6 +7,8 @@
 
 %include "errno.inc"
 
+global	strnlen_strict
+
 section	.asm
 strnlen_strict:
 	push	ebp

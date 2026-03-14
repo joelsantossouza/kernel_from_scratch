@@ -9,4 +9,6 @@
 extern	memcpy
 extern	mempcpy
 
+extern	strnlen_strict
+
 %endif

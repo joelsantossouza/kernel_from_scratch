@@ -7,27 +7,17 @@
 
 [BITS 32]
 
-%include "drivers/disk/vdl/vdl.inc"
-%include "drivers/disk/ata/ata.inc"
+%include "string/string.inc"
 
 section	.text
 boot_stage2:
-	push	0xffffffff
-	push	buffer1
-	push	0xffffffff
-	push	disk
-	call	disk_vdl_read
-	add		esp, 16
-
+	push	size
+	push	40
+	push	string
+	call	strnlen_strict
+	add		esp, 12
 	jmp	$
 
 section	.data
-driver:
-	dd disk_ata_read
-	dd disk_ata_to_errno
-
-disk:
-	dd driver
-	db 0
-
-buffer1: times 512 db 0
+string: db "Hello", 0
+size: dd 0
