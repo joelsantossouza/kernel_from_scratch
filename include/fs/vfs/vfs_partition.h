@@ -9,6 +9,7 @@
 # define VFS_PARTITION_H
 
 # include <stdint.h>
+# include "fs/vfs/vfs_interface.h"
 # include "fs/vfs/config.h"
 
 typedef struct s_phy_partition

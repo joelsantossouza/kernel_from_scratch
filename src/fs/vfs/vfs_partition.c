@@ -8,13 +8,15 @@
 #include "fs/vfs/vfs_partition.h"
 #include "fs/vfs/vfs_table.h"
 #include "drivers/disk/vdl/vdl.h"
+#include "string/string.h"
 #include "kernel/config.h"
 #include "boot/mbr.h"
+#include "errno.h"
 
 int	vfs_partition_init(t_vfs_partition *vfs_part, const t_vdl_disk *disk, uint8_t part_idx, const char *mount_path)
 {
 	t_phy_partition	phy_part;
-	uint16_t		mount_pathlen;
+	uint32_t		mount_pathlen;
 	int				err_code;
 
 	err_code = disk_vdl_read(disk, MBR_PARTITION_TABLE(part_idx), &phy_part, sizeof(phy_part));
@@ -24,7 +26,7 @@ int	vfs_partition_init(t_vfs_partition *vfs_part, const t_vdl_disk *disk, uint8_
 	if (err_code != KERNEL_SUCCESS)
 		return (err_code);
 	if (strnlen_strict(mount_path, VFS_PATH_MAX, &mount_pathlen) != KERNEL_SUCCESS)
-		return (PROPER -ERRNO);
+		return (-ENAMETOOLONG);
 	memcpy(vfs_part->mount_path, mount_path, mount_pathlen + 1);
 	vfs_part->mount_pathlen = mount_pathlen;
 	vfs_part->disk = disk;

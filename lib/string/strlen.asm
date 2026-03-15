@@ -15,19 +15,25 @@ strnlen_strict:
 	mov		ebp, esp
 	push	edi
 
-	xor		eax, eax
 	mov		edi, [ebp + 8]
-	mov		ebx, [ebp + 12]
-	mov		ecx, ebx
+	mov		edx, [ebp + 12]
+	xor		eax, eax
+	xor		ecx, ecx
 
-	repnz	scasb
-	cmp		byte [edi], 0
-	je		.end
+.loop:
+	scasb
+	jz		.end
+	cmp		ecx, edx
+	jz		.invalid_len
+	add		ecx, 1
+	jmp		.loop
+
+.invalid_len:
 	mov		eax, -ENAMETOOLONG
 
 .end:
-	sub		ebx, ecx
-	mov		[ebp + 16], ebx
+	mov		edx, [ebp + 16]
+	mov		[edx], ecx
 	pop		edi
 	pop		ebp
 	ret
