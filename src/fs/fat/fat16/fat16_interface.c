@@ -9,5 +9,5 @@
 #include "fs/fat/fat16/fat16.h"
 
 const t_vfs_interface	g_fat16_interface = {
-	.probe = fat16_probe,
+	.probe = (t_vfs_probe_fn)fat16_probe,
 };

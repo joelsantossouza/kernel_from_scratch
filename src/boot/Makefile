@@ -8,6 +8,7 @@ include $(ROOT)/config.mk
 IO_DIR		:= ../drivers/io
 DISK_DIR	:= ../drivers/disk
 STRING_DIR	:= ../../lib/string
+FS_DIR		:= ../fs
 
 BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(IO_DIR)/io.asm.o \
@@ -16,7 +17,12 @@ BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(DISK_DIR)/vdl/disk_vdl.c.o \
 			   $(STRING_DIR)/memcpy.asm.o \
 			   $(STRING_DIR)/strlen.asm.o \
-			   $(STRING_DIR)/strcmp.asm.o
+			   $(STRING_DIR)/strcmp.asm.o \
+			   $(FS_DIR)/vfs/vfs_mount.c.o \
+			   $(FS_DIR)/vfs/vfs_partition.c.o \
+			   $(FS_DIR)/vfs/vfs_table.c.o \
+			   $(FS_DIR)/fat/fat16/fat16_interface.c.o \
+			   $(FS_DIR)/fat/fat16/fat16_probe.c.o
 
 ASM_OBJS	:= $(filter %.asm.o, $(BOOT_OBJS))
 
@@ -28,9 +34,9 @@ ELFS		:= mbr.elf $(BOOT_ELF)
 
 LINKER		:= linker.ld
 
-.PHONY: all clean fclean re build-io build-disk build-libstring
+.PHONY: all clean fclean re build-io build-disk build-libstring build-fs
 
-all: build-io build-disk build-libstring $(BINS) $(ELFS)
+all: build-io build-disk build-libstring build-fs $(BINS) $(ELFS)
 
 # =============================================================================
 # Boot Stage2 Build
@@ -52,6 +58,9 @@ build-disk:
 
 build-libstring:
 	$(MAKE) -C $(STRING_DIR)
+
+build-fs:
+	$(MAKE) -C $(FS_DIR)
 
 # =============================================================================
 # General builds
@@ -80,5 +89,6 @@ fclean: clean
 	$(MAKE) fclean -C $(IO_DIR)
 	$(MAKE) fclean -C $(DISK_DIR)
 	$(MAKE) fclean -C $(STRING_DIR)
+	$(MAKE) fclean -C $(FS_DIR)
 
 re: fclean all

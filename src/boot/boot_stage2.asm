@@ -7,21 +7,23 @@
 
 [BITS 32]
 
-%include "string/string.inc"
-
-MOVE_BYTES equ 5
+%include "drivers/disk/ata/ata.inc"
+%include "fs/vfs/vfs_mount.inc"
 
 section	.text
 boot_stage2:
-	mov		eax, dword [size]
-	sub		eax, MOVE_BYTES
-	push	eax
-	push	string
-	push	string
-	call	memmove
+	push	mount_path
+	push	0
+	push	disk
+	call	vfs_mount
 	add		esp, 12
 	jmp	$
 
 section	.data
-string: db "Joel Santos Souza"
-size: dd $ - string
+mount_path:	db "/boot/kernel", 0
+
+driver:	dd disk_ata_read
+		dd disk_ata_to_errno
+
+disk:	dd driver
+		db 0

@@ -1,22 +1,26 @@
 # =============================================================================
-# DISK DRIVERS
+# FILE SYSTEMS
 # =============================================================================
-ROOT	:= $(shell git rev-parse --show-toplevel)
+ROOT		:= $(shell git rev-parse --show-toplevel)
 
 include $(ROOT)/config.mk
 
-OBJS	:= ata/disk_ata.c.o \
-		   ata/disk_ata_stat.c.o \
-		   vdl/disk_vdl.c.o
+FAT16_DIR	:= fat/fat16
 
-C_OBJS	:= $(filter %.c.o, $(OBJS))
+OBJS		:= $(FAT16_DIR)/fat16_interface.c.o \
+			   $(FAT16_DIR)/fat16_probe.c.o \
+			   vfs/vfs_mount.c.o \
+			   vfs/vfs_partition.c.o \
+			   vfs/vfs_table.c.o
+
+C_OBJS		:= $(filter %.c.o, $(OBJS))
 
 .PHONY: all clean fclean
 
 all: $(OBJS)
 
 # =============================================================================
-# Disk Drivers Build
+# File System Build
 # =============================================================================
 C_DEPS		:= $(C_OBJS:.o=.d)
 -include	$(C_DEPS)

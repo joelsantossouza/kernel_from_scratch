@@ -45,6 +45,7 @@ int	fat16_probe(const t_vdl_disk *disk, uint32_t lba, t_fat16_metadata *metadata
 	int				err_code;
 	int				fat16_err_code;
 
+	(void)metadata; // WARNING: NOT IMPLEMENTED YET
 	err_code = disk_vdl_read(disk, SECTORS_TO_BYTES(lba), &fat16_bpb, sizeof(fat16_bpb));
 	if (err_code != KERNEL_SUCCESS)
 	{
