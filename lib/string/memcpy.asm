@@ -62,27 +62,30 @@ memmove:
 	push	edi
 	push	esi
 
-	mov		edi, [ebp + 8]
 	mov		esi, [ebp + 12]
+	mov		edx, [ebp + 8]
+	mov		edi, edx
 	cmp		edi, esi
-	jb		.forward_copy
+	jbe		.forward_copy
 
 .backward_copy:
 	std
 	mov		eax, [ebp + 16]
-	add		edi, eax
-	add		esi, eax
-
-.copy_dword:
-	mov		ecx, eax
-	shr		ecx, INT32_SHIFT
-	rep		movsd
+	lea		edi, [edi + eax - 1]
+	lea		esi, [esi + eax - 1]
 
 .copy_byte:
 	mov		ecx, eax
 	and		ecx, INT32_MASK
 	rep		movsb
-	mov		eax, edi
+
+.copy_dword:
+	sub		edi, 3
+	sub		esi, 3
+	mov		ecx, eax
+	shr		ecx, INT32_SHIFT
+	rep		movsd
+	mov		eax, edx
 	cld
 	jmp		.end
 

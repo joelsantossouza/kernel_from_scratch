@@ -17,11 +17,11 @@ boot_stage2:
 	sub		eax, MOVE_BYTES
 	push	eax
 	push	string
-	push	string + MOVE_BYTES
+	push	string
 	call	memmove
 	add		esp, 12
 	jmp	$
 
 section	.data
-string: db "This is a test string. if you are reading this we successfully got it"
+string: db "Joel Santos Souza"
 size: dd $ - string
