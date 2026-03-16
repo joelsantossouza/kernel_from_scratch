@@ -6,7 +6,8 @@ ROOT		:= $(shell git rev-parse --show-toplevel)
 include $(ROOT)/config.mk
 
 OBJS		:= memcpy.asm.o \
-			   strlen.asm.o
+			   strlen.asm.o \
+			   strcmp.asm.o
 
 ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
 

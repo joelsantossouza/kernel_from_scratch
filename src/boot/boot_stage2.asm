@@ -11,13 +11,12 @@
 
 section	.text
 boot_stage2:
-	push	size
-	push	40
-	push	string
-	call	strnlen_strict
-	add		esp, 12
+	push	string2
+	push	string1
+	call	strcmp
+	add		esp, 8
 	jmp	$
 
 section	.data
-string: db "Hello", 0
-size: dd 0
+string1: db "4023", 0
+string2: db "4023", 0

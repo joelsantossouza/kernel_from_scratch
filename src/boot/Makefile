@@ -15,7 +15,8 @@ BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(DISK_DIR)/ata/disk_ata_stat.c.o \
 			   $(DISK_DIR)/vdl/disk_vdl.c.o \
 			   $(STRING_DIR)/memcpy.asm.o \
-			   $(STRING_DIR)/strlen.asm.o
+			   $(STRING_DIR)/strlen.asm.o \
+			   $(STRING_DIR)/strcmp.asm.o
 
 ASM_OBJS	:= $(filter %.asm.o, $(BOOT_OBJS))
 

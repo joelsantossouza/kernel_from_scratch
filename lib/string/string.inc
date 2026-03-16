@@ -11,4 +11,6 @@ extern	mempcpy
 
 extern	strnlen_strict
 
+extern	strcmp
+
 %endif
