@@ -11,6 +11,7 @@
 
 global	mempcpy
 global	memcpy
+global	memmove
 
 section	.asm
 mempcpy:
@@ -18,11 +19,11 @@ mempcpy:
 	mov		ebp, esp
 	push	edi
 	push	esi
+	cld
 
 	mov		edi, [ebp + 8]
 	mov		esi, [ebp + 12]
 	mov		eax, [ebp + 16]
-	cld
 
 .copy_dword:
 	mov		ecx, eax
@@ -52,5 +53,48 @@ memcpy:
 	add		esp, 12
 
 	mov		eax, [ebp + 8]
+	pop		ebp
+	ret
+
+memmove:
+	push	ebp
+	mov		ebp, esp
+	push	edi
+	push	esi
+
+	mov		edi, [ebp + 8]
+	mov		esi, [ebp + 12]
+	cmp		edi, esi
+	jb		.forward_copy
+
+.backward_copy:
+	std
+	mov		eax, [ebp + 16]
+	add		edi, eax
+	add		esi, eax
+
+.copy_dword:
+	mov		ecx, eax
+	shr		ecx, INT32_SHIFT
+	rep		movsd
+
+.copy_byte:
+	mov		ecx, eax
+	and		ecx, INT32_MASK
+	rep		movsb
+	mov		eax, edi
+	cld
+	jmp		.end
+
+.forward_copy:
+	push	dword [ebp + 16]
+	push	esi
+	push	edi
+	call	memcpy
+	add		esp, 12
+
+.end:
+	pop		esi
+	pop		edi
 	pop		ebp
 	ret

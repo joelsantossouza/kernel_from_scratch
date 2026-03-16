@@ -14,6 +14,7 @@ strnlen_strict:
 	push	ebp
 	mov		ebp, esp
 	push	edi
+	cld
 
 	mov		edi, [ebp + 8]
 	mov		edx, [ebp + 12]

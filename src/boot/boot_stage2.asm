@@ -9,14 +9,19 @@
 
 %include "string/string.inc"
 
+MOVE_BYTES equ 5
+
 section	.text
 boot_stage2:
-	push	string2
-	push	string1
-	call	strcmp
-	add		esp, 8
+	mov		eax, dword [size]
+	sub		eax, MOVE_BYTES
+	push	eax
+	push	string
+	push	string + MOVE_BYTES
+	call	memmove
+	add		esp, 12
 	jmp	$
 
 section	.data
-string1: db "4023", 0
-string2: db "4023", 0
+string: db "This is a test string. if you are reading this we successfully got it"
+size: dd $ - string

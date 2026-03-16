@@ -8,6 +8,7 @@
 
 extern	memcpy
 extern	mempcpy
+extern	memmove
 
 extern	strnlen_strict
 
