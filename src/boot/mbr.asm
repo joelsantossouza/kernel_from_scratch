@@ -4,7 +4,6 @@
 ; Description: Master Boot Record. This is the first sector (512 bytes size) of
 ; 			   the hard disk. It will load the stage 2 of boot into RAM.
 
-%include "drivers/disk/vdl/config.inc"
 %include "boot/config.inc"
 %include "boot/bios.inc"
 %include "cpu/gdt.inc"
@@ -144,5 +143,24 @@ boot_start:
 
 	jmp	BOOT_STAGE2_ADDR
 
-times	VDL_SECTOR_BYTES - ($ - $$) - BOOT_SIGNATURE_SIZE db 0
-dw		BOOT_SIGNATURE
+times	MBR_CODE_BYTES - ($ - $$) db 0
+
+partition_table:
+.part0:
+	db		0
+	db		0, 0, 0
+	db		MBR_PART_TYPE_FAT16_LBA
+	db		0, 0, 0
+	dd		MBR_PART0_LBA
+	dd		MBR_PART0_SECTORS
+
+.part1:
+	times	MBR_PARTITION_TABLE_ENTRY_BYTES db 0
+
+.part2:
+	times	MBR_PARTITION_TABLE_ENTRY_BYTES db 0
+
+.part3:
+	times	MBR_PARTITION_TABLE_ENTRY_BYTES db 0
+
+dw	BOOT_SIGNATURE
