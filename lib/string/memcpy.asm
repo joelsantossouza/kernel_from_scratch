@@ -5,9 +5,7 @@
 
 [BITS 32]
 
-%define INT32_SIZE	4
-%define INT32_SHIFT	2
-%assign INT32_MASK	INT32_SIZE - 1
+%include "stdint.inc"
 
 global	mempcpy
 global	memcpy
@@ -87,7 +85,12 @@ memmove:
 	rep		movsd
 	mov		eax, edx
 	cld
-	jmp		.end
+
+.end:
+	pop		esi
+	pop		edi
+	pop		ebp
+	ret
 
 .forward_copy:
 	push	dword [ebp + 16]
@@ -95,9 +98,4 @@ memmove:
 	push	edi
 	call	memcpy
 	add		esp, 12
-
-.end:
-	pop		esi
-	pop		edi
-	pop		ebp
-	ret
+	jmp		.end
