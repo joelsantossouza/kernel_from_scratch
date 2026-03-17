@@ -19,5 +19,5 @@ boot_stage2:
 	jmp	$
 
 section	.data
-string1: db "hello"
-string2: db "Hello"
+string1: db "zoel"
+string2: db "jebra"
