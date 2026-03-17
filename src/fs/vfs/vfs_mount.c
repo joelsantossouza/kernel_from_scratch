@@ -59,11 +59,12 @@ t_vfs_partition	*vfs_mount_find(const char *path)
 	for (i = 0; i < g_vfs_mount_table_size; i++)
 	{
 		vfs_part = &g_vfs_mount_table[i];
-		if (memcmp(path, vfs_part->mount_path, vfs_part->mount_pathlen) == 0)
-			break ;
+		if (memcmp(path, vfs_part->mount_path, vfs_part->mount_pathlen) != 0)
+			continue ;
+		path_mount_end = path[vfs_part->mount_pathlen];
+		if (path_mount_end != '/' && path_mount_end != 0)
+			return (NULL);
+		return (vfs_part);
 	}
-	path_mount_end = path[vfs_part->mount_pathlen];
-	if (path_mount_end != '/' && path_mount_end != 0)
-		return (NULL);
-	return (vfs_part);
+	return (NULL);
 }
