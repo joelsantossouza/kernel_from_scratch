@@ -143,7 +143,7 @@ boot_start:
 
 	jmp	BOOT_STAGE2_ADDR
 
-times	MBR_CODE_BYTES - ($ - $$) db 0
+times	MBR_BOOT_CODE_BYTES - ($ - $$) db 0
 
 partition_table:
 .part0:
@@ -155,12 +155,12 @@ partition_table:
 	dd		MBR_PART0_SECTORS
 
 .part1:
-	times	MBR_PARTITION_TABLE_ENTRY_BYTES db 0
+	times	MBR_PART_TABLE_ENTRY_BYTES db 0
 
 .part2:
-	times	MBR_PARTITION_TABLE_ENTRY_BYTES db 0
+	times	MBR_PART_TABLE_ENTRY_BYTES db 0
 
 .part3:
-	times	MBR_PARTITION_TABLE_ENTRY_BYTES db 0
+	times	MBR_PART_TABLE_ENTRY_BYTES db 0
 
 dw	BOOT_SIGNATURE

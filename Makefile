@@ -34,8 +34,8 @@ BINS			:= $(MBR_BIN) \
 				   $(BOOT_BIN) \
 				   $(KERNEL_BIN)
 
-PART1_IMG		:= partition1.img
-PART1_SECTORS	:= 32768
+PART0_IMG		:= partition0.img
+PART0_SECTORS	:= 32768
 
 DD				:= dd bs=$(SECTOR_SIZE) conv=notrunc
 
@@ -56,11 +56,11 @@ debug: all
 		-ex "add-symbol-file $(BOOT_ELF) $(BOOT_ADDR)" \
 		-ex "target remote localhost:1234"
 
-$(DISK_IMG): $(BINS) $(PART1_IMG)
+$(DISK_IMG): $(BINS) $(PART0_IMG)
 	$(DD) if=/dev/zero		of=$(DISK_IMG) seek=0 count=$(DISK_SECTORS)
 	$(DD) if=$(MBR_BIN)		of=$(DISK_IMG) seek=0 count=1					
 	$(DD) if=$(BOOT_BIN)	of=$(DISK_IMG) seek=1 count=$(MBR_GAP_SECTORS)	
-	$(DD) if=$(PART1_IMG)	of=$(DISK_IMG) seek=$(PARTS_START)
+	$(DD) if=$(PART0_IMG)	of=$(DISK_IMG) seek=$(PARTS_START)
 
 $(MBR_BIN) $(BOOT_BIN): build-boot
 	$(MAKE) -C $(BOOT_DIR)
@@ -68,11 +68,11 @@ $(MBR_BIN) $(BOOT_BIN): build-boot
 $(KERNEL_BIN): build-kernel
 	$(MAKE) -C $(KERNEL_DIR)
 
-$(PART1_IMG): $(KERNEL_BIN)
-	$(DD) if=/dev/zero of=$(PART1_IMG) count=$(PART1_SECTORS)
-	mkfs.fat -F 16 $(PART1_IMG)
-	mmd -i $(PART1_IMG) ::/boot
-	mcopy -i $(PART1_IMG) $(KERNEL_BIN) ::/boot/kernel
+$(PART0_IMG): $(KERNEL_BIN)
+	$(DD) if=/dev/zero of=$(PART0_IMG) count=$(PART0_SECTORS)
+	mkfs.fat -F 16 $(PART0_IMG)
+	mmd -i $(PART0_IMG) ::/boot
+	mcopy -i $(PART0_IMG) $(KERNEL_BIN) ::/boot/kernel
 
 part-deps:
 	@if ! which mmd >/dev/null 2>&1 || ! which mcopy >/dev/null 2>&1; then \
@@ -89,7 +89,7 @@ part-deps:
 # CLEAN UP
 # =============================================================================
 clean:
-	rm -f $(PART1_IMG)
+	rm -f $(PART0_IMG)
 	rm -f $(QEMU_LOG)
 
 fclean: clean
