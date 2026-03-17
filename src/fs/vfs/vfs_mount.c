@@ -7,6 +7,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 #include "fs/vfs/config.h"
 #include "fs/vfs/vfs_partition.h"
 #include "drivers/disk/vdl/vdl.h"
@@ -51,11 +52,13 @@ int	vfs_mount(const t_vdl_disk *disk, uint8_t partition_idx, const char *mount_p
 
 t_vfs_partition	*vfs_mount_find(const char *path)
 {
-	const uint32_t	pathlen = strlen(path);
 	t_vfs_partition	*vfs_part;
+	uint32_t		pathlen;
 	uint8_t			i;
 	char			path_next_char;
 
+	if (strnlen_strict(path, VFS_PATH_MAX, &pathlen) != KERNEL_SUCCESS)
+		return (NULL);
 	for (i = 0; i < g_vfs_mount_table_size; i++)
 		if (pathlen >= g_vfs_mount_table[i].mount_pathlen)
 			break ;

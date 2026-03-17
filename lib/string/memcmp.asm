@@ -7,6 +7,8 @@
 
 %include "stdint.inc"
 
+global	memcmp
+
 section	.asm
 memcmp:
 	push	ebp

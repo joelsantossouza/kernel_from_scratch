@@ -18,6 +18,7 @@ BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(STRING_DIR)/memcpy.asm.o \
 			   $(STRING_DIR)/strlen.asm.o \
 			   $(STRING_DIR)/strcmp.asm.o \
+			   $(STRING_DIR)/memcmp.asm.o \
 			   $(FS_DIR)/vfs/vfs_mount.c.o \
 			   $(FS_DIR)/vfs/vfs_partition.c.o \
 			   $(FS_DIR)/vfs/vfs_table.c.o \

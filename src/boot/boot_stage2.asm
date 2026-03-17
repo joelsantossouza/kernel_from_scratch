@@ -7,23 +7,17 @@
 
 [BITS 32]
 
-%include "drivers/disk/ata/ata.inc"
-%include "fs/vfs/vfs_mount.inc"
+%include "string/string.inc"
 
 section	.text
 boot_stage2:
-	push	mount_path
-	push	0
-	push	disk
-	call	vfs_mount
+	push	5
+	push	string2
+	push	string1
+	call	memcmp
 	add		esp, 12
 	jmp	$
 
 section	.data
-mount_path:	db "/boot/kernel", 0
-
-driver:	dd disk_ata_read
-		dd disk_ata_to_errno
-
-disk:	dd driver
-		db 0
+string1: db "hello"
+string2: db "Hello"

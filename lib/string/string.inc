@@ -9,9 +9,9 @@
 extern	memcpy
 extern	mempcpy
 extern	memmove
+extern	memcmp
 
 extern	strnlen_strict
-
 extern	strcmp
 
 %endif
