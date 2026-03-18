@@ -9,7 +9,7 @@
 %include "boot/mbr.inc"
 
 %assign BOOT_STAGE2_ADDR		MBR_ADDR + MBR_BYTES
-%define BOOT_STAGE2_SECTORS		10
+%define BOOT_STAGE2_SECTORS		12
 %define BOOT_STAGE2_SECTOR		2
 %define BOOT_STAGE2_CYLINDER	0
 %define BOOT_STAGE2_HEAD		0

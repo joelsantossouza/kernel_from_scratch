@@ -69,7 +69,7 @@ t_vfs_partition	*vfs_mount_find(const char *path)
 			continue ;
 		path_next_char = path[vfs_part->mount_pathlen];
 		if (path_next_char != '/' && path_next_char != 0)
-			return (NULL);
+			continue ;
 		return (vfs_part);
 	}
 	return (NULL);

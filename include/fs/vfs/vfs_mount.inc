@@ -7,5 +7,6 @@
 %define VFS_MOUNT_INC
 
 extern	vfs_mount
+extern	vfs_mount_find
 
 %endif

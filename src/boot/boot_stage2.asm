@@ -7,17 +7,46 @@
 
 [BITS 32]
 
-%include "string/string.inc"
+%include "drivers/disk/ata/ata.inc"
+%include "fs/vfs/vfs_mount.inc"
 
 section	.text
 boot_stage2:
-	push	5
-	push	string2
-	push	string1
-	call	memcmp
+	; Mounts
+	push	mount_path1
+	push	0
+	push	disk
+	call	vfs_mount
 	add		esp, 12
+
+	push	mount_path2
+	push	0
+	push	disk
+	call	vfs_mount
+	add		esp, 12
+
+	push	mount_path3
+	push	0
+	push	disk
+	call	vfs_mount
+	add		esp, 12
+
+	; Search mount
+	push	path
+	call	vfs_mount_find
+	add		esp, 4
 	jmp	$
 
 section	.data
-string1: db "zoel"
-string2: db "jebra"
+path:			db "/kernel/bootable/home/joesanto/exercises/file.txt", 0
+mount_path1:	db "/kernel/boot", 0
+mount_path2:	db "/", 0
+mount_path3:	db "/kernel", 0
+
+driver:
+	dd	disk_ata_read
+	dd	disk_ata_to_errno
+
+disk:
+	dd	driver
+	db	0
