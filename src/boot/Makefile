@@ -19,7 +19,7 @@ BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(STRING_DIR)/strlen.asm.o \
 			   $(STRING_DIR)/strcmp.asm.o \
 			   $(STRING_DIR)/memcmp.asm.o \
-			   $(FS_DIR)/vfs/vfs_mount.c.o \
+			   $(FS_DIR)/vfs/vfs_mount_table.c.o \
 			   $(FS_DIR)/vfs/vfs_partition.c.o \
 			   $(FS_DIR)/vfs/vfs_table.c.o \
 			   $(FS_DIR)/fat/fat16/fat16_interface.c.o \

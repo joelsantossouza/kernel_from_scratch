@@ -9,7 +9,7 @@ FAT16_DIR	:= fat/fat16
 
 OBJS		:= $(FAT16_DIR)/fat16_interface.c.o \
 			   $(FAT16_DIR)/fat16_probe.c.o \
-			   vfs/vfs_mount.c.o \
+			   vfs/vfs_mount_table.c.o \
 			   vfs/vfs_partition.c.o \
 			   vfs/vfs_table.c.o
 
