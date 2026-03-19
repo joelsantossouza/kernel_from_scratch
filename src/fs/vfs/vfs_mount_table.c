@@ -44,7 +44,7 @@ int	vfs_mount_table_insert(const t_vfs_partition *vfs_part, const char *mount_pa
 	return (KERNEL_SUCCESS);
 }
 
-t_vfs_mount	*vfs_mount_table_find(const char *path, uint16_t pathlen)
+t_vfs_mount	*vfs_mount_table_find(const char *abspath, uint16_t pathlen)
 {
 	t_vfs_mount		*mount;
 	char			path_next_char;
@@ -58,9 +58,9 @@ t_vfs_mount	*vfs_mount_table_find(const char *path, uint16_t pathlen)
 		mount = &g_vfs_mount_table[i];
 		if (UNLIKELY(mount->pathlen == 1))
 			return (mount);
-		if (memcmp(path, mount->path, mount->pathlen) != 0)
+		if (memcmp(abspath, mount->path, mount->pathlen) != 0)
 			continue ;
-		path_next_char = path[mount->pathlen];
+		path_next_char = abspath[mount->pathlen];
 		if (path_next_char != '/' && path_next_char != 0)
 			continue ;
 		return (mount);
