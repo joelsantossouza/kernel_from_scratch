@@ -21,11 +21,14 @@ BOOT_OBJS	:= boot_stage2.asm.o \
 			   $(FS_DIR)/fat/fat16/fat16_interface.c.o \
 			   $(FS_DIR)/fat/fat16/fat16_probe.c.o \
 			   $(STRING_DIR)/memcmp.asm.o \
-			   $(STRING_DIR)/memcpy.asm.o \
+			   $(STRING_DIR)/memcpy.asm.o
 
 BINS		:= $(MBR_BIN) $(BOOT_BIN)
 ELFS		:= $(MBR_ELF) $(BOOT_ELF)
 OBJS		:= $(MBR_OBJS) $(BOOT_OBJS)
+DEPS		:= $(OBJS:.o=.d)
+
+-include	$(DEPS)
 
 all: $(BINS) $(ELFS)
 

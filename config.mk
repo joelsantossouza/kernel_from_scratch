@@ -9,7 +9,7 @@ LD				:= ld
 
 CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
-LDFLAGS			:= -m elf_i386 -T linker.ld -nostdlib --no-undefined --fatal-warnings
+LDFLAGS			:= -m elf_i386 -T linker.ld -nostdlib --no-undefined
 
 # Directories
 # ---------------------------------------
@@ -37,19 +37,11 @@ INCLUDES		:= -I$(INCLUDES_DIR) -I$(LIBS_DIR)
 
 # Compile Objects
 # ---------------------------------------
-C_OBJS			:= $(filter %.c.o, $(OBJS))
-C_DEPS			:= $(C_OBJS:.o=.d)
--include		$(C_DEPS)
-
 %.c.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 # Assembly Objects
 # ---------------------------------------
-ASM_OBJS		:= $(filter %.asm.o, $(OBJS))
-ASM_DEPS		:= $(ASM_OBJS:.o=.d)
--include		$(ASM_DEPS)
-
 %.asm.o: %.asm
 	$(AS) $(AFLAGS) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
 
@@ -67,8 +59,7 @@ ASM_DEPS		:= $(ASM_OBJS:.o=.d)
 # Clean up
 # =============================================================================
 clean:
-	rm -f $(C_DEPS)
-	rm -f $(ASM_DEPS)
+	rm -f $(DEPS)
 	rm -f $(OBJS)
 
 fclean: clean
