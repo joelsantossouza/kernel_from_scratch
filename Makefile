@@ -46,7 +46,7 @@ QEMU_LOG		:= qemu.log
 # =============================================================================
 .PHONY: all part-deps clean fclean re build-boot build-kernel
 
-all: part-deps $(DISK_IMG)
+all: part-deps build-boot build-kernel $(DISK_IMG)
 
 debug: all
 	qemu-system-i386 -drive format=raw,file=$(DISK_IMG) -s -S -d int,cpu_reset 2>$(QEMU_LOG) &
@@ -62,10 +62,10 @@ $(DISK_IMG): $(BINS) $(PART0_IMG)
 	$(DD) if=$(BOOT_BIN)	of=$(DISK_IMG) seek=1 count=$(MBR_GAP_SECTORS)	
 	$(DD) if=$(PART0_IMG)	of=$(DISK_IMG) seek=$(PARTS_START)
 
-$(MBR_BIN) $(BOOT_BIN): build-boot
+build-boot:
 	$(MAKE) -C $(BOOT_DIR)
 
-$(KERNEL_BIN): build-kernel
+build-kernel:
 	$(MAKE) -C $(KERNEL_DIR)
 
 $(PART0_IMG): $(KERNEL_BIN)

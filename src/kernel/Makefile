@@ -2,41 +2,16 @@
 # KERNEL
 # =============================================================================
 ROOT	:= $(shell git rev-parse --show-toplevel)
-
 include $(ROOT)/config.mk
 
-BIN			:= kernel.bin
-LINKER		:= linker.ld
-OBJS		:= kernel.asm.o
+KERNEL_BIN	:= kernel.bin
+KERNEL_ELF	:= kernel.elf
+KERNEL_OBJS	:= kernel.asm.o
 
-ASM_OBJS	:= $(filter %.asm.o, $(OBJS))
+BINS	:= $(KERNEL_BIN)
+ELFS	:= $(KERNEL_ELF)
+OBJS	:= $(KERNEL_OBJS)
 
-.PHONY: all clean fclean re
+all: $(BINS) $(ELFS)
 
-all: $(BIN)
-
-# =============================================================================
-# Kernel Build
-# =============================================================================
-$(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -T $(LINKER) $< -o $@
-
-# =============================================================================
-# General Build
-# =============================================================================
-ASM_DEPS	:= $(ASM_OBJS:.o=.d)
--include	$(ASM_DEPS)
-%.asm.o: %.asm
-	$(AS) -f elf32 $(AFLAGS) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
-
-# =============================================================================
-# Clean up
-# =============================================================================
-clean:
-	rm -f $(OBJS)
-	rm -f $(ASM_DEPS)
-
-fclean: clean
-	rm -f $(BIN)
-
-re: fclean all
+$(KERNEL_BIN) $(KERNEL_ELF): $(KERNEL_OBJS)
