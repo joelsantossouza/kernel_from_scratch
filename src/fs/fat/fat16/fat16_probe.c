@@ -8,6 +8,7 @@
 #include "kernel/config.h"
 #include "fs/fat/fat.h"
 #include "fs/fat/fat16/fat16.h"
+#include "fs/vfs/vfs_partition.h"
 #include "drivers/disk/vdl/vdl.h"
 #include "kernel/macros.h"
 #include "math/math.h"
@@ -39,14 +40,35 @@ int	fat16_probe_bpb(const t_phy_fat16_bpb *bpb)
 	return (KERNEL_SUCCESS);
 }
 
-int	fat16_probe(const t_vdl_disk *disk, uint32_t lba, t_fat16_metadata *metadata, int *fs_err_code)
+static
+int	fat16_metadata_init(const t_vdl_disk *disk, t_fat_metadata *metadata, const t_phy_fat16_bpb *bpb)
 {
+	const uint32_t	sector_bytes = bpb->bytes_per_sector;
+	const uint32_t	cluster_bytes = sector_bytes * bpb->sectors_per_cluster;
+	const uint32_t	fat_table_addr = bpb->reserved_sectors_count * sector_bytes;
+	const uint32_t	fat_table_bytes = bpb->fat_sectors_16 * sector_bytes;
+	int				err_code;
+
+	// metadata->fat_table = kmalloc(); WARNING: Future implementation with malloc
+	// ...
+	err_code = disk_vdl_read(disk, fat_table_addr, metadata->table.fat16, fat_table_bytes);
+	if (err_code != KERNEL_SUCCESS)
+		return (err_code);
+	metadata->root_dir = fat_table_addr + bpb->fats_count * fat_table_bytes;
+	metadata->cluster_base = metadata->root_dir + bpb->root_entry_count * sizeof(t_phy_fat_file) + FAT_CLUSTS_RSVD * cluster_bytes;
+	metadata->cluster_bytes = cluster_bytes;
+	metadata->cluster_next = fat16_cluster_next;
+	return (KERNEL_SUCCESS);
+}
+
+int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, int *fs_err_code)
+{
+	const uint32_t	partition_addr = SECTORS_TO_BYTES(phy_part->lba_start);
 	t_phy_fat16_bpb	fat16_bpb;
 	int				err_code;
 	int				fat16_err_code;
 
-	(void)metadata; // WARNING: NOT IMPLEMENTED YET
-	err_code = disk_vdl_read(disk, SECTORS_TO_BYTES(lba), &fat16_bpb, sizeof(fat16_bpb));
+	err_code = disk_vdl_read(disk, partition_addr, &fat16_bpb, sizeof(fat16_bpb));
 	if (err_code != KERNEL_SUCCESS)
 	{
 		SAFE_PTRSET(fs_err_code, 0);
@@ -57,6 +79,12 @@ int	fat16_probe(const t_vdl_disk *disk, uint32_t lba, t_fat16_metadata *metadata
 	{
 		SAFE_PTRSET(fs_err_code, fat16_err_code);
 		return (-EBADFS);
+	}
+	err_code = fat16_metadata_init(disk, metadata, &fat16_bpb);
+	if (err_code != KERNEL_SUCCESS)
+	{
+		SAFE_PTRSET(fs_err_code, 0);
+		return (err_code);
 	}
 	return (KERNEL_SUCCESS);
 }

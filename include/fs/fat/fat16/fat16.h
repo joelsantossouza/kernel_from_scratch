@@ -42,13 +42,4 @@ typedef struct s_phy_fat16_ebpb
 	uint8_t		fs_type[8];
 } __attribute__((packed))	t_phy_fat16_ebpb;
 
-typedef struct s_fat16_metadata
-{
-
-}	t_fat16_metadata;
-
-typedef struct s_vdl_disk	t_vdl_disk;
-
-int	fat16_probe(const t_vdl_disk *disk, uint32_t lba, t_fat16_metadata *metadata, int *fs_err_code);
-
 #endif

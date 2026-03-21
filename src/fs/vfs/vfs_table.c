@@ -40,7 +40,7 @@ int	vfs_table_detect_fs(const t_vdl_disk *disk, const t_phy_partition *phy_part,
 
 	if (fs_hint != NULL)
 	{
-		exit_stat = fs_hint->probe(disk, phy_part->lba_start, metadata, NULL);
+		exit_stat = fs_hint->probe(disk, phy_part, metadata, NULL);
 		if (exit_stat != -EBADFS)
 		{
 			*fs = exit_stat == KERNEL_SUCCESS ? fs_hint : NULL;
@@ -51,7 +51,7 @@ int	vfs_table_detect_fs(const t_vdl_disk *disk, const t_phy_partition *phy_part,
 	{
 		if (UNLIKELY(g_vfs_table[i] == fs_hint))
 			continue ;
-		exit_stat = g_vfs_table[i]->probe(disk, phy_part->lba_start, metadata, NULL);
+		exit_stat = g_vfs_table[i]->probe(disk, phy_part, metadata, NULL);
 		if (exit_stat == -EBADFS)
 			continue ;
 		*fs = exit_stat == KERNEL_SUCCESS ? g_vfs_table[i] : NULL;

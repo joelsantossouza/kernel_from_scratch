@@ -19,5 +19,6 @@ Memory Management:
 File Systems:
     Implement hard disk driver with IRQ Optimization
     Implement FAT16 driver (clusters read feature)
+    Insert dynamic allocation on fat_table storage
     Implement VFS (Vitual File System) layer
     Add more file systems interfaces
