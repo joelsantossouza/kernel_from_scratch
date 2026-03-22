@@ -11,25 +11,42 @@
 # include <stdint.h>
 
 // Jump boot opcode
-# define FAT_JMP_OPCODE_SHORT		0xEB
-# define FAT_JMP_OPCODE_NEAR		0xE9
-# define FAT_NOP_OPCODE				0x90
+# define FAT_JMP_OPCODE_SHORT	0xEB
+# define FAT_JMP_OPCODE_NEAR	0xE9
+# define FAT_NOP_OPCODE			0x90
 
 // Media types
-# define FAT_MEDIA_FIXED			0xF8
-# define FAT_MEDIA_REMOVABLE		0xF0
-
-// FAT errors
-# define FAT_EBAD_JMPBOOT			1
-# define FAT_EBAD_BYTES_PER_SECT	2
-# define FAT_EBAD_SECTS_PER_CLUS	3
-# define FAT_EBAD_RSVD_SECTS_CNT	4
-# define FAT_EBAD_FATS_CNT			5
-# define FAT_EBAD_TOTAL_SECTS		6
-# define FAT_EBAD_MEDIA				7
+# define FAT_MEDIA_FIXED		0xF8
+# define FAT_MEDIA_REMOVABLE	0xF0
 
 // FAT clusters
-# define FAT_CLUSTS_RSVD			2
+# define FAT_CLUSTS_RSVD		2
+
+enum e_fat_errno
+{
+	// FAT errors
+	FAT_EBAD_JMPBOOT = 1,
+	FAT_EBAD_BYTES_PER_SECT,
+	FAT_EBAD_SECTS_PER_CLUS,
+	FAT_EBAD_RSVD_SECTS_CNT,
+	FAT_EBAD_FATS_CNT,
+	FAT_EBAD_TOTAL_SECTS,
+	FAT_EBAD_MEDIA,
+
+	// FAT16 errors
+	FAT16_EBAD_ROOT_ENTS_CNT,
+	FAT16_EBAD_FAT_SECTS,
+};
+
+enum e_fat_cluster_stat
+{
+	FAT_CLUSTER_FREE = 0,
+	FAT_CLUSTER_USED,
+	FAT_CLUSTER_RSVD,
+	FAT_CLUSTER_INV,
+	FAT_CLUSTER_BAD,
+	FAT_CLUSTER_EOC,
+};
 
 typedef struct s_phy_fat_file
 {
@@ -55,6 +72,7 @@ typedef struct s_fat_metadata
 		uint16_t	fat16[0xffff];	 // WARNING: Future implementation with malloc
 		uint32_t	fat32[1];	 // WARNING: Future implementation with malloc
 	}	table;
+	uint32_t	table_entries;
 	uint32_t	root_dir;
 	uint32_t	cluster_base;
 	uint32_t	cluster_bytes;

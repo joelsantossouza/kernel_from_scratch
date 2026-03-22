@@ -61,7 +61,7 @@ int	fat16_metadata_init(const t_vdl_disk *disk, t_fat_metadata *metadata, const 
 	return (KERNEL_SUCCESS);
 }
 
-int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, int *fs_err_code)
+int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, enum e_fat_errno *fat_err_code)
 {
 	const uint32_t	partition_addr = SECTORS_TO_BYTES(phy_part->lba_start);
 	t_phy_fat16_bpb	fat16_bpb;
@@ -71,19 +71,19 @@ int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_m
 	err_code = disk_vdl_read(disk, partition_addr, &fat16_bpb, sizeof(fat16_bpb));
 	if (err_code != KERNEL_SUCCESS)
 	{
-		SAFE_PTRSET(fs_err_code, 0);
+		SAFE_PTRSET(fat_err_code, 0);
 		return (err_code);
 	}
 	fat16_err_code = fat16_probe_bpb(&fat16_bpb);
 	if (fat16_err_code != KERNEL_SUCCESS)
 	{
-		SAFE_PTRSET(fs_err_code, fat16_err_code);
+		SAFE_PTRSET(fat_err_code, fat16_err_code);
 		return (-EBADFS);
 	}
 	err_code = fat16_metadata_init(disk, metadata, &fat16_bpb);
 	if (err_code != KERNEL_SUCCESS)
 	{
-		SAFE_PTRSET(fs_err_code, 0);
+		SAFE_PTRSET(fat_err_code, 0);
 		return (err_code);
 	}
 	return (KERNEL_SUCCESS);

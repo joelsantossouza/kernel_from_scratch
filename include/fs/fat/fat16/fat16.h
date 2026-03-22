@@ -10,9 +10,30 @@
 
 # include <stdint.h>
 
-// FAT16 errors
-# define FAT16_EBAD_ROOT_ENTS_CNT	8
-# define FAT16_EBAD_FAT_SECTS		9
+# define IS_FAT16_CLUSTER_FREE(cluster) ({ \
+	__typeof__(cluster) _cluster = (cluster); \
+	_cluster == 0x0000; \
+})
+
+# define IS_FAT16_CLUSTER_RSVD(cluster) ({ \
+	__typeof__(cluster) _cluster = (cluster); \
+	_cluster == 0x0001 || (_cluster >= 0xFFF0 && _cluster <= 0xFFF6); \
+})
+
+# define IS_FAT16_CLUSTER_USED(cluster) ({ \
+	__typeof__(cluster) _cluster = (cluster); \
+	_cluster >= 0x0002 && _cluster <= 0xFFEF; \
+})
+
+# define IS_FAT16_CLUSTER_BAD(cluster) ({ \
+	__typeof__(cluster) _cluster = (cluster); \
+	_cluster == 0xFFF7; \
+})
+
+# define IS_FAT16_CLUSTER_EOC(cluster) ({ \
+	__typeof__(cluster) _cluster = (cluster); \
+	_cluster >= 0xFFF8; \
+})
 
 typedef struct s_phy_fat16_bpb
 {
