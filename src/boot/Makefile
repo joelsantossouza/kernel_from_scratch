@@ -4,27 +4,29 @@
 ROOT		:= $(shell git rev-parse --show-toplevel)
 include $(ROOT)/config.mk
 
-MBR_BIN		:= mbr.bin
-MBR_ELF		:= mbr.elf
-MBR_OBJS	:= mbr.asm.o
+MBR_NAME	:= mbr
+MBR_SRCS	:= mbr.asm
+MBR_OBJS	:= $(addsuffix .o, $(MBR_SRCS))
 
-BOOT_BIN	:= boot_stage2.bin
-BOOT_ELF	:= boot_stage2.elf
-BOOT_OBJS	:= boot_stage2.asm.o \
-			   $(DISK_DIR)/ata/disk_ata.c.o \
-			   $(DISK_DIR)/ata/disk_ata_stat.c.o \
-			   $(DISK_DIR)/vdl/disk_vdl.c.o \
-			   $(IO_DIR)/io.asm.o \
-			   $(FS_DIR)/vfs/vfs_mount_table.c.o \
-			   $(FS_DIR)/vfs/vfs_partition.c.o \
-			   $(FS_DIR)/vfs/vfs_table.c.o \
-			   $(FS_DIR)/fat/fat16/fat16_interface.c.o \
-			   $(FS_DIR)/fat/fat16/fat16_probe.c.o \
-			   $(STRING_DIR)/memcmp.asm.o \
-			   $(STRING_DIR)/memcpy.asm.o
+BOOT_NAME	:= boot_stage2
+BOOT_SRCS	:= boot_stage2.asm \
+			   $(DISK_DIR)/ata/disk_ata.c \
+			   $(DISK_DIR)/ata/disk_ata_stat.c \
+			   $(DISK_DIR)/vdl/disk_vdl.c \
+			   $(IO_DIR)/io.asm \
+			   $(FS_DIR)/vfs/vfs_mount_table.c \
+			   $(FS_DIR)/vfs/vfs_partition.c \
+			   $(FS_DIR)/vfs/vfs_table.c \
+			   $(FS_DIR)/fat/fat_cluster_read.c \
+			   $(FS_DIR)/fat/fat16/fat16_interface.c \
+			   $(FS_DIR)/fat/fat16/fat16_probe.c \
+			   $(STRING_DIR)/memcmp.asm \
+			   $(STRING_DIR)/memcpy.asm
 
-BINS		:= $(MBR_BIN) $(BOOT_BIN)
-ELFS		:= $(MBR_ELF) $(BOOT_ELF)
+BOOT_OBJS	:= $(addsuffix .o, $(BOOT_SRCS))
+
+BINS		:= $(MBR_NAME).bin $(BOOT_NAME).bin
+ELFS		:= $(MBR_NAME).elf $(BOOT_NAME).elf
 OBJS		:= $(MBR_OBJS) $(BOOT_OBJS)
 DEPS		:= $(OBJS:.o=.d)
 
@@ -32,5 +34,5 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(BINS) $(ELFS)
 
-$(MBR_BIN) $(MBR_ELF): $(MBR_OBJS)
-$(BOOT_BIN) $(BOOT_ELF): $(BOOT_OBJS)
+$(MBR_NAME).bin $(MBR_NAME).elf: $(MBR_OBJS)
+$(BOOT_NAME).bin $(BOOT_NAME).elf: $(BOOT_OBJS)

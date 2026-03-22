@@ -9,6 +9,7 @@
 # define FAT16_H
 
 # include <stdint.h>
+# include "fs/fat/fat.h"
 
 # define IS_FAT16_CLUSTER_FREE(cluster) ({ \
 	__typeof__(cluster) _cluster = (cluster); \
@@ -62,5 +63,12 @@ typedef struct s_phy_fat16_ebpb
 	uint8_t		volume_label[11];
 	uint8_t		fs_type[8];
 } __attribute__((packed))	t_phy_fat16_ebpb;
+
+typedef struct s_vdl_disk		t_vdl_disk;
+typedef struct s_vfs_partition	t_vfs_partition;
+typedef struct s_phy_partition	t_phy_partition;
+
+enum e_fat_cluster_stat	fat16_cluster_next(const t_vfs_partition *part, uint32_t cluster, uint32_t *next);
+int						fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, enum e_fat_errno *fat_err_code);
 
 #endif

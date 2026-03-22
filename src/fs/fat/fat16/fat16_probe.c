@@ -57,7 +57,7 @@ int	fat16_metadata_init(const t_vdl_disk *disk, t_fat_metadata *metadata, const 
 	metadata->root_dir = fat_table_addr + bpb->fats_count * fat_table_bytes;
 	metadata->cluster_base = metadata->root_dir + bpb->root_entry_count * sizeof(t_phy_fat_file) + FAT_CLUSTS_RSVD * cluster_bytes;
 	metadata->cluster_bytes = cluster_bytes;
-	metadata->cluster_next = fat16_cluster_next;
+	metadata->fn_cluster_next = fat16_cluster_next;
 	return (KERNEL_SUCCESS);
 }
 

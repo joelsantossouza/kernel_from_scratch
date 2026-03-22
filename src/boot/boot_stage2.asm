@@ -8,62 +8,38 @@
 [BITS 32]
 
 %include "drivers/disk/ata/ata.inc"
-%include "fs/vfs/vfs_mount_table.inc"
 %include "fs/vfs/vfs_partition.inc"
+%include "fs/fat/fat.inc"
 
 section	.text
 boot_stage2:
 	; Init partition
-	push	part1
+	push	partition0
 	push	0
 	push	disk
 	call	vfs_partition_init
 	add		esp, 12
 
-	; Mounts
-	push	dword [mount_pathlen1]
-	push	mount_path1
-	push	part1
-	call	vfs_mount_table_insert
+	; Read clusters
+	push	512
+	push	buffer
+	push	partition0
+	call	fat_cluster_read
 	add		esp, 12
 
-	push	dword [mount_pathlen2]
-	push	mount_path2
-	push	part1
-	call	vfs_mount_table_insert
-	add		esp, 12
-
-	push	dword [mount_pathlen3]
-	push	mount_path3
-	push	part1
-	call	vfs_mount_table_insert
-	add		esp, 12
-
-	; Search mount
-	push	dword [path]
-	call	vfs_mount_table_find
-	add		esp, 4
 	jmp	$
 
 section	.data
-path:			db "/kernel/bootable/home/joesanto/exercises/file.txt", 0
-pathlen:		dd $ - path
+buffer: times 512 db 0
+offset: dd 0
+cluster: dd 1
 
-mount_path1:	db "/kernel/boot"
-mount_pathlen1:	dd $ - mount_path1
+partition0: times 65564 db 0
 
-mount_path2:	db "/"
-mount_pathlen2:	dd $ - mount_path2
-
-mount_path3:	db "/kernel/took"
-mount_pathlen3:	dd $ - mount_path3
-
-driver:
-	dd	disk_ata_read
-	dd	disk_ata_to_errno
+ata_driver:
+	dd disk_ata_read
+	dd disk_ata_to_errno
 
 disk:
-	dd	driver
-	db	0
-
-part1: times 8 db 0
+	dd ata_driver
+	db 0

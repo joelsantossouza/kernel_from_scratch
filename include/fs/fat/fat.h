@@ -65,17 +65,21 @@ typedef struct s_phy_fat_file
 	uint32_t	bytes;
 } __attribute__((packed))	t_phy_fat_file;
 
+typedef struct s_vfs_partition	t_vfs_partition;
+typedef enum e_fat_cluster_stat	(*t_fat_cluster_next_fn)(const t_vfs_partition *part, uint32_t cluster, uint32_t *next);
+
 typedef struct s_fat_metadata
 {
 	union
 	{
-		uint16_t	fat16[0xffff];	 // WARNING: Future implementation with malloc
-		uint32_t	fat32[1];	 // WARNING: Future implementation with malloc
+		uint16_t			fat16[0xffff];	 // WARNING: Future implementation with malloc
+		uint32_t			fat32[1];	 // WARNING: Future implementation with malloc
 	}	table;
-	uint32_t	table_entries;
-	uint32_t	root_dir;
-	uint32_t	cluster_base;
-	uint32_t	cluster_bytes;
+	uint32_t				table_entries;
+	uint32_t				root_dir;
+	uint32_t				cluster_base;
+	uint32_t				cluster_bytes;
+	t_fat_cluster_next_fn	fn_cluster_next;
 }	t_fat_metadata;
 
 #endif

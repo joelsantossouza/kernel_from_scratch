@@ -10,51 +10,58 @@
 #include "fs/vfs/vfs_partition.h"
 #include "drivers/disk/vdl/vdl.h"
 #include "math/math.h"
+#include "errno.h"
 
 int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *offset, void *buf, uint32_t bytes)
 {
 	const t_vdl_disk			*disk = part->disk;
 	const t_fat_metadata		*metadata = &part->metadata.fat;
-	const uint32_t				cluster_start = metadata->cluster_start;
+	const uint32_t				cluster_base = metadata->cluster_base;
 	const uint32_t				cluster_bytes = metadata->cluster_bytes;
-	const t_fat_cluster_next_fn	fat_cluster_next = metadata->fat_cluster_next;
+	const t_fat_cluster_next_fn	fn_cluster_next = metadata->fn_cluster_next;
 	uint8_t						*ptr = buf;
 	uint32_t					bytes_to_read;
 	uint32_t					addr;
-	int							err_code;
+	int							exit_stat;
 
 	if (*offset)
 	{
-		addr = cluster_start + *cluster * cluster_bytes + *offset;
+		addr = cluster_base + *cluster * cluster_bytes + *offset;
 		bytes_to_read = MIN(bytes, cluster_bytes - *offset);
-		err_code = disk_vdl_read(disk, addr, ptr, bytes_to_read);
-		if (err_code < 0)
-			return (err_code);
+		exit_stat = disk_vdl_read(disk, addr, ptr, bytes_to_read);
+		if (exit_stat < 0)
+			return (exit_stat);
 		ptr += bytes_to_read;
-		bytes -= bytes_to_read;
 		*offset = (*offset + bytes_to_read) % cluster_bytes;
 		if (*offset > 0)
 			return (ptr - (uint8_t *)buf);
-		if (fat_cluster_next(part, *cluster, cluster) == SOMETHING)
+		exit_stat = fn_cluster_next(part, *cluster, cluster);
+		if (exit_stat == FAT_CLUSTER_BAD)
+			return (-EIO);
+		if (exit_stat != FAT_CLUSTER_USED)
 			return (ptr - (uint8_t *)buf);
+		bytes -= bytes_to_read;
 	}
 	while (bytes >= cluster_bytes)
 	{
-		addr = cluster_start + *cluster * cluster_bytes + *offset;
-		err_code = disk_vdl_read(disk, addr, ptr, cluster_bytes);
-		if (err_code < 0)
-			return (err_code);
+		addr = cluster_base + *cluster * cluster_bytes;
+		exit_stat = disk_vdl_read(disk, addr, ptr, cluster_bytes);
+		if (exit_stat < 0)
+			return (exit_stat);
 		ptr += cluster_bytes;
-		bytes -= cluster_bytes;
-		if (fat_cluster_next(part, *cluster, cluster) == SOMETHING)
+		exit_stat = fn_cluster_next(part, *cluster, cluster);
+		if (exit_stat == FAT_CLUSTER_BAD)
+			return (-EIO);
+		if (exit_stat != FAT_CLUSTER_USED)
 			return (ptr - (uint8_t *)buf);
+		bytes -= cluster_bytes;
 	}
 	if (bytes > 0)
 	{
-		addr = cluster_start + *cluster * cluster_bytes + *offset;
-		err_code = disk_vdl_read(disk, addr, ptr, bytes);
-		if (err_code < 0)
-			return (err_code);
+		addr = cluster_base + *cluster * cluster_bytes;
+		exit_stat = disk_vdl_read(disk, addr, ptr, bytes);
+		if (exit_stat < 0)
+			return (exit_stat);
 		*offset = bytes;
 	}
 	return (ptr - (uint8_t *)buf);

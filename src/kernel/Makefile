@@ -4,12 +4,12 @@
 ROOT		:= $(shell git rev-parse --show-toplevel)
 include $(ROOT)/config.mk
 
-KERNEL_BIN	:= kernel.bin
-KERNEL_ELF	:= kernel.elf
-KERNEL_OBJS	:= kernel.asm.o
+KERNEL_NAME	:= kernel
+KERNEL_SRCS	:= kernel.asm
+KERNEL_OBJS	:= $(addsuffix .o, $(KERNEL_SRCS))
 
-BINS		:= $(KERNEL_BIN)
-ELFS		:= $(KERNEL_ELF)
+BINS		:= $(KERNEL_NAME).bin
+ELFS		:= $(KERNEL_NAME).elf
 OBJS		:= $(KERNEL_OBJS)
 DEPS		:= $(OBJS:.o=.d)
 
@@ -17,4 +17,4 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(BINS) $(ELFS)
 
-$(KERNEL_BIN) $(KERNEL_ELF): $(KERNEL_OBJS)
+$(KERNEL_NAME).bin $(KERNEL_NAME).elf: $(KERNEL_OBJS)
