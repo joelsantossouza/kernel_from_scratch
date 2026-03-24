@@ -64,6 +64,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 		exit_stat = disk_vdl_read(disk, addr, ptr, bytes);
 		if (exit_stat < 0)
 			return (exit_stat);
+		ptr += bytes;
 		*offset = bytes;
 	}
 	return (ptr - (uint8_t *)buf);

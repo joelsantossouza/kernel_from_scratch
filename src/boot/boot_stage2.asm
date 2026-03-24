@@ -33,7 +33,7 @@ boot_stage2:
 
 section	.data
 buffer: times 512 db 0
-offset: dd 0
+offset: dd 5
 cluster: dd 2
 
 partition0: times 1024 db 0
