@@ -2,14 +2,16 @@
  * File: fat16.h
  * Author: Joel Souza
  * Date: 2026-03-02
- * Description: FAT16 header and metadata structures implementation
+ * Description: FAT16, and metadata structures and functions declaration
  */
 
 #ifndef FAT16_H
 # define FAT16_H
 
 # include <stdint.h>
+# include <stdbool.h>
 # include "fs/fat/fat.h"
+# include "fs/vfs/vfs_partition.h"
 
 # define IS_FAT16_CLUSTER_FREE(cluster) ({ \
 	__typeof__(cluster) _cluster = (cluster); \
@@ -68,7 +70,33 @@ typedef struct s_vdl_disk		t_vdl_disk;
 typedef struct s_vfs_partition	t_vfs_partition;
 typedef struct s_phy_partition	t_phy_partition;
 
-enum e_fat_cluster_stat	fat16_cluster_next(const t_vfs_partition *part, uint32_t cluster, uint32_t *next);
-int						fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, enum e_fat_errno *fat_err_code);
+int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, enum e_fat_errno *fat_err_code);
+
+static inline
+enum e_fat_cluster_stat	fat16_cluster_status(uint32_t cluster)
+{
+	if (IS_FAT16_CLUSTER_USED(cluster) == true)
+		return (FAT_CLUSTER_USED);
+	if (IS_FAT16_CLUSTER_EOC(cluster) == true)
+		return (FAT_CLUSTER_EOC);
+	if (IS_FAT16_CLUSTER_FREE(cluster) == true)
+		return (FAT_CLUSTER_FREE);
+	if (IS_FAT16_CLUSTER_RSVD(cluster) == true)
+		return (FAT_CLUSTER_RSVD);
+	if (IS_FAT16_CLUSTER_BAD(cluster) == true)
+		return (FAT_CLUSTER_BAD);
+	return (FAT_CLUSTER_INV);
+}
+
+static inline
+enum e_fat_cluster_stat	fat16_cluster_next(const t_vfs_partition *part, uint32_t cluster, uint32_t *next)
+{
+	const t_fat_metadata	*metadata = &part->metadata.fat;
+
+	if (cluster >= metadata->table_entries)
+		return (FAT_CLUSTER_INV);
+	*next = metadata->table.fat16[cluster];
+	return (fat16_cluster_status(*next));
+}
 
 #endif

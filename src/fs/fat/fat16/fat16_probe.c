@@ -64,6 +64,7 @@ int	fat16_metadata_init(const t_vdl_disk *disk, const t_phy_partition *phy_part,
 	metadata->data_region = metadata->root_dir + bpb->root_entry_count * sizeof(t_phy_fat_file);
 	metadata->cluster_bytes = cluster_bytes;
 	metadata->fn_cluster_next = fat16_cluster_next;
+	metadata->fn_cluster_status = fat16_cluster_status;
 	return (KERNEL_SUCCESS);
 }
 

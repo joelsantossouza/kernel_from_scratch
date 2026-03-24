@@ -67,6 +67,7 @@ typedef struct s_phy_fat_file
 
 typedef struct s_vfs_partition	t_vfs_partition;
 typedef enum e_fat_cluster_stat	(*t_fat_cluster_next_fn)(const t_vfs_partition *part, uint32_t cluster, uint32_t *next);
+typedef enum e_fat_cluster_stat	(*t_fat_cluster_status_fn)(uint32_t cluster);
 
 typedef struct s_fat_metadata
 {
@@ -80,6 +81,7 @@ typedef struct s_fat_metadata
 	uint32_t				data_region;
 	uint32_t				cluster_bytes;
 	t_fat_cluster_next_fn	fn_cluster_next;
+	t_fat_cluster_status_fn	fn_cluster_status;
 }	t_fat_metadata;
 
 #endif

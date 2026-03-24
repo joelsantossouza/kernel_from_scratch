@@ -7,7 +7,6 @@ include $(ROOT)/config.mk
 SRCS		:= fat/fat_cluster_read.c \
 			   fat/fat16/fat16_interface.c \
 			   fat/fat16/fat16_probe.c \
-			   fat/fat16/fat16_cluster.c \
 			   vfs/vfs_mount_table.c \
 			   vfs/vfs_partition.c \
 			   vfs/vfs_table.c

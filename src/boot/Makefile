@@ -19,7 +19,6 @@ BOOT_SRCS	:= boot_stage2.asm \
 			   $(FS_DIR)/fat/fat_cluster_read.c \
 			   $(FS_DIR)/fat/fat16/fat16_interface.c \
 			   $(FS_DIR)/fat/fat16/fat16_probe.c \
-			   $(FS_DIR)/fat/fat16/fat16_cluster.c \
 			   $(STRING_DIR)/memcmp.asm \
 			   $(STRING_DIR)/memcpy.asm
 
