@@ -24,7 +24,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	uint32_t					addr;
 	int							exit_stat;
 
-	if (*cluster < FAT_CLUSTER_DATA_START)
+	if (*cluster < FAT_CLUSTER_DATA_START || *cluster >= metadata->table_entries || *offset >= cluster_bytes)
 		return (-EINVAL);
 	if (*offset)
 	{
