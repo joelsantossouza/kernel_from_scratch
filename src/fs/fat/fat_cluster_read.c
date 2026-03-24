@@ -16,7 +16,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 {
 	const t_vdl_disk			*disk = part->disk;
 	const t_fat_metadata		*metadata = &part->metadata.fat;
-	const uint32_t				cluster_base = metadata->cluster_base;
+	const uint32_t				data_region = metadata->data_region;
 	const uint32_t				cluster_bytes = metadata->cluster_bytes;
 	const t_fat_cluster_next_fn	fn_cluster_next = metadata->fn_cluster_next;
 	uint8_t						*ptr = buf;
@@ -24,9 +24,11 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	uint32_t					addr;
 	int							exit_stat;
 
+	if (*cluster < FAT_CLUSTER_DATA_START)
+		return (-EINVAL);
 	if (*offset)
 	{
-		addr = cluster_base + *cluster * cluster_bytes + *offset;
+		addr = data_region + (*cluster - FAT_CLUSTER_DATA_START) * cluster_bytes + *offset;
 		bytes_to_read = MIN(bytes, cluster_bytes - *offset);
 		exit_stat = disk_vdl_read(disk, addr, ptr, bytes_to_read);
 		if (exit_stat < 0)
@@ -44,7 +46,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	}
 	while (bytes >= cluster_bytes)
 	{
-		addr = cluster_base + *cluster * cluster_bytes;
+		addr = data_region + (*cluster - FAT_CLUSTER_DATA_START) * cluster_bytes;
 		exit_stat = disk_vdl_read(disk, addr, ptr, cluster_bytes);
 		if (exit_stat < 0)
 			return (exit_stat);
@@ -58,7 +60,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	}
 	if (bytes > 0)
 	{
-		addr = cluster_base + *cluster * cluster_bytes;
+		addr = data_region + (*cluster - FAT_CLUSTER_DATA_START) * cluster_bytes;
 		exit_stat = disk_vdl_read(disk, addr, ptr, bytes);
 		if (exit_stat < 0)
 			return (exit_stat);

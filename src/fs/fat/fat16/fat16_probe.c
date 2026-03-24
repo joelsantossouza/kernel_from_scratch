@@ -41,21 +41,27 @@ int	fat16_probe_bpb(const t_phy_fat16_bpb *bpb)
 }
 
 static
-int	fat16_metadata_init(const t_vdl_disk *disk, t_fat_metadata *metadata, const t_phy_fat16_bpb *bpb)
+int	fat16_metadata_init(const t_vdl_disk *disk, const t_phy_partition *phy_part, const t_phy_fat16_bpb *bpb, t_fat_metadata *metadata)
 {
+	const uint32_t	partition_addr = SECTORS_TO_BYTES(phy_part->lba_start);
 	const uint32_t	sector_bytes = bpb->bytes_per_sector;
 	const uint32_t	cluster_bytes = sector_bytes * bpb->sectors_per_cluster;
-	const uint32_t	fat_table_addr = bpb->reserved_sectors_count * sector_bytes;
+	const uint32_t	fat_table_addr = partition_addr + bpb->reserved_sectors_count * sector_bytes;
 	const uint32_t	fat_table_bytes = bpb->fat_sectors_16 * sector_bytes;
 	int				err_code;
 
-	// metadata->fat_table = kmalloc(); WARNING: Future implementation with malloc
-	// ...
-	err_code = disk_vdl_read(disk, fat_table_addr, metadata->table.fat16, fat_table_bytes);
+	err_code = disk_vdl_read(disk, fat_table_addr, metadata->table.fat16, 0xff);
 	if (err_code != KERNEL_SUCCESS)
 		return (err_code);
+	metadata->table_entries = 0xff;
+	// metadata->fat_table = kmalloc(); WARNING: Future implementation with malloc
+	// ...
+	// err_code = disk_vdl_read(disk, fat_table_addr, metadata->table.fat16, fat_table_bytes);
+	// if (err_code != KERNEL_SUCCESS)
+	// 	return (err_code);
+	// metadata->table_entries = fat_table_bytes / 16  WARNING: Future implementation with malloc
 	metadata->root_dir = fat_table_addr + bpb->fats_count * fat_table_bytes;
-	metadata->cluster_base = metadata->root_dir + bpb->root_entry_count * sizeof(t_phy_fat_file) + FAT_CLUSTS_RSVD * cluster_bytes;
+	metadata->data_region = metadata->root_dir + bpb->root_entry_count * sizeof(t_phy_fat_file);
 	metadata->cluster_bytes = cluster_bytes;
 	metadata->fn_cluster_next = fat16_cluster_next;
 	return (KERNEL_SUCCESS);
@@ -80,7 +86,7 @@ int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_m
 		SAFE_PTRSET(fat_err_code, fat16_err_code);
 		return (-EBADFS);
 	}
-	err_code = fat16_metadata_init(disk, metadata, &fat16_bpb);
+	err_code = fat16_metadata_init(disk, phy_part, &fat16_bpb, metadata);
 	if (err_code != KERNEL_SUCCESS)
 	{
 		SAFE_PTRSET(fat_err_code, 0);

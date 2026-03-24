@@ -20,7 +20,7 @@
 # define FAT_MEDIA_REMOVABLE	0xF0
 
 // FAT clusters
-# define FAT_CLUSTS_RSVD		2
+# define FAT_CLUSTER_DATA_START	2
 
 enum e_fat_errno
 {
@@ -72,12 +72,12 @@ typedef struct s_fat_metadata
 {
 	union
 	{
-		uint16_t			fat16[0xffff];	 // WARNING: Future implementation with malloc
+		uint16_t			fat16[0xff];	 // WARNING: Future implementation with malloc
 		uint32_t			fat32[1];	 // WARNING: Future implementation with malloc
 	}	table;
 	uint32_t				table_entries;
 	uint32_t				root_dir;
-	uint32_t				cluster_base;
+	uint32_t				data_region;
 	uint32_t				cluster_bytes;
 	t_fat_cluster_next_fn	fn_cluster_next;
 }	t_fat_metadata;

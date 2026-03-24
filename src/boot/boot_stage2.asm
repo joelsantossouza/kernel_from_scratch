@@ -23,18 +23,20 @@ boot_stage2:
 	; Read clusters
 	push	512
 	push	buffer
+	push	offset
+	push	cluster
 	push	partition0
 	call	fat_cluster_read
-	add		esp, 12
+	add		esp, 20
 
 	jmp	$
 
 section	.data
 buffer: times 512 db 0
 offset: dd 0
-cluster: dd 1
+cluster: dd 2
 
-partition0: times 65564 db 0
+partition0: times 1024 db 0
 
 ata_driver:
 	dd disk_ata_read
