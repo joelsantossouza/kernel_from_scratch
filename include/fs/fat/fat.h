@@ -22,6 +22,10 @@
 // FAT clusters
 # define FAT_CLUSTER_DATA_START	2
 
+// FAT directory name symbols
+# define FAT_DIR_ENTRY_UNUSED	0x0
+# define FAT_DIR_ENTRY_DELETED	0xE5
+
 enum e_fat_errno
 {
 	// FAT errors
@@ -83,5 +87,7 @@ typedef struct s_fat_metadata
 	t_fat_cluster_next_fn	fn_cluster_next;
 	t_fat_cluster_status_fn	fn_cluster_status;
 }	t_fat_metadata;
+
+int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *offset, void *buf, uint32_t bytes);
 
 #endif
