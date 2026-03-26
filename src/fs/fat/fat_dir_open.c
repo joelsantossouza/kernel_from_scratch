@@ -8,26 +8,27 @@
 #include <stdbool.h>
 #include "fs/fat/fat.h"
 #include "kernel/config.h"
+#include "errno.h"
 
-int	fat_subdir_open(const t_vfs_dir *subdir, const char *filename, const char **filename_next, t_phy_fat_file *file)
+int	fat_subdir_open(const t_fat_dir *subdir, const char *filename, const char **filename_next, t_phy_fat_file *entry)
 {
 	const t_vfs_partition	*part = subdir->partition;
 	uint32_t				cluster;
 	uint32_t				offset;
-	int						err_code;
+	int						bytes_read;
 
-	cluster = (subdir->cluster_high16bits << 16) | subdir->cluster_low16bits;
+	cluster = subdir->cluster_start;
 	offset = 0;
 	while (true)
 	{
-		err_code = fat_cluster_read(part, &cluster, &offset, file, sizeof(*file));
-		if (err_code != KERNEL_SUCCESS)
-			return (err_code);
-		if (file->name[0] == FAT_DIR_ENTRY_UNUSED)
-			return (NOT_FOUND);
-		if (file->name[0] == FAT_DIR_ENTRY_DELETED)
+		bytes_read = fat_cluster_read(part, &cluster, &offset, entry, sizeof(*entry));
+		if (bytes_read < 0)
+			return (bytes_read);
+		if (bytes_read == 0 || entry->name[0] == FAT_DIR_ENTRY_UNUSED)
+			return (-ENOENT);
+		if (entry->name[0] == FAT_DIR_ENTRY_DELETED)
 			continue ;
-		if (fat_file_cmp_name(file, filename, filename_next) == 0)
+		if (fat_file_match_name(entry, filename, filename_next) == 0)
 			return (KERNEL_SUCCESS);
 	}
 }

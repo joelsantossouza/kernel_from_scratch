@@ -9,6 +9,7 @@
 # define FAT_H
 
 # include <stdint.h>
+# include <stdbool.h>
 
 // Jump boot opcode
 # define FAT_JMP_OPCODE_SHORT	0xEB
@@ -52,10 +53,14 @@ enum e_fat_cluster_stat
 	FAT_CLUSTER_EOC,
 };
 
+// FAT file
+# define FAT_FILE_NAME_MAX	8
+# define FAT_FILE_EXT_MAX	3
+
 typedef struct s_phy_fat_file
 {
-	uint8_t		name[8];
-	uint8_t		ext[3];
+	uint8_t		name[FAT_FILE_NAME_MAX];
+	uint8_t		ext[FAT_FILE_EXT_MAX];
 	uint8_t		attr;
 	uint8_t		reserved1;
 	uint8_t		creation_time_ms;
@@ -70,6 +75,17 @@ typedef struct s_phy_fat_file
 } __attribute__((packed))	t_phy_fat_file;
 
 typedef struct s_vfs_partition	t_vfs_partition;
+
+typedef struct s_fat_file
+{
+	t_phy_fat_file			entry;
+	const t_vfs_partition	*partition;
+	uint32_t				cluster_start;
+}	t_fat_file;
+
+typedef t_fat_file	t_fat_dir;
+
+// FAT metadata
 typedef enum e_fat_cluster_stat	(*t_fat_cluster_next_fn)(const t_vfs_partition *part, uint32_t cluster, uint32_t *next);
 typedef enum e_fat_cluster_stat	(*t_fat_cluster_status_fn)(uint32_t cluster);
 
@@ -88,6 +104,7 @@ typedef struct s_fat_metadata
 	t_fat_cluster_status_fn	fn_cluster_status;
 }	t_fat_metadata;
 
-int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *offset, void *buf, uint32_t bytes);
+int		fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *offset, void *buf, uint32_t bytes);
+bool	fat_file_match_name(const t_phy_fat_file *file, const char *filename, const char **filename_next);
 
 #endif
