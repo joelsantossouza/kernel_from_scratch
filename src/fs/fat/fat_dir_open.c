@@ -28,7 +28,7 @@ int	fat_subdir_open(const t_fat_dir *subdir, const char *filename, const char **
 			return (-ENOENT);
 		if (entry->name[0] == FAT_DIR_ENTRY_DELETED)
 			continue ;
-		if (fat_file_match_name(entry, filename, filename_next) == 0)
+		if (fat_file_match_name(entry, filename, filename_next) == true)
 			return (KERNEL_SUCCESS);
 	}
 }
