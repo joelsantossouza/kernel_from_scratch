@@ -13,27 +13,27 @@
 int	fat_subdir_open(const t_fat_dir *subdir, const char *filename, const char **filename_next, t_fat_file *file)
 {
 	const t_vfs_partition	*part = subdir->partition;
-	t_phy_fat_file			*entry;
+	t_phy_fat_file			entry;
 	uint32_t				cluster;
 	uint32_t				offset;
 	int						bytes_read;
 
-	entry = &file->entry;
 	cluster = subdir->cluster_start;
 	offset = 0;
 	while (true)
 	{
-		bytes_read = fat_cluster_read(part, &cluster, &offset, entry, sizeof(*entry));
+		bytes_read = fat_cluster_read(part, &cluster, &offset, &entry, sizeof(entry));
 		if (bytes_read < 0)
 			return (bytes_read);
-		if (bytes_read == 0 || entry->name[0] == FAT_DIR_ENTRY_UNUSED)
+		if (bytes_read == 0 || entry.name[0] == FAT_DIR_ENTRY_UNUSED)
 			return (-ENOENT);
-		if (entry->name[0] == FAT_DIR_ENTRY_DELETED)
+		if (entry.name[0] == FAT_DIR_ENTRY_DELETED)
 			continue ;
-		if (fat_file_match_name(entry, filename, filename_next) == false)
+		if (fat_file_match_name(&entry, filename, filename_next) == false)
 			continue ;
+		file->entry = entry;
+		file->cluster_start = (entry.cluster_high16bits << 16) | entry.cluster_low16bits;
 		file->partition = subdir->partition;
-		file->cluster_start = (entry->cluster_high16bits << 16) | entry->cluster_low16bits;
 		return (KERNEL_SUCCESS);
 	}
 }
