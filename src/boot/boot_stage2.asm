@@ -34,7 +34,7 @@ boot_stage2:
 	mov		dword [subdir + 36], eax
 
 	; open file in subdir
-	push	file
+	push	subdir
 	push	file_next
 	push	file_name
 	push	subdir
