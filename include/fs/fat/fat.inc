@@ -8,4 +8,6 @@
 
 extern	fat_cluster_read
 
+extern	fat_subdir_open
+
 %endif
