@@ -80,7 +80,8 @@ typedef struct s_fat_file
 {
 	t_phy_fat_file			entry;
 	const t_vfs_partition	*partition;
-	uint32_t				cluster_start;
+	uint32_t				start;
+	uint32_t				bytes;
 }	t_fat_file;
 
 typedef t_fat_file	t_fat_dir;
@@ -88,6 +89,7 @@ typedef t_fat_file	t_fat_dir;
 // FAT metadata
 typedef enum e_fat_cluster_stat	(*t_fat_cluster_next_fn)(const t_vfs_partition *part, uint32_t cluster, uint32_t *next);
 typedef enum e_fat_cluster_stat	(*t_fat_cluster_status_fn)(uint32_t cluster);
+typedef int		(*t_fat_rootdir_open_fn)(const t_fat_dir *dir, const char *filename, const char **filename_next, t_fat_file *file);
 
 typedef struct s_fat_metadata
 {
@@ -97,14 +99,23 @@ typedef struct s_fat_metadata
 		uint32_t			fat32[1];	 // WARNING: Future implementation with malloc
 	}	table;
 	uint32_t				table_entries;
-	uint32_t				root_dir;
+	uint32_t				rootdir;
 	uint32_t				data_region;
 	uint32_t				cluster_bytes;
 	t_fat_cluster_next_fn	fn_cluster_next;
 	t_fat_cluster_status_fn	fn_cluster_status;
+	t_fat_rootdir_open_fn	fn_rootdir_open;
 }	t_fat_metadata;
 
+// cluster operations
 int		fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *offset, void *buf, uint32_t bytes);
+
+// dirs operations
+int		fat_rootdir_init(const t_vfs_partition *part, t_fat_dir *rootdir);
+int		fat_dir_open(const t_fat_dir *dir, const char *filename, const char **filename_next, t_fat_file *file);
+
+// files operations
+int		fat_file_init(const t_vfs_partition *part, const t_phy_fat_file *entry, t_fat_file *file);
 bool	fat_file_match_name(const t_phy_fat_file *file, const char *filename, const char **filename_next);
 
 #endif

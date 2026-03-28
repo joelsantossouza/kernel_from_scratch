@@ -72,6 +72,8 @@ typedef struct s_phy_partition	t_phy_partition;
 
 int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_metadata *metadata, enum e_fat_errno *fat_err_code);
 
+int	fat16_rootdir_open(const t_fat_dir *rootdir, const char *filename, const char **filename_next, t_fat_file *file);
+
 static inline
 enum e_fat_cluster_stat	fat16_cluster_status(uint32_t cluster)
 {

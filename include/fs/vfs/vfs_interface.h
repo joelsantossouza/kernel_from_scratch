@@ -9,15 +9,10 @@
 # define VFS_INTERFACE_H
 
 # include <stdint.h>
-# include "fs/fat/fat.h"
-
-typedef union u_vfs_metadata
-{
-	t_fat_metadata	fat;
-}	t_vfs_metadata;
 
 typedef struct s_vdl_disk		t_vdl_disk;
 typedef struct s_phy_partition	t_phy_partition;
+typedef union u_vfs_metadata	t_vfs_metadata;
 
 typedef int	(*t_vfs_probe_fn)(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_vfs_metadata *metadata, int *fs_err_code);
 

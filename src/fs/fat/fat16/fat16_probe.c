@@ -60,11 +60,12 @@ int	fat16_metadata_init(const t_vdl_disk *disk, const t_phy_partition *phy_part,
 	// if (err_code != KERNEL_SUCCESS)
 	// 	return (err_code);
 	// metadata->table_entries = fat_table_bytes / 16  WARNING: Future implementation with malloc
-	metadata->root_dir = fat_table_addr + bpb->fats_count * fat_table_bytes;
-	metadata->data_region = metadata->root_dir + bpb->root_entry_count * sizeof(t_phy_fat_file);
+	metadata->rootdir = fat_table_addr + bpb->fats_count * fat_table_bytes;
+	metadata->data_region = metadata->rootdir + bpb->root_entry_count * sizeof(t_phy_fat_file);
 	metadata->cluster_bytes = cluster_bytes;
 	metadata->fn_cluster_next = fat16_cluster_next;
 	metadata->fn_cluster_status = fat16_cluster_status;
+	metadata->fn_rootdir_open = fat16_rootdir_open;
 	return (KERNEL_SUCCESS);
 }
 

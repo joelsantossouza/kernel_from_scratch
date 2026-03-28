@@ -9,7 +9,7 @@
 # define VFS_PARTITION_H
 
 # include <stdint.h>
-# include "fs/vfs/vfs_interface.h"
+# include "fs/fat/fat.h"
 
 typedef struct s_phy_partition
 {
@@ -20,6 +20,11 @@ typedef struct s_phy_partition
 	uint32_t	lba_start;
 	uint32_t	total_sectors;
 } __attribute__((packed))	t_phy_partition;
+
+typedef union u_vfs_metadata
+{
+	t_fat_metadata	fat;
+}	t_vfs_metadata;
 
 typedef struct s_vdl_disk		t_vdl_disk;
 typedef struct s_vfs_interface	t_vfs_interface;
