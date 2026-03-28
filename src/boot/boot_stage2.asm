@@ -20,42 +20,17 @@ boot_stage2:
 	call	vfs_partition_init
 	add		esp, 12
 
-	; Init subdir
-	push	32
-	push	subdir
-	push	offset
-	push	cluster
+	push	file
+	push	file_path
 	push	partition0
-	call	fat_cluster_read
-	add		esp, 20
-	mov		ax, word [subdir + 20]
-	shl		eax, 16
-	mov		ax, [subdir + 26]
-	mov		dword [subdir + 36], eax
-
-	; open file in subdir
-	push	subdir
-	push	file_next
-	push	file_name
-	push	subdir
-	call	fat_subdir_open
-	add		esp, 16
+	call	fat_file_open
+	add		esp, 12
 
 	jmp	$
 
 section	.data
-offset:	dd 0
-cluster: dd 2
-
-file_next: dd 0
-file_name: db "kernel", 0
-
-file: times 32 db 0
-
-subdir:
-	times 32 db 0
-	dd	partition0
-	dd	0
+file_path: db "boot/kernel"
+file: times 44 db 0
 
 partition0: times 1024 db 0
 

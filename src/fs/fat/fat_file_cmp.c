@@ -19,23 +19,24 @@ bool	fat_file_match_name(const t_phy_fat_file *file, const char *filename, const
 	uint8_t	i;
 
 	*filename_next = filename;
-	for (i = 0; i < FAT_FILE_NAME_MAX; i++, (*filename_next)++)
+	for (i = 0; i < FAT_FILE_NAME_MAX; i++)
 	{
 		fat_chr = file->name[i];
 		is_fat_done = fat_chr == ' ';
 		path_chr = **filename_next;
+		*filename_next += path_chr != 0;
 		is_path_done = path_chr == '/' || path_chr == '.' || path_chr == 0;
 		if (is_fat_done && is_path_done)
 			break ;
 		if (is_fat_done != is_path_done || fat_chr != toupper(path_chr))
 			return (false);
 	}
-	*filename_next += **filename_next == '.';
-	for (i = 0; i < FAT_FILE_EXT_MAX; i++, (*filename_next)++)
+	for (i = 0; i < FAT_FILE_EXT_MAX; i++)
 	{
 		fat_chr = file->ext[i];
 		is_fat_done = fat_chr == ' ';
 		path_chr = **filename_next;
+		*filename_next += path_chr != 0;
 		is_path_done = path_chr == '/' || path_chr == 0;
 		if (is_fat_done && is_path_done)
 			return (true);
