@@ -43,7 +43,7 @@ int	fat_dir_open(const t_fat_dir *dir, const char *filename, const char **filena
 			continue ;
 		if (entry.name[0] == '.')
 			continue ;
-		if (fat_file_match_name(&entry, filename, filename_next) == false)
+		if (fat_file_name_match(&entry, filename, filename_next) == false)
 			continue ;
 		fat_file_init(part, &entry, file);
 		return (KERNEL_SUCCESS);

@@ -29,7 +29,7 @@ boot_stage2:
 	jmp	$
 
 section	.data
-file_path: db "boot/kernel"
+file_path: db "boot/kernel", 0
 file: times 44 db 0
 
 partition0: times 1024 db 0

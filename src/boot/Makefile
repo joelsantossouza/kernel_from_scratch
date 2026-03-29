@@ -17,8 +17,8 @@ BOOT_SRCS	:= boot_stage2.asm \
 			   $(FS_DIR)/vfs/vfs_partition.c \
 			   $(FS_DIR)/vfs/vfs_table.c \
 			   $(FS_DIR)/fat/fat_cluster_read.c \
+			   $(FS_DIR)/fat/fat_file_name.c \
 			   $(FS_DIR)/fat/fat_dir_open.c \
-			   $(FS_DIR)/fat/fat_file_cmp.c \
 			   $(FS_DIR)/fat/fat_file_open.c \
 			   $(FS_DIR)/fat/fat16/fat16_interface.c \
 			   $(FS_DIR)/fat/fat16/fat16_probe.c \

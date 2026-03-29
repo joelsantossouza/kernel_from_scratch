@@ -57,6 +57,11 @@ enum e_fat_cluster_stat
 # define FAT_FILE_NAME_MAX	8
 # define FAT_FILE_EXT_MAX	3
 
+enum e_fat_file_name_info
+{
+	FAT_FILE_FULLNAME_MAX = FAT_FILE_NAME_MAX + FAT_FILE_EXT_MAX,
+};
+
 typedef struct s_phy_fat_file
 {
 	uint8_t		name[FAT_FILE_NAME_MAX];
@@ -116,6 +121,6 @@ int		fat_dir_open(const t_fat_dir *dir, const char *filename, const char **filen
 
 // files operations
 int		fat_file_init(const t_vfs_partition *part, const t_phy_fat_file *entry, t_fat_file *file);
-bool	fat_file_match_name(const t_phy_fat_file *file, const char *filename, const char **filename_next);
+bool	fat_file_name_match(const t_phy_fat_file *entry, const char *filename, const char **filename_next);
 
 #endif

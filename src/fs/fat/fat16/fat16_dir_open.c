@@ -29,7 +29,7 @@ int	fat16_rootdir_open(const t_fat_dir *rootdir, const char *filename, const cha
 			return (-ENOENT);
 		if (entry.name[0] == FAT_DIR_ENTRY_DELETED)
 			continue ;
-		if (fat_file_match_name(&entry, filename, filename_next) == false)
+		if (fat_file_name_match(&entry, filename, filename_next) == false)
 			continue ;
 		fat_file_init(rootdir->partition, &entry, file);
 		return (KERNEL_SUCCESS);
