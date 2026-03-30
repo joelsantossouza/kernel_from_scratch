@@ -10,6 +10,7 @@
 global	mempcpy
 global	memcpy
 global	memmove
+global	memicpy8
 
 section	.asm
 mempcpy:
@@ -112,7 +113,7 @@ memicpy8:
 	mov		esi, [ebp + 12]
 	mov		edi, [ebp + 8]
 
-	jmp		while
+	jmp		.while
 .do:
 	lodsb
 	stosw
@@ -121,7 +122,7 @@ memicpy8:
 	cmp		ecx, 0
 	jnz		.do
 
-.return
+.return:
 	mov		eax, edi
 	pop		esi
 	pop		edi
