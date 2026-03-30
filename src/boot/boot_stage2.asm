@@ -7,23 +7,28 @@
 
 [BITS 32]
 
-%include "string/string.inc"
+%include "drivers/video/text/video_text.inc"
 
 section	.text
 boot_stage2:
-	push	'.'
-	push	dword [src_size]
-	push	src
-	push	dest
-	call	memicpy8
+	; Writes on History
+	push	0x0f
+	push	dword [text_size]
+	push	text
+	push	0
+	call	video_text_history_write
 	add		esp, 16
+
+	; Reads from History
+	push	dword [text_size]
+	push	0xb800
+	push	dword [text_size]
+	call	video_text_history_read
+	add		esp, 12
 
 	jmp		$
 
-section	.data
-src:
-	db "0123456789abcdef"
-.end:
 
-src_size: dd $ - src
-dest: times (src.end - src) * 2 db 0
+section	.data
+text:		db "This is a big text to test if the Video Text History read/write functions are working correctly. If you are being able to read its sentences without any obvious missing part, you passed in the test!!"
+text_size:	dd $ - text

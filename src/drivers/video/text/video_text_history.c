@@ -7,6 +7,8 @@
  */
 
 #include <stdint.h>
+#include "drivers/video/text/config.h"
+#include "string/string.h"
 
 uint16_t	g_video_text_history[VIDEO_TEXT_HISTORY_MAX];
 
@@ -28,7 +30,7 @@ uint32_t	video_text_history_write(uint32_t offset, const char *text, uint32_t si
 	{
 		memicpy8(&g_video_text_history[offset], text, remaining_until_limit, attr);
 		offset = size - remaining_until_limit;
-		memicpy8(&g_video_text_history[0], &text[remaining_until_limit], offset, attr);
+		memicpy8(g_video_text_history, &text[remaining_until_limit], offset, attr);
 	}
 	else
 	{
@@ -46,8 +48,8 @@ uint32_t	video_text_history_read(uint32_t offset, uint16_t *buf, uint32_t size)
 		size = VIDEO_TEXT_HISTORY_MAX;
 	if (size > offset)
 	{
-		buf = mempcpy(buf, &g_video_text_history[0], offset);
 		size -= offset;
+		memcpy(&buf[size], g_video_text_history, offset);
 		offset = VIDEO_TEXT_HISTORY_MAX - size;
 		memcpy(buf, &g_video_text_history[offset], size);
 	}
