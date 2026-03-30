@@ -23,7 +23,7 @@ strnlen_strict:
 
 .loop:
 	scasb
-	jz		.end
+	jz		.return
 	cmp		ecx, edx
 	jz		.invalid_len
 	add		ecx, 1
@@ -32,7 +32,7 @@ strnlen_strict:
 .invalid_len:
 	mov		eax, -ENAMETOOLONG
 
-.end:
+.return:
 	mov		edx, [ebp + 16]
 	mov		[edx], ecx
 	pop		edi

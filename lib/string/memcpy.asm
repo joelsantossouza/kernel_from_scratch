@@ -33,7 +33,7 @@ mempcpy:
 	and		ecx, INT32_MASK
 	rep		movsb
 
-.end:
+.return:
 	mov		eax, edi
 	pop		esi
 	pop		edi
@@ -64,9 +64,9 @@ memmove:
 	mov		edx, [ebp + 8]
 	mov		edi, edx
 	cmp		edi, esi
-	jbe		.forward_copy
+	jbe		.copy_forward
 
-.backward_copy:
+.copy_backward:
 	std
 	mov		eax, [ebp + 16]
 	lea		edi, [edi + eax - 1]
@@ -86,60 +86,44 @@ memmove:
 	mov		eax, edx
 	cld
 
-.end:
+.return:
 	pop		esi
 	pop		edi
 	pop		ebp
 	ret
 
-.forward_copy:
+.copy_forward:
 	push	dword [ebp + 16]
 	push	esi
 	push	edi
 	call	memcpy
 	add		esp, 12
-	jmp		.end
+	jmp		.return
 
 memicpy8:
-	push		ebp
-	mov			ebp, esp
-	push		edi
-	push		esi
+	push	ebp
+	mov		ebp, esp
+	push	edi
+	push	esi
+	cld
 
-	mov			eax, [ebp + 20]
-	mov			ecx, [ebp + 16]
-	mov			esi, [ebp + 12]
-	mov			edi, [ebp + 8]
+	mov		ah, [ebp + 20]
+	mov		ecx, [ebp + 16]
+	mov		esi, [ebp + 12]
+	mov		edi, [ebp + 8]
 
-.interleave_dqword:
-	mov			ebx, 0x01010101
-	mul			ebx
-	movd		xmm0, eax
-	pshufd		xmm0, xmm0, 0
-	jmp			.while1
-.do1:
-	sub			ecx, INT128_BYTES
-	movdqu		xmm1, [esi + ecx]
-	movdqa		xmm2, xmm1
-	punpcklbw	xmm1, xmm0
-	punpckhbw	xmm2, xmm0
-	movdqu		[edi + ecx * 2], xmm1
-	movdqu		[edi + ecx * 2 + INT128_BYTES], xmm2
-.while1:
-	cmp			ecx, INT128_BYTES
-	jae			.do1
+	jmp		while
+.do:
+	lodsb
+	stosw
+	sub		ecx, 1
+.while:
+	cmp		ecx, 0
+	jnz		.do
 
-.interleave_byte:
-	jmp			.while2
-.do2:
-	sub			ecx, 1
-	mov			al, [esi + ecx]
-	mov			[edi + ecx * 2], ax
-.while2:
-	cmp			ecx, 0
-	jnz			.do2
-
-	pop			esi
-	pop			edi
-	pop			ebp
+.return
+	mov		eax, edi
+	pop		esi
+	pop		edi
+	pop		ebp
 	ret

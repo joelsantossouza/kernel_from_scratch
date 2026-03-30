@@ -41,7 +41,7 @@ memcmp:
 	ja		.s1_greater
 	xor		eax, eax
 
-.end:
+.return:
 	pop		esi
 	pop		edi
 	pop		ebp
@@ -49,8 +49,8 @@ memcmp:
 
 .s1_smaller:
 	mov		eax, -1
-	jmp		.end
+	jmp		.return
 
 .s1_greater:
 	mov		eax, 1
-	jmp		.end
+	jmp		.return

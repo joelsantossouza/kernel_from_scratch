@@ -18,14 +18,14 @@ strcmp:
 .loop:
 	movzx	eax, byte [edx]
 	sub		al, [ecx]
-	jnz		.end
+	jnz		.return
 	cmp		byte [edx], 0
-	jz		.end
+	jz		.return
 	add		edx, 1
 	add		ecx, 1
 	jmp		.loop
 
-.end:
+.return:
 	movsx	eax, al
 	pop		ebp
 	ret
