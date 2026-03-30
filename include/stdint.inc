@@ -6,8 +6,10 @@
 %ifndef STDINT_INC
 %define STDINT_INC
 
-%define INT32_BYTES	4
-%define INT32_SHIFT	2
-%assign INT32_MASK	INT32_BYTES - 1
+%define INT32_BYTES		4
+%define INT32_SHIFT		2
+%assign INT32_MASK		INT32_BYTES - 1
+
+%define INT128_BYTES	16
 
 %endif

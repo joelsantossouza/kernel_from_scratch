@@ -7,37 +7,23 @@
 
 [BITS 32]
 
-%include "drivers/disk/ata/ata.inc"
-%include "fs/vfs/vfs_partition.inc"
-%include "fs/fat/fat.inc"
+%include "string/string.inc"
 
 section	.text
 boot_stage2:
-	; Init partition
-	push	partition0
-	push	0
-	push	disk
-	call	vfs_partition_init
-	add		esp, 12
+	push	'.'
+	push	dword [src_size]
+	push	src
+	push	dest
+	call	memicpy8
+	add		esp, 16
 
-	push	file
-	push	file_path
-	push	partition0
-	call	fat_file_open
-	add		esp, 12
-
-	jmp	$
+	jmp		$
 
 section	.data
-file_path: db "boot/kernel", 0
-file: times 44 db 0
+src:
+	db "0123456789abcdef"
+.end:
 
-partition0: times 1024 db 0
-
-ata_driver:
-	dd disk_ata_read
-	dd disk_ata_to_errno
-
-disk:
-	dd ata_driver
-	db 0
+src_size: dd $ - src
+dest: times (src.end - src) * 2 db 0

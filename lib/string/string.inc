@@ -9,6 +9,7 @@
 extern	memcpy
 extern	mempcpy
 extern	memmove
+extern	memicpy8
 extern	memcmp
 
 extern	strnlen_strict

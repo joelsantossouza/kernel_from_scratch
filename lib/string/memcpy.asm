@@ -99,3 +99,47 @@ memmove:
 	call	memcpy
 	add		esp, 12
 	jmp		.end
+
+memicpy8:
+	push		ebp
+	mov			ebp, esp
+	push		edi
+	push		esi
+
+	mov			eax, [ebp + 20]
+	mov			ecx, [ebp + 16]
+	mov			esi, [ebp + 12]
+	mov			edi, [ebp + 8]
+
+.interleave_dqword:
+	mov			ebx, 0x01010101
+	mul			ebx
+	movd		xmm0, eax
+	pshufd		xmm0, xmm0, 0
+	jmp			.while1
+.do1:
+	sub			ecx, INT128_BYTES
+	movdqu		xmm1, [esi + ecx]
+	movdqa		xmm2, xmm1
+	punpcklbw	xmm1, xmm0
+	punpckhbw	xmm2, xmm0
+	movdqu		[edi + ecx * 2], xmm1
+	movdqu		[edi + ecx * 2 + INT128_BYTES], xmm2
+.while1:
+	cmp			ecx, INT128_BYTES
+	jae			.do1
+
+.interleave_byte:
+	jmp			.while2
+.do2:
+	sub			ecx, 1
+	mov			al, [esi + ecx]
+	mov			[edi + ecx * 2], ax
+.while2:
+	cmp			ecx, 0
+	jnz			.do2
+
+	pop			esi
+	pop			edi
+	pop			ebp
+	ret
