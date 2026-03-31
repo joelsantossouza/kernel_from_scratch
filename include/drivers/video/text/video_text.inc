@@ -9,4 +9,6 @@
 extern	video_text_history_write
 extern	video_text_history_read
 
+extern	video_text_vga_write
+
 %endif

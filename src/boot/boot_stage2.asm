@@ -11,19 +11,10 @@
 
 section	.text
 boot_stage2:
-	; Writes on History
-	push	0x0f
+	push	0x7f
 	push	dword [text_size]
 	push	text
-	push	0
-	call	video_text_history_write
-	add		esp, 16
-
-	; Reads from History
-	push	dword [text_size]
-	push	0xb800
-	push	dword [text_size]
-	call	video_text_history_read
+	call	video_text_vga_write
 	add		esp, 12
 
 	jmp		$
