@@ -4,8 +4,7 @@
 ; Description: Master Boot Record. This is the first sector (512 bytes size) of
 ; 			   the hard disk. It will load the stage 2 of boot into RAM.
 
-%include "boot/config.inc"
-%include "boot/bios.inc"
+%include "boot/mbr.inc"
 %include "cpu/gdt.inc"
 %include "cpu/cr0.inc"
 
@@ -178,4 +177,4 @@ partition_table:
 	dd		MBR_PART3_LBA
 	dd		MBR_PART3_SECTORS
 
-dw	BOOT_SIGNATURE
+dw	BIOS_BOOT_SIGNATURE

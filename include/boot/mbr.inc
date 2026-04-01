@@ -6,6 +6,7 @@
 %ifndef MBR_INC
 %define MBR_INC
 
+%include "boot/bios.inc"
 %include "drivers/disk/vdl/config.inc"
 
 %define MBR_ADDR					BIOS_BOOT_LOAD_ADDR

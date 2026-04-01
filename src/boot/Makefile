@@ -3,6 +3,7 @@
 # =============================================================================
 ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
 include $(ROOT_DIR)/build.mk
+include config.mk
 
 MBR_SRCS		:= mbr.asm
 
@@ -35,9 +36,9 @@ DEPS			:= $(OBJS:.o=.d)
 all: $(BINS) $(ELFS)
 
 $(MBR_NAME).bin: $(MBR_SRCS)
-	$(AS) $(INCLUDES) -f bin $< -o $@
+	$(AS) $(INCLUDES) $(DEFINES) -f bin $< -o $@
 
 $(MBR_NAME).elf: $(MBR_SRCS)
-	$(AS) $(INCLUDES) -f elf32 $< -o $@
+	$(AS) $(INCLUDES) $(DEFINES) -f elf32 $< -o $@
 
 $(BOOTLOADER_NAME).bin $(BOOTLOADER_NAME).elf: $(BOOTLOADER_OBJS)

@@ -14,7 +14,6 @@ boot_stage2:
 	push	0x7f
 	push	dword [text_size]
 	push	text
-	call	video_text_vga_write
 	add		esp, 12
 
 	jmp		$
