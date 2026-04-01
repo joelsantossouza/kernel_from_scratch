@@ -1,8 +1,8 @@
 # =============================================================================
 # DISK DRIVERS
 # =============================================================================
-ROOT		:= $(shell git rev-parse --show-toplevel)
-include $(ROOT)/config.mk
+ROOT_DIR	:= $(shell git rev-parse --show-toplevel)
+include $(ROOT_DIR)/build.mk
 
 SRCS		:= ata/disk_ata.c \
 			   ata/disk_ata_stat.c \

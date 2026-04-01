@@ -1,10 +1,9 @@
 # =============================================================================
 # KERNEL
 # =============================================================================
-ROOT		:= $(shell git rev-parse --show-toplevel)
-include $(ROOT)/config.mk
+ROOT_DIR	:= $(shell git rev-parse --show-toplevel)
+include $(ROOT_DIR)/build.mk
 
-KERNEL_NAME	:= kernel
 KERNEL_SRCS	:= kernel.asm
 KERNEL_OBJS	:= $(addsuffix .o, $(KERNEL_SRCS))
 

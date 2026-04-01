@@ -1,9 +1,9 @@
 # =============================================================================
 # PROJECT
 # =============================================================================
-ROOT			:= $(shell git rev-parse --show-toplevel)
+ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
 
-include $(ROOT)/config.mk
+include $(ROOT_DIR)/build.mk
 
 DISK_IMG		:= MyOS.img
 DISK_SECTORS	:= 65536

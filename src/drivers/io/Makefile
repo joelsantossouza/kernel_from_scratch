@@ -1,8 +1,8 @@
 # =============================================================================
 # IO DRIVERS
 # =============================================================================
-ROOT		:= $(shell git rev-parse --show-toplevel)
-include $(ROOT)/config.mk
+ROOT_DIR	:= $(shell git rev-parse --show-toplevel)
+include $(ROOT_DIR)/build.mk
 
 SRCS		:= io.asm
 OBJS		:= $(addsuffix .o, $(SRCS))
