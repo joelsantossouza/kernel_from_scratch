@@ -147,20 +147,35 @@ times	MBR_BOOT_CODE_BYTES - ($ - $$) db 0
 
 partition_table:
 .part0:
-	db		0
+	db		MBR_PART0_BOOT_ATTR
 	db		0, 0, 0
-	db		MBR_PART_TYPE_FAT16_LBA
+	db		MBR_PART0_TYPECODE
 	db		0, 0, 0
 	dd		MBR_PART0_LBA
 	dd		MBR_PART0_SECTORS
 
 .part1:
-	times	MBR_PART_TABLE_ENTRY_BYTES db 0
+	db		MBR_PART1_BOOT_ATTR
+	db		0, 0, 0
+	db		MBR_PART1_TYPECODE
+	db		0, 0, 0
+	dd		MBR_PART1_LBA
+	dd		MBR_PART1_SECTORS
 
 .part2:
-	times	MBR_PART_TABLE_ENTRY_BYTES db 0
+	db		MBR_PART2_BOOT_ATTR
+	db		0, 0, 0
+	db		MBR_PART2_TYPECODE
+	db		0, 0, 0
+	dd		MBR_PART2_LBA
+	dd		MBR_PART2_SECTORS
 
 .part3:
-	times	MBR_PART_TABLE_ENTRY_BYTES db 0
+	db		MBR_PART3_BOOT_ATTR
+	db		0, 0, 0
+	db		MBR_PART3_TYPECODE
+	db		0, 0, 0
+	dd		MBR_PART3_LBA
+	dd		MBR_PART3_SECTORS
 
 dw	BOOT_SIGNATURE
