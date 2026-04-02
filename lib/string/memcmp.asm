@@ -5,7 +5,7 @@
 
 [BITS 32]
 
-%include "stdint.inc"
+%include "stddef.inc"
 
 global	memcmp
 
@@ -23,19 +23,19 @@ memcmp:
 
 .compare_dword:
 	mov		ecx, eax
-	shr		ecx, INT32_SHIFT
+	shr		ecx, DWORD_LOG2
 	repz	cmpsd
 	jz		.compare_byte
-	sub		esi, INT32_BYTES
-	sub		edi, INT32_BYTES
-	mov		ecx, INT32_BYTES
+	sub		esi, DWORD
+	sub		edi, DWORD
+	mov		ecx, DWORD
 	repz	cmpsb
 	jb		.s1_smaller
 	ja		.s1_greater
 
 .compare_byte:
 	mov		ecx, eax
-	and		ecx, INT32_MASK
+	and		ecx, DWORD_MASK
 	repz	cmpsb
 	jb		.s1_smaller
 	ja		.s1_greater
