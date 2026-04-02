@@ -30,12 +30,21 @@ CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nost
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
 LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
 INCLUDES		:= -I$(INCLUDES_DIR) -I$(LIBS_DIR)
-DEFINES			:=
 .DEFAULT_GOAL	= all
 
 # Commands
-define register_config
-DEFINES			+= -D$(1)=$(strip $($(1)))
+define assert_options
+$(if $(filter $(1),$($(2))),,\
+	$(error $(2) must be one of: $(1) | current value = $($(2))))
+endef
+
+define assert_range
+$(if $(shell \
+    val=$$(printf "%d" $($(3))); \
+    min=$$(printf "%d" $(1)); \
+    max=$$(printf "%d" $(2)); \
+    [ $$val -ge $$min ] && [ $$val -le $$max ] && echo OK),,\
+    $(error $(3) must be between $(1) and $(2) | current value = $($(3))))
 endef
 
 # =============================================================================
@@ -46,11 +55,11 @@ endef
 
 # Compile Objects
 %.c.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -MMD -MP -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 # Assembly Objects
 %.asm.o: %.asm
-	$(AS) $(AFLAGS) $(INCLUDES) $(DEFINES) -MD $(@:.o=.d) $< -o $@
+	$(AS) $(AFLAGS) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
 
 # Link Binary
 %.bin:

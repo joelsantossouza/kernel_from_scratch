@@ -3,7 +3,7 @@
 # =============================================================================
 ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
 include $(ROOT_DIR)/build.mk
-include config.mk
+include .config
 
 MBR_SRCS		:= mbr.asm
 
@@ -37,9 +37,25 @@ LDFLAGS			+= -T $(BOOTLOADER_NAME).ld -defsym=BOOT_STAGE2_ADDR=$(BOOT_STAGE2_ADD
 all: $(BINS) $(ELFS)
 
 $(MBR_NAME).bin: $(MBR_SRCS)
-	$(AS) $(INCLUDES) $(DEFINES) -f bin $< -o $@
+	$(AS) $(INCLUDES) -f bin $< -o $@
 
 $(MBR_NAME).elf: $(MBR_SRCS)
-	$(AS) $(INCLUDES) $(DEFINES) -f elf32 $< -o $@
+	$(AS) $(INCLUDES) -f elf32 $< -o $@
 
 $(BOOTLOADER_NAME).bin $(BOOTLOADER_NAME).elf: $(BOOTLOADER_OBJS)
+
+assert:
+	$(call assert_options,0x0 0x80,MBR_PART0_BOOT_ATTR)
+	$(call assert_options,0x0 0x80,MBR_PART1_BOOT_ATTR)
+	$(call assert_options,0x0 0x80,MBR_PART2_BOOT_ATTR)
+	$(call assert_options,0x0 0x80,MBR_PART3_BOOT_ATTR)
+	$(call assert_range,0x0,0xFF,MBR_PART0_TYPECODE)
+	$(call assert_range,0x0,0xFF,MBR_PART1_TYPECODE)
+	$(call assert_range,0x0,0xFF,MBR_PART2_TYPECODE)
+	$(call assert_range,0x0,0xFF,MBR_PART3_TYPECODE)
+
+	$(call assert_range,0x7E00,0x70000,BOOT_STAGE2_ADDR)
+	$(call assert_range,1,127,BOOT_STAGE2_SECTORS)
+	$(call assert_range,2,63,BOOT_STAGE2_SECTOR)
+	$(call assert_range,0,1023,BOOT_STAGE2_CYLINDER)
+	$(call assert_range,0,255,BOOT_STAGE2_HEAD)
