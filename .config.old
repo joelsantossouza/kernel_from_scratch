@@ -1,0 +1,14 @@
+
+#
+# Disk Configuration
+#
+CONFIG_VDL_PART0_FS_FAT16_LBA=y
+CONFIG_VDL_PART0_BOOTABLE=y
+# end of Disk Configuration
+
+#
+# MBR & Bootloader Configuration
+#
+CONFIG_MBR_PART0_BOOT_ATTR=0x80
+CONFIG_MBR_PART0_TYPECODE=0x0E
+# end of MBR & Bootloader Configuration

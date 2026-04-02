@@ -30,10 +30,10 @@ CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nost
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
 LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
 INCLUDES		:= -I$(INCLUDES_DIR) -I$(LIBS_DIR)
-CONFIG_SCRIPT	:= Kconfig
-CONFIG_HGEN		:= genconfig
-CONFIG_MENU		:= menuconfig
 CONFIG_FILE		:= .config
+CONFIG_SCRIPT	:= Kconfig
+CONFIG_MENU		:= menuconfig
+CONFIG_HGEN		:= genconfig
 .DEFAULT_GOAL	= all
 
 # Commands
@@ -49,6 +49,25 @@ $(if $(shell \
     max=$$(printf "%d" $(2)); \
     [ $$val -ge $$min ] && [ $$val -le $$max ] && echo OK),,\
     $(error $(3) must be between $(1) and $(2) | current value = $($(3))))
+endef
+
+define assert_range_span
+$(if $(shell \
+    start=$$(printf "%d" $($(3))); \
+    count=$$(printf "%d" $(4)); \
+    size=$$(printf "%d" $(5)); \
+    min=$$(printf "%d" $(1)); \
+    max=$$(printf "%d" $(2)); \
+    end=$$((start + count * size)); \
+    [ $$start -ge $$min ] && [ $$end -le $$max ] && echo OK),,\
+    $(error $(3) span [$($(3)), \
+$(shell printf "0x%x" $$(( $$(printf "%d" $($(3))) + $$(printf "%d" $(4)) * $$(printf "%d" $(5)) )))] \
+must fit between $(1) and $(2)))
+endef
+
+define assert_align
+$(if $(filter-out 0,$(shell printf "%d" $$(( $($(1)) % $(2) )))), \
+    $(error $(1) is not aligned to $(2) | current value = $($(1))),)
 endef
 
 # =============================================================================
@@ -78,10 +97,6 @@ $(CONFIG_FILE): $(CONFIG_MENU)
 
 %config: $(CONFIG_SCRIPT)
 	$@ $(CONFIG_SCRIPT)
-
-# autoconfig.h file
-%autoconfig.h: assertconfig $(CONFIG_FILE)
-	$(CONFIG_HGEN) --header-path $@ $(CONFIG_FILE)
 
 # =============================================================================
 # Clean up

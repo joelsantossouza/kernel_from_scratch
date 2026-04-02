@@ -1,0 +1,10 @@
+# =============================================================================
+# OPERATIONAL SYSTEM CONFIGURATION
+# =============================================================================
+
+mainmenu "Kernel From Scratch Configuration"
+
+source "src/drivers/disk/Kconfig"
+
+source "src/boot/Kconfig"
+

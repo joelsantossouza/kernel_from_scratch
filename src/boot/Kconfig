@@ -1,0 +1,51 @@
+# =============================================================================
+# MBR CONFIGURATION
+# =============================================================================
+
+menu "MBR Configuration"
+
+	# Partition0
+	config MBR_PART0_BOOT_ATTR
+		hex
+		default 0x80 if VDL_PART0_BOOTABLE
+		default 0x0
+
+	config MBR_PART0_TYPECODE
+		hex
+		default 0x0E if VDL_PART0_FS_FAT16_LBA
+		default 0x0
+		
+endmenu
+
+# =============================================================================
+# BOOTLOADER CONFIGURATION
+# =============================================================================
+
+menu "Bootloader Configuration"
+
+	config BOOT_STAGE2_ADDR
+		hex "Address to Load Bootloader [512 bytes aligned]"
+		range 0x7E00 0x7FFFF
+		default 0x7E00
+
+	config BOOT_STAGE2_SECTORS
+		int "Bootloader Total Sectors"
+		range 1 127
+		default 20
+
+	config BOOT_STAGE2_SECTOR
+		int "Bootloader Disk LBA"
+		range 2 63
+		default 2
+
+	config BOOT_STAGE2_CYLINDER
+		int "Bootloader Disk CHS Cylinder"
+		range 0 1023
+		default 0
+
+	config BOOT_STAGE2_HEAD
+		int "Bootloader Disk CHS Head"
+		range 0 255
+		default 0
+
+endmenu

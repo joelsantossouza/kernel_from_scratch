@@ -3,7 +3,6 @@
 # =============================================================================
 ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
 include $(ROOT_DIR)/build.mk
-include $(CONFIG_FILE)
 
 MBR_SRCS		:= mbr.asm
 
@@ -34,7 +33,7 @@ LDFLAGS			+= -T $(BOOTLOADER_NAME).ld -defsym=BOOT_STAGE2_ADDR=$(BOOT_STAGE2_ADD
 
 -include	$(DEPS)
 
-all: $(INCLUDES_DIR)/boot/autoconfig.h $(BINS) $(ELFS)
+all: $(BINS) $(ELFS)
 
 $(MBR_NAME).bin: $(MBR_SRCS)
 	$(AS) $(INCLUDES) -f bin $< -o $@
@@ -54,7 +53,8 @@ assertconfig:
 	$(call assert_range,0x0,0xFF,MBR_PART2_TYPECODE)
 	$(call assert_range,0x0,0xFF,MBR_PART3_TYPECODE)
 
-	$(call assert_range,0x7E00,0x70000,BOOT_STAGE2_ADDR)
+	$(call assert_align,BOOT_STAGE2_ADDR,512)
+	$(call assert_range_span,0x7E00,0x7FFFF,BOOT_STAGE2_ADDR,$(BOOT_STAGE2_SECTORS),512)
 	$(call assert_range,1,127,BOOT_STAGE2_SECTORS)
 	$(call assert_range,2,63,BOOT_STAGE2_SECTOR)
 	$(call assert_range,0,1023,BOOT_STAGE2_CYLINDER)

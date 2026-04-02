@@ -1,0 +1,17 @@
+# =============================================================================
+# DISK CONFIGURATION
+# =============================================================================
+
+menu "Disk Configuration"
+
+	config VDL_PART0_BOOTABLE
+		bool "Partition0 Bootable"
+		default n
+
+	choice
+		prompt "Partition0 File System:"
+	config VDL_PART0_FS_FAT16_LBA
+		bool "FAT16 LBA"
+	endchoice
+
+endmenu
