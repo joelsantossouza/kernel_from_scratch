@@ -30,6 +30,10 @@ CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nost
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
 LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
 INCLUDES		:= -I$(INCLUDES_DIR) -I$(LIBS_DIR)
+CONFIG_SCRIPT	:= Kconfig
+CONFIG_HGEN		:= genconfig
+CONFIG_MENU		:= menuconfig
+CONFIG_FILE		:= .config
 .DEFAULT_GOAL	= all
 
 # Commands
@@ -50,7 +54,7 @@ endef
 # =============================================================================
 # Geral Build
 # =============================================================================
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re assertconfig
 .SECONDARY:
 
 # Compile Objects
@@ -68,6 +72,16 @@ endef
 # Link Elf
 %.elf:
 	$(LD) $(LDFLAGS) --oformat elf32-i386 $^ -o $@
+
+# Config file
+$(CONFIG_FILE): $(CONFIG_MENU)
+
+%config: $(CONFIG_SCRIPT)
+	$@ $(CONFIG_SCRIPT)
+
+# autoconfig.h file
+%autoconfig.h: assertconfig $(CONFIG_FILE)
+	$(CONFIG_HGEN) --header-path $@ $(CONFIG_FILE)
 
 # =============================================================================
 # Clean up
