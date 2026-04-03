@@ -1,40 +1,63 @@
 # =============================================================================
 # BOILERPLATE MAKEFILE
 # =============================================================================
-# OS component names
-MBR_NAME		:= mbr
-BOOTLOADER_NAME	:= boot_stage2
-KERNEL_NAME		:= kernel
-OS_NAME			:= MyOs
+.DEFAULT_GOAL	= all
 
 # Directories
 ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
 
-INCLUDES_DIR	:= $(ROOT_DIR)/include
-SRCS_DIR		:= $(ROOT_DIR)/src
-LIBS_DIR		:= $(ROOT_DIR)/lib
+SRC_DIR			:= $(ROOT_DIR)/src
+LIB_DIR			:= $(ROOT_DIR)/lib
+INC_DIR			:= $(ROOT_DIR)/include
 
-DRIVERS_DIR		:= $(SRCS_DIR)/drivers
-FS_DIR			:= $(SRCS_DIR)/fs
+BOOT_DIR		:= $(SRC_DIR)/boot
+KERNEL_DIR		:= $(SRC_DIR)/kernel
+DRIVERS_DIR		:= $(SRC_DIR)/drivers
+FS_DIR			:= $(SRC_DIR)/fs
 
 IO_DIR			:= $(DRIVERS_DIR)/io
 DISK_DIR		:= $(DRIVERS_DIR)/disk
 
-STRING_DIR		:= $(LIBS_DIR)/string
+STRING_DIR		:= $(LIB_DIR)/string
 
-# Build Configs
+# OS Components
+OS_NAME			:= HavenOS
+OS				:= ./$(OS_NAME)
+
+MBR_NAME		:= mbr
+MBR				:= $(BOOT_DIR)/$(MBR_NAME)
+
+BOOTLOADER_NAME	:= boot_stage2
+BOOTLOADER		:= $(BOOT_DIR)/$(BOOTLOADER_NAME)
+
+KERNEL_NAME		:= kernel
+KERNEL			:= $(KERNEL_DIR)/$(KERNEL_NAME)
+
+PART0_NAME		:= part0
+PART0			:= ./$(PART0_NAME)
+
+PART1_NAME		:= part1
+PART1			:= ./$(PART1_NAME)
+
+PART2_NAME		:= part2
+PART2			:= ./$(PART2_NAME)
+
+PART3_NAME		:= part3
+PART3			:= ./$(PART3_NAME)
+
+# Tools
 CC				:= gcc
 AS				:= nasm
 LD				:= ld
+DD				:= dd
+
+# Flags
 CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
 LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
-INCLUDES		:= -I$(INCLUDES_DIR) -I$(LIBS_DIR)
-CONFIG_FILE		:= .config
-CONFIG_SCRIPT	:= Kconfig
-CONFIG_MENU		:= menuconfig
-CONFIG_HGEN		:= genconfig
-.DEFAULT_GOAL	= all
+DDFLAGS			:=
+INCLUDE			:= -I$(INC_DIR) -I$(LIB_DIR)
+DEFINE			:=
 
 # Commands
 define assert_options
@@ -70,33 +93,37 @@ $(if $(filter-out 0,$(shell printf "%d" $$(( $($(1)) % $(2) )))), \
     $(error $(1) is not aligned to $(2) | current value = $($(1))),)
 endef
 
+# OS Values
+include						$(ROOT_DIR)/.config
+CONFIG_DISK_PART0_SECTORS	:= $(shell printf "%d" $$(( \
+							   $(CONFIG_DISK_PART0_END) - $(CONFIG_DISK_PART0_START) \
+)))
+
 # =============================================================================
-# Geral Build
+# Build
 # =============================================================================
-.PHONY: all clean fclean re assertconfig
+.PHONY: all clean fclean re
 .SECONDARY:
 
-# Compile Objects
+# C Objects
 %.c.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MP -c $< -o $@
 
 # Assembly Objects
 %.asm.o: %.asm
-	$(AS) $(AFLAGS) $(INCLUDES) -MD $(@:.o=.d) $< -o $@
+	$(AS) $(AFLAGS) $(INCLUDE) -MD $(@:.o=.d) $< -o $@
 
-# Link Binary
+# Binary
 %.bin:
 	$(LD) $(LDFLAGS) --oformat binary $^ -o $@
 
-# Link Elf
+# Elf
 %.elf:
 	$(LD) $(LDFLAGS) --oformat elf32-i386 $^ -o $@
 
-# Config file
-$(CONFIG_FILE): $(CONFIG_MENU)
-
-%config: $(CONFIG_SCRIPT)
-	$@ $(CONFIG_SCRIPT)
+# Partitions
+$(PART0).img:
+	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART0_SECTORS)
 
 # =============================================================================
 # Clean up

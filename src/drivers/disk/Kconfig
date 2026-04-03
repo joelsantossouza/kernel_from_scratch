@@ -4,14 +4,137 @@
 
 menu "Disk Configuration"
 
-	config VDL_PART0_BOOTABLE
+	config DISK_SECTORS
+		hex "Disk Total Sectors"
+		range 0x10000 0x20000
+		default 0x10000
+
+endmenu
+
+# =============================================================================
+# PARTITION CONFIGURATION
+# =============================================================================
+
+menu "Partition Configuration"
+
+# --------------------------------------
+# Partition0
+# --------------------------------------
+	config DISK_PART0_START
+		hex
+		default 0x800
+
+	config DISK_PART0_END
+		hex "Partition0 LBA end on disk"
+		range DISK_PART0_START DISK_SECTORS
+		default 0x4600
+
+	config DISK_PART0_BOOTABLE
 		bool "Partition0 Bootable"
 		default n
 
 	choice
 		prompt "Partition0 File System:"
-	config VDL_PART0_FS_FAT16_LBA
+	config DISK_PART0_FS_FAT16_LBA
 		bool "FAT16 LBA"
 	endchoice
+
+	config DISK_PART0_FS_FAMILY
+		string
+		default "FAT" if DISK_PART0_FS_FAT16_LBA
+
+	config DISK_PART0_FS_VERSION
+		int
+		default 16 if DISK_PART0_FS_FAT16_LBA
+
+# --------------------------------------
+# Partition1
+# --------------------------------------
+	config DISK_PART1_START
+		hex
+		default DISK_PART0_END
+
+	config DISK_PART1_END
+		hex "Partition1 LBA end on disk"
+		range DISK_PART1_START DISK_SECTORS
+		default 0x8400
+
+	config DISK_PART1_BOOTABLE
+		bool "Partition1 Bootable"
+		default n
+
+	choice
+		prompt "Partition1 File System:"
+	config DISK_PART1_FS_FAT16_LBA
+		bool "FAT16 LBA"
+	endchoice
+
+	config DISK_PART1_FS_FAMILY
+		string
+		default "FAT" if DISK_PART1_FS_FAT16_LBA
+
+	config DISK_PART1_FS_VERSION
+		int
+		default 16 if DISK_PART1_FS_FAT16_LBA
+
+# --------------------------------------
+# Partition2
+# --------------------------------------
+	config DISK_PART2_START
+		hex
+		default DISK_PART1_END
+
+	config DISK_PART2_END
+		hex "Partition2 LBA end on disk"
+		range DISK_PART2_START DISK_SECTORS
+		default 0xC200
+
+	config DISK_PART2_BOOTABLE
+		bool "Partition2 Bootable"
+		default n
+
+	choice
+		prompt "Partition2 File System:"
+	config DISK_PART2_FS_FAT16_LBA
+		bool "FAT16 LBA"
+	endchoice
+
+	config DISK_PART2_FS_FAMILY
+		string
+		default "FAT" if DISK_PART2_FS_FAT16_LBA
+
+	config DISK_PART2_FS_VERSION
+		int
+		default 16 if DISK_PART2_FS_FAT16_LBA
+
+# --------------------------------------
+# Partition3
+# --------------------------------------
+	config DISK_PART3_START
+		hex
+		default DISK_PART2_END
+
+	config DISK_PART3_END
+		hex "Partition3 LBA end on disk"
+		range DISK_PART3_START DISK_SECTORS
+		default DISK_SECTORS
+
+	config DISK_PART3_BOOTABLE
+		bool "Partition3 Bootable"
+		default n
+
+	choice
+		prompt "Partition3 File System:"
+	config DISK_PART3_FS_FAT16_LBA
+		bool "FAT16 LBA"
+	endchoice
+
+	config DISK_PART3_FS_FAMILY
+		string
+		default "FAT" if DISK_PART3_FS_FAT16_LBA
+
+	config DISK_PART3_FS_VERSION
+		int
+		default 16 if DISK_PART3_FS_FAT16_LBA
 
 endmenu
