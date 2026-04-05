@@ -41,7 +41,7 @@ menu "Partition Configuration"
 
 	config DISK_PART0_FS_FAMILY
 		string
-		default "FAT" if DISK_PART0_FS_FAT16_LBA
+		default "fat" if DISK_PART0_FS_FAT16_LBA
 
 	config DISK_PART0_FS_VERSION
 		int
@@ -71,7 +71,7 @@ menu "Partition Configuration"
 
 	config DISK_PART1_FS_FAMILY
 		string
-		default "FAT" if DISK_PART1_FS_FAT16_LBA
+		default "fat" if DISK_PART1_FS_FAT16_LBA
 
 	config DISK_PART1_FS_VERSION
 		int
@@ -101,7 +101,7 @@ menu "Partition Configuration"
 
 	config DISK_PART2_FS_FAMILY
 		string
-		default "FAT" if DISK_PART2_FS_FAT16_LBA
+		default "fat" if DISK_PART2_FS_FAT16_LBA
 
 	config DISK_PART2_FS_VERSION
 		int
@@ -115,8 +115,7 @@ menu "Partition Configuration"
 		default DISK_PART2_END
 
 	config DISK_PART3_END
-		hex "Partition3 LBA end on disk"
-		range DISK_PART3_START DISK_SECTORS
+		hex
 		default DISK_SECTORS
 
 	config DISK_PART3_BOOTABLE
@@ -131,7 +130,7 @@ menu "Partition Configuration"
 
 	config DISK_PART3_FS_FAMILY
 		string
-		default "FAT" if DISK_PART3_FS_FAT16_LBA
+		default "fat" if DISK_PART3_FS_FAT16_LBA
 
 	config DISK_PART3_FS_VERSION
 		int

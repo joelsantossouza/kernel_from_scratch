@@ -45,19 +45,32 @@ PART2			:= ./$(PART2_NAME)
 PART3_NAME		:= part3
 PART3			:= ./$(PART3_NAME)
 
+# OS Constants
+include						$(ROOT_DIR)/.config
+DISK_SECTOR_BYTES			:= 512
+MBR_SECTORS					:= 1
+BOOTLOADER_SECTORS			:= $(CONFIG_BOOT_STAGE2_SECTORS)
+
+CONFIG_DISK_PART0_SECTORS	:= $(shell printf "%d" $$(( \
+							   $(CONFIG_DISK_PART0_END) - $(CONFIG_DISK_PART0_START) \
+)))
+CONFIG_DISK_PART1_SECTORS	:= $(shell printf "%d" $$(( \
+							   $(CONFIG_DISK_PART1_END) - $(CONFIG_DISK_PART1_START) \
+)))
+
 # Tools
 CC				:= gcc
 AS				:= nasm
 LD				:= ld
 DD				:= dd
+MKFS			:= mkfs
 
 # Flags
 CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
 LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
-DDFLAGS			:=
+DDFLAGS			:= bs=$(DISK_SECTOR_BYTES) conv=notrunc
 INCLUDE			:= -I$(INC_DIR) -I$(LIB_DIR)
-DEFINE			:=
 
 # Commands
 define assert_options
@@ -93,16 +106,10 @@ $(if $(filter-out 0,$(shell printf "%d" $$(( $($(1)) % $(2) )))), \
     $(error $(1) is not aligned to $(2) | current value = $($(1))),)
 endef
 
-# OS Values
-include						$(ROOT_DIR)/.config
-CONFIG_DISK_PART0_SECTORS	:= $(shell printf "%d" $$(( \
-							   $(CONFIG_DISK_PART0_END) - $(CONFIG_DISK_PART0_START) \
-)))
-
 # =============================================================================
 # Build
 # =============================================================================
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re build-boot build-kernel fclean-boot fclean-kernel
 .SECONDARY:
 
 # C Objects
@@ -121,9 +128,38 @@ CONFIG_DISK_PART0_SECTORS	:= $(shell printf "%d" $$(( \
 %.elf:
 	$(LD) $(LDFLAGS) --oformat elf32-i386 $^ -o $@
 
-# Partitions
+# Subsystem
+build-boot:
+	$(MAKE) -C $(BOOT_DIR)
+
+build-kernel:
+	$(MAKE) -C $(KERNEL_DIR)
+
+# Partition Images
 $(PART0).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART0_SECTORS)
+	$(MKFS) -t $(CONFIG_DISK_PART0_FS_FAMILY) -F $(CONFIG_DISK_PART0_FS_VERSION) $@
+
+$(PART1).img:
+	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART1_SECTORS)
+	$(MKFS) -t $(CONFIG_DISK_PART1_FS_FAMILY) -F $(CONFIG_DISK_PART1_FS_VERSION) $@
+
+$(PART2).img:
+	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART2_SECTORS)
+	$(MKFS) -t $(CONFIG_DISK_PART2_FS_FAMILY) -F $(CONFIG_DISK_PART2_FS_VERSION) $@
+
+$(PART3).img:
+	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART3_SECTORS)
+	$(MKFS) -t $(CONFIG_DISK_PART3_FS_FAMILY) -F $(CONFIG_DISK_PART3_FS_VERSION) $@
+
+# OS Image
+$(OS).img: build-boot
+	$(DD) $(DDFLAGS) if=$(MBR).bin		  of=$@ seek=0							count=$(MBR_SECTORS)
+	$(DD) $(DDFLAGS) if=$(BOOTLOADER).bin of=$@ seek=$(MBR_SECTORS)				count=$(BOOTLOADER_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART0).img	  of=$@ seek=$(CONFIG_DISK_PART0_START) count=$(CONFIG_DISK_PART0_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART1).img	  of=$@ seek=$(CONFIG_DISK_PART1_START) count=$(CONFIG_DISK_PART1_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART2).img	  of=$@ seek=$(CONFIG_DISK_PART2_START) count=$(CONFIG_DISK_PART2_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART3).img	  of=$@ seek=$(CONFIG_DISK_PART3_START) count=$(CONFIG_DISK_PART3_SECTORS)
 
 # =============================================================================
 # Clean up
@@ -135,5 +171,11 @@ clean:
 fclean: clean
 	rm -f $(BINS)
 	rm -f $(ELFS)
+
+fclean-boot:
+	$(MAKE) fclean -C $(BOOT_DIR)
+
+fclean-kernel:
+	$(MAKE) fclean -C $(KERNEL_DIR)
 
 re: fclean all
