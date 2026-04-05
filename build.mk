@@ -107,6 +107,35 @@ $(if $(filter-out 0,$(shell printf "%d" $$(( $($(1)) % $(2) )))), \
 endef
 
 # =============================================================================
+# OS Configuration
+# =============================================================================
+CONFIG_MENU			:= menuconfig
+CONFIG_HEADERGEN	:= genconfig
+CONFIG_SCRIPT		:= $(ROOT_DIR)/Kconfig
+CONFIG_FILE			:= $(ROOT_DIR)/.config
+CONFIG_HEADER		:= $(INC_DIR)/autoconfig
+
+.PHONY: menuconfig config genconfig-h
+
+menuconfig: $(CONFIG_SCRIPT)
+	cd $(ROOT_DIR) && $(CONFIG_MENU) $<
+
+config: $(CONFIG_FILE)
+
+genconfig-h: $(CONFIG_HEADER).h
+
+genconfig-inc: $(CONFIG_HEADER).inc
+
+$(CONFIG_FILE): $(CONFIG_SCRIPT)
+	cd $(ROOT_DIR) && $(CONFIG_MENU) $<
+
+$(CONFIG_HEADER).h: $(CONFIG_SCRIPT) $(CONFIG_FILE)
+	cd $(ROOT_DIR) && $(CONFIG_HEADERGEN) --header-path $@ $<
+
+$(CONFIG_HEADER).inc: $(CONFIG_HEADER).h
+	sed "s/#define/%define/g" $<
+
+# =============================================================================
 # Build
 # =============================================================================
 .PHONY: all clean fclean re build-boot build-kernel fclean-boot fclean-kernel

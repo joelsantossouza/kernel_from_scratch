@@ -14,21 +14,6 @@ init-partitions: build-kernel $(PART0).img
 	mcopy -i $(PART0).img $(KERNEL).bin ::/boot/kernel
 
 # =============================================================================
-# OS Configuration
-# =============================================================================
-CONFIG_MENU			:= menuconfig
-CONFIG_SCRIPT		:= Kconfig
-CONFIG_FILE			:= .config
-CONFIG_HEADERGEN	:= genconfig
-CONFIG_HEADER		:= $(INC_DIR)/autoconfig
-
-$(CONFIG_FILE): $(CONFIG_SCRIPT)
-	$(CONFIG_MENU) $<
-
-$(CONFIG_HEADER).h: $(CONFIG_SCRIPT) $(CONFIG_FILE)
-	$(CONFIG_HEADERGEN) --header-path $@ $<
-
-# =============================================================================
 # OS Simulation
 # =============================================================================
 debug: all
