@@ -39,18 +39,24 @@ PART0_MNT		:= $(MNT_DIR)/$(PART0_NAME)
 PART0			:= ./$(PART0_NAME)
 
 PART1_NAME		:= part1
+PART1_MNT		:= $(MNT_DIR)/$(PART1_NAME)
 PART1			:= ./$(PART1_NAME)
 
 PART2_NAME		:= part2
+PART2_MNT		:= $(MNT_DIR)/$(PART2_NAME)
 PART2			:= ./$(PART2_NAME)
 
 PART3_NAME		:= part3
+PART3_MNT		:= $(MNT_DIR)/$(PART3_NAME)
 PART3			:= ./$(PART3_NAME)
 
 PARTITIONS_IMG	:= $(PART0).img \
 				   $(PART1).img \
 				   $(PART2).img \
 				   $(PART3).img
+
+IMGS			:= $(PARTITIONS_IMG) \
+				   $(OS).img
 
 # OS Constants
 include						$(ROOT_DIR)/.config
@@ -193,19 +199,26 @@ build-kernel:
 $(PART0).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART0_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART0_FS_FAMILY) -F $(CONFIG_DISK_PART0_FS_VERSION) $@
+	mkdir -p $(PART0_MNT)
 	sudo mount $@ $(PART0_MNT)
 
 $(PART1).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART1_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART1_FS_FAMILY) -F $(CONFIG_DISK_PART1_FS_VERSION) $@
+	mkdir -p $(PART1_MNT)
+	sudo mount $@ $(PART1_MNT)
 
 $(PART2).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART2_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART2_FS_FAMILY) -F $(CONFIG_DISK_PART2_FS_VERSION) $@
+	mkdir -p $(PART2_MNT)
+	sudo mount $@ $(PART2_MNT)
 
 $(PART3).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART3_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART3_FS_FAMILY) -F $(CONFIG_DISK_PART3_FS_VERSION) $@
+	mkdir -p $(PART3_MNT)
+	sudo mount $@ $(PART3_MNT)
 
 # OS Image
 $(OS).img: build-boot $(PARTITIONS_IMG)
@@ -226,6 +239,7 @@ clean:
 fclean: clean
 	rm -f $(BINS)
 	rm -f $(ELFS)
+	rm -f $(IMGS)
 
 fclean-boot:
 	$(MAKE) fclean -C $(BOOT_DIR)

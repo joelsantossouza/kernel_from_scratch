@@ -13,8 +13,8 @@ PART0_KERNEL_SRC	?= $(KERNEL).bin
 all: $(PART0).img $(PART0_KERNEL) $(OS).img
 
 $(PART0_KERNEL): $(PART0_KERNEL_SRC)
-	mkdir -p $(dir $@)
-	$(CP) $< $@
+	sudo mkdir -p $(dir $@)
+	sudo $(CP) $< $@
 
 $(KERNEL).bin: build-kernel ;
 
@@ -32,10 +32,6 @@ debug: all
 # =============================================================================
 # OS Clean up
 # =============================================================================
-clean:
-	rm -f $(PART0_IMG)
-	rm -f $(QEMU_LOG)
-
 fclean: fclean-boot fclean-kernel
 
 # =============================================================================
