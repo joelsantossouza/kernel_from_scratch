@@ -6,7 +6,7 @@ PHDRS
 
 SECTIONS
 {
-	. = BOOT_STAGE2_ADDR;
+	. = CONFIG_BOOT_STAGE2_ADDR;
 	.text :
 	{
 		*(.text*)

@@ -4,6 +4,7 @@
 ; Description: Master Boot Record. This is the first sector (512 bytes size) of
 ; 			   the hard disk. It will load the stage 2 of boot into RAM.
 
+%include "autoconfig.inc"
 %include "boot/mbr.inc"
 %include "cpu/gdt.inc"
 %include "cpu/cr0.inc"
@@ -109,16 +110,16 @@ boot_start:
 
 .load_stage2:
 	mov	ah, BIOS_DRIVE_READ
-	mov	al, BOOT_STAGE2_SECTORS
-	mov	ch, BOOT_STAGE2_CYLINDER
-	mov	cl, BOOT_STAGE2_SECTOR
-	mov	dh, BOOT_STAGE2_HEAD
+	mov	al, CONFIG_BOOT_STAGE2_SECTORS
+	mov	ch, CONFIG_BOOT_STAGE2_CYLINDER
+	mov	cl, CONFIG_BOOT_STAGE2_SECTOR
+	mov	dh, CONFIG_BOOT_STAGE2_HEAD
 	mov	dl, [BOOT_DRIVE_NO]
-	mov	bx, BOOT_STAGE2_ADDR
+	mov	bx, CONFIG_BOOT_STAGE2_ADDR
 	int	BIOS_INT_DRIVE
 
 	jc	boot_panic
-	cmp	al, BOOT_STAGE2_SECTORS
+	cmp	al, CONFIG_BOOT_STAGE2_SECTORS
 	jne	boot_panic
 
 .enter_32bit_mode:
@@ -140,41 +141,41 @@ boot_start:
 	mov	ebp, MBR_ADDR
 	mov	esp, ebp
 
-	jmp	BOOT_STAGE2_ADDR
+	jmp	CONFIG_BOOT_STAGE2_ADDR
 
 times	MBR_BOOT_CODE_BYTES - ($ - $$) db 0
 
 partition_table:
 .part0:
-	db		MBR_PART0_BOOT_ATTR
+	db		CONFIG_MBR_PART0_BOOT_ATTR
 	db		0, 0, 0
-	db		MBR_PART0_TYPECODE
+	db		CONFIG_MBR_PART0_TYPECODE
 	db		0, 0, 0
-	dd		MBR_PART0_LBA
-	dd		MBR_PART0_SECTORS
+	dd		CONFIG_DISK_PART0_START
+	dd		CONFIG_DISK_PART0_SECTORS
 
 .part1:
-	db		MBR_PART1_BOOT_ATTR
+	db		CONFIG_MBR_PART1_BOOT_ATTR
 	db		0, 0, 0
-	db		MBR_PART1_TYPECODE
+	db		CONFIG_MBR_PART1_TYPECODE
 	db		0, 0, 0
-	dd		MBR_PART1_LBA
-	dd		MBR_PART1_SECTORS
+	dd		CONFIG_DISK_PART1_START
+	dd		CONFIG_DISK_PART1_SECTORS
 
 .part2:
-	db		MBR_PART2_BOOT_ATTR
+	db		CONFIG_MBR_PART2_BOOT_ATTR
 	db		0, 0, 0
-	db		MBR_PART2_TYPECODE
+	db		CONFIG_MBR_PART2_TYPECODE
 	db		0, 0, 0
-	dd		MBR_PART2_LBA
-	dd		MBR_PART2_SECTORS
+	dd		CONFIG_DISK_PART2_START
+	dd		CONFIG_DISK_PART2_SECTORS
 
 .part3:
-	db		MBR_PART3_BOOT_ATTR
+	db		CONFIG_MBR_PART3_BOOT_ATTR
 	db		0, 0, 0
-	db		MBR_PART3_TYPECODE
+	db		CONFIG_MBR_PART3_TYPECODE
 	db		0, 0, 0
-	dd		MBR_PART3_LBA
-	dd		MBR_PART3_SECTORS
+	dd		CONFIG_DISK_PART3_START
+	dd		CONFIG_DISK_PART3_SECTORS
 
 dw	BIOS_BOOT_SIGNATURE

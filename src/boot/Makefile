@@ -29,11 +29,11 @@ BINS			:= $(MBR_NAME).bin $(BOOTLOADER_NAME).bin
 ELFS			:= $(MBR_NAME).elf $(BOOTLOADER_NAME).elf
 OBJS			:= $(BOOTLOADER_OBJS)
 DEPS			:= $(OBJS:.o=.d)
-LDFLAGS			+= -T $(BOOTLOADER_NAME).ld -defsym=BOOT_STAGE2_ADDR=$(BOOT_STAGE2_ADDR)
+LDFLAGS			+= -T $(BOOTLOADER_NAME).ld -defsym=CONFIG_BOOT_STAGE2_ADDR=$(CONFIG_BOOT_STAGE2_ADDR)
 
 -include	$(DEPS)
 
-all: $(BINS) $(ELFS)
+all: $(CONFIG_HEADER).inc $(BINS) $(ELFS)
 
 $(MBR_NAME).bin: $(MBR_SRCS)
 	$(AS) $(INCLUDE) -f bin $< -o $@

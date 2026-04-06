@@ -20,6 +20,8 @@ menu "Partition Configuration"
 # --------------------------------------
 # Partition0
 # --------------------------------------
+	comment "Partition0"
+
 	config DISK_PART0_START
 		hex
 		default 0x800
@@ -50,6 +52,8 @@ menu "Partition Configuration"
 # --------------------------------------
 # Partition1
 # --------------------------------------
+	comment "Partition1"
+
 	config DISK_PART1_START
 		hex
 		default DISK_PART0_END
@@ -80,6 +84,8 @@ menu "Partition Configuration"
 # --------------------------------------
 # Partition2
 # --------------------------------------
+	comment "Partition2"
+
 	config DISK_PART2_START
 		hex
 		default DISK_PART1_END
@@ -110,6 +116,8 @@ menu "Partition Configuration"
 # --------------------------------------
 # Partition3
 # --------------------------------------
+	comment "Partition3"
+
 	config DISK_PART3_START
 		hex
 		default DISK_PART2_END

@@ -9,6 +9,7 @@ ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
 SRC_DIR			:= $(ROOT_DIR)/src
 LIB_DIR			:= $(ROOT_DIR)/lib
 INC_DIR			:= $(ROOT_DIR)/include
+MNT_DIR			:= $(ROOT_DIR)/mnt
 
 BOOT_DIR		:= $(SRC_DIR)/boot
 KERNEL_DIR		:= $(SRC_DIR)/kernel
@@ -34,6 +35,7 @@ KERNEL_NAME		:= kernel
 KERNEL			:= $(KERNEL_DIR)/$(KERNEL_NAME)
 
 PART0_NAME		:= part0
+PART0_MNT		:= $(MNT_DIR)/$(PART0_NAME)
 PART0			:= ./$(PART0_NAME)
 
 PART1_NAME		:= part1
@@ -45,17 +47,31 @@ PART2			:= ./$(PART2_NAME)
 PART3_NAME		:= part3
 PART3			:= ./$(PART3_NAME)
 
+PARTITIONS_IMG	:= $(PART0).img \
+				   $(PART1).img \
+				   $(PART2).img \
+				   $(PART3).img
+
 # OS Constants
 include						$(ROOT_DIR)/.config
 DISK_SECTOR_BYTES			:= 512
 MBR_SECTORS					:= 1
 BOOTLOADER_SECTORS			:= $(CONFIG_BOOT_STAGE2_SECTORS)
+BOOTLOADER_START			:= $(shell printf "%d" $$(( \
+							   $(CONFIG_BOOT_STAGE2_SECTOR) - 1 \
+)))
 
 CONFIG_DISK_PART0_SECTORS	:= $(shell printf "%d" $$(( \
 							   $(CONFIG_DISK_PART0_END) - $(CONFIG_DISK_PART0_START) \
 )))
 CONFIG_DISK_PART1_SECTORS	:= $(shell printf "%d" $$(( \
 							   $(CONFIG_DISK_PART1_END) - $(CONFIG_DISK_PART1_START) \
+)))
+CONFIG_DISK_PART2_SECTORS	:= $(shell printf "%d" $$(( \
+							   $(CONFIG_DISK_PART2_END) - $(CONFIG_DISK_PART2_START) \
+)))
+CONFIG_DISK_PART3_SECTORS	:= $(shell printf "%d" $$(( \
+							   $(CONFIG_DISK_PART3_END) - $(CONFIG_DISK_PART3_START) \
 )))
 
 # Tools
@@ -64,6 +80,7 @@ AS				:= nasm
 LD				:= ld
 DD				:= dd
 MKFS			:= mkfs
+CP				:= cp
 
 # Flags
 CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
@@ -106,6 +123,10 @@ $(if $(filter-out 0,$(shell printf "%d" $$(( $($(1)) % $(2) )))), \
     $(error $(1) is not aligned to $(2) | current value = $($(1))),)
 endef
 
+define append_config_header
+	echo "#define $(1) $($(1))" >> $(2)
+endef
+
 # =============================================================================
 # OS Configuration
 # =============================================================================
@@ -115,7 +136,7 @@ CONFIG_SCRIPT		:= $(ROOT_DIR)/Kconfig
 CONFIG_FILE			:= $(ROOT_DIR)/.config
 CONFIG_HEADER		:= $(INC_DIR)/autoconfig
 
-.PHONY: menuconfig config genconfig-h
+.PHONY: menuconfig config genconfig-h genconfig-inc
 
 menuconfig: $(CONFIG_SCRIPT)
 	cd $(ROOT_DIR) && $(CONFIG_MENU) $<
@@ -131,9 +152,13 @@ $(CONFIG_FILE): $(CONFIG_SCRIPT)
 
 $(CONFIG_HEADER).h: $(CONFIG_SCRIPT) $(CONFIG_FILE)
 	cd $(ROOT_DIR) && $(CONFIG_HEADERGEN) --header-path $@ $<
+	$(call append_config_header,CONFIG_DISK_PART0_SECTORS,$@)
+	$(call append_config_header,CONFIG_DISK_PART1_SECTORS,$@)
+	$(call append_config_header,CONFIG_DISK_PART2_SECTORS,$@)
+	$(call append_config_header,CONFIG_DISK_PART3_SECTORS,$@)
 
 $(CONFIG_HEADER).inc: $(CONFIG_HEADER).h
-	sed "s/#define/%define/g" $<
+	sed "s/#define/%define/g" $< > $@
 
 # =============================================================================
 # Build
@@ -168,6 +193,7 @@ build-kernel:
 $(PART0).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART0_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART0_FS_FAMILY) -F $(CONFIG_DISK_PART0_FS_VERSION) $@
+	sudo mount $@ $(PART0_MNT)
 
 $(PART1).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART1_SECTORS)
@@ -182,13 +208,13 @@ $(PART3).img:
 	$(MKFS) -t $(CONFIG_DISK_PART3_FS_FAMILY) -F $(CONFIG_DISK_PART3_FS_VERSION) $@
 
 # OS Image
-$(OS).img: build-boot
-	$(DD) $(DDFLAGS) if=$(MBR).bin		  of=$@ seek=0							count=$(MBR_SECTORS)
-	$(DD) $(DDFLAGS) if=$(BOOTLOADER).bin of=$@ seek=$(MBR_SECTORS)				count=$(BOOTLOADER_SECTORS)
-	$(DD) $(DDFLAGS) if=$(PART0).img	  of=$@ seek=$(CONFIG_DISK_PART0_START) count=$(CONFIG_DISK_PART0_SECTORS)
-	$(DD) $(DDFLAGS) if=$(PART1).img	  of=$@ seek=$(CONFIG_DISK_PART1_START) count=$(CONFIG_DISK_PART1_SECTORS)
-	$(DD) $(DDFLAGS) if=$(PART2).img	  of=$@ seek=$(CONFIG_DISK_PART2_START) count=$(CONFIG_DISK_PART2_SECTORS)
-	$(DD) $(DDFLAGS) if=$(PART3).img	  of=$@ seek=$(CONFIG_DISK_PART3_START) count=$(CONFIG_DISK_PART3_SECTORS)
+$(OS).img: build-boot $(PARTITIONS_IMG)
+	$(DD) $(DDFLAGS) if=$(MBR).bin		  of=$@ seek=0									count=$(MBR_SECTORS)
+	$(DD) $(DDFLAGS) if=$(BOOTLOADER).bin of=$@ seek=$(BOOTLOADER_START)				count=$(BOOTLOADER_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART0).img	  of=$@ seek=$$(( $(CONFIG_DISK_PART0_START) ))	count=$(CONFIG_DISK_PART0_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART1).img	  of=$@ seek=$$(( $(CONFIG_DISK_PART1_START) ))	count=$(CONFIG_DISK_PART1_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART2).img	  of=$@ seek=$$(( $(CONFIG_DISK_PART2_START) ))	count=$(CONFIG_DISK_PART2_SECTORS)
+	$(DD) $(DDFLAGS) if=$(PART3).img	  of=$@ seek=$$(( $(CONFIG_DISK_PART3_START) ))	count=$(CONFIG_DISK_PART3_SECTORS)
 
 # =============================================================================
 # Clean up

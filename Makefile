@@ -1,17 +1,22 @@
 # =============================================================================
 # OS Build
 # =============================================================================
-ROOT_DIR	:= $(shell git rev-parse --show-toplevel)
-include 	build.mk
+ROOT_DIR			:= $(shell git rev-parse --show-toplevel)
+include 			build.mk
 
-.PHONY: init-partitions
+PART0_KERNEL		:= $(PART0_MNT)/boot/kernel
+PART0_KERNEL_SRC	?= $(KERNEL).bin
+
+.PHONY:
 
 # OS Main Build
-all: init-partitions $(OS).img
+all: $(PART0).img $(PART0_KERNEL) $(OS).img
 
-init-partitions: build-kernel $(PART0).img
-	mmd -i $(PART0).img ::/boot
-	mcopy -i $(PART0).img $(KERNEL).bin ::/boot/kernel
+$(PART0_KERNEL): $(PART0_KERNEL_SRC)
+	mkdir -p $(dir $@)
+	$(CP) $< $@
+
+$(KERNEL).bin: build-kernel ;
 
 # =============================================================================
 # OS Simulation

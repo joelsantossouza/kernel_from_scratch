@@ -4,7 +4,9 @@
 
 menu "MBR Configuration"
 
-	# Partition0
+# --------------------------------------
+# Partition0
+# --------------------------------------
 	config MBR_PART0_BOOT_ATTR
 		hex
 		default 0x80 if VDL_PART0_BOOTABLE
@@ -15,6 +17,45 @@ menu "MBR Configuration"
 		default 0x0E if VDL_PART0_FS_FAT16_LBA
 		default 0x0
 		
+# --------------------------------------
+# Partition1
+# --------------------------------------
+	config MBR_PART1_BOOT_ATTR
+		hex
+		default 0x80 if VDL_PART1_BOOTABLE
+		default 0x0
+
+	config MBR_PART1_TYPECODE
+		hex
+		default 0x0E if VDL_PART1_FS_FAT16_LBA
+		default 0x0
+		
+# --------------------------------------
+# Partition2
+# --------------------------------------
+	config MBR_PART2_BOOT_ATTR
+		hex
+		default 0x80 if VDL_PART2_BOOTABLE
+		default 0x0
+
+	config MBR_PART2_TYPECODE
+		hex
+		default 0x0E if VDL_PART2_FS_FAT16_LBA
+		default 0x0
+		
+# --------------------------------------
+# Partition3
+# --------------------------------------
+	config MBR_PART3_BOOT_ATTR
+		hex
+		default 0x80 if VDL_PART3_BOOTABLE
+		default 0x0
+
+	config MBR_PART3_TYPECODE
+		hex
+		default 0x0E if VDL_PART3_FS_FAT16_LBA
+		default 0x0
+
 endmenu
 
 # =============================================================================
@@ -24,7 +65,7 @@ endmenu
 menu "Bootloader Configuration"
 
 	config BOOT_STAGE2_ADDR
-		hex "Address to Load Bootloader [512 bytes aligned]"
+		hex "Address to Load Bootloader"
 		range 0x7E00 0x7FFFF
 		default 0x7E00
 
