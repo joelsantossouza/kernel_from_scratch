@@ -1,62 +1,65 @@
 # =============================================================================
 # BOILERPLATE MAKEFILE
 # =============================================================================
-.DEFAULT_GOAL	= all
+.DEFAULT_GOAL		= all
 
 # Directories
-ROOT_DIR		:= $(shell git rev-parse --show-toplevel)
+ROOT_DIR			:= $(shell git rev-parse --show-toplevel)
 
-SRC_DIR			:= $(ROOT_DIR)/src
-LIB_DIR			:= $(ROOT_DIR)/lib
-INC_DIR			:= $(ROOT_DIR)/include
-MNT_DIR			:= $(ROOT_DIR)/mnt
+SRC_DIR				:= $(ROOT_DIR)/src
+LIB_DIR				:= $(ROOT_DIR)/lib
+INC_DIR				:= $(ROOT_DIR)/include
+TEST_DIR			:= $(ROOT_DIR)/test
+MNT_DIR				:= $(ROOT_DIR)/mnt
 
-BOOT_DIR		:= $(SRC_DIR)/boot
-KERNEL_DIR		:= $(SRC_DIR)/kernel
-DRIVERS_DIR		:= $(SRC_DIR)/drivers
-FS_DIR			:= $(SRC_DIR)/fs
+BOOT_DIR			:= $(SRC_DIR)/boot
+KERNEL_DIR			:= $(SRC_DIR)/kernel
+DRIVERS_DIR			:= $(SRC_DIR)/drivers
+FS_DIR				:= $(SRC_DIR)/fs
 
-IO_DIR			:= $(DRIVERS_DIR)/io
-DISK_DIR		:= $(DRIVERS_DIR)/disk
+IO_DIR				:= $(DRIVERS_DIR)/io
+DISK_DIR			:= $(DRIVERS_DIR)/disk
 
-STRING_DIR		:= $(LIB_DIR)/string
+STRING_DIR			:= $(LIB_DIR)/string
+
+TEST_KERNEL_DIR		:= $(TEST_DIR)/kernel
 
 # OS Components
-OS_NAME			:= HavenOS
-OS				:= ./$(OS_NAME)
+OS_NAME				:= HavenOS
+OS					:= ./$(OS_NAME)
 
-MBR_NAME		:= mbr
-MBR				:= $(BOOT_DIR)/$(MBR_NAME)
+MBR_NAME			:= mbr
+MBR					:= $(BOOT_DIR)/$(MBR_NAME)
 
-BOOTLOADER_NAME	:= boot_stage2
-BOOTLOADER		:= $(BOOT_DIR)/$(BOOTLOADER_NAME)
+BOOTLOADER_NAME		:= boot_stage2
+BOOTLOADER			:= $(BOOT_DIR)/$(BOOTLOADER_NAME)
 
-KERNEL_NAME		:= kernel
-KERNEL			:= $(KERNEL_DIR)/$(KERNEL_NAME)
+KERNEL_NAME			:= kernel
+KERNEL				:= $(KERNEL_DIR)/$(KERNEL_NAME)
 
-PART0_NAME		:= part0
-PART0_MNT		:= $(MNT_DIR)/$(PART0_NAME)
-PART0			:= ./$(PART0_NAME)
+TEST_KERNEL_NAME	:= test_kernel
+TEST_KERNEL			:= $(TEST_KERNEL_DIR)/$(TEST_KERNEL_NAME)
 
-PART1_NAME		:= part1
-PART1_MNT		:= $(MNT_DIR)/$(PART1_NAME)
-PART1			:= ./$(PART1_NAME)
+PART0_NAME			:= part0
+PART0_MNT			:= $(MNT_DIR)/$(PART0_NAME)
+PART0				:= ./$(PART0_NAME)
 
-PART2_NAME		:= part2
-PART2_MNT		:= $(MNT_DIR)/$(PART2_NAME)
-PART2			:= ./$(PART2_NAME)
+PART1_NAME			:= part1
+PART1_MNT			:= $(MNT_DIR)/$(PART1_NAME)
+PART1				:= ./$(PART1_NAME)
 
-PART3_NAME		:= part3
-PART3_MNT		:= $(MNT_DIR)/$(PART3_NAME)
-PART3			:= ./$(PART3_NAME)
+PART2_NAME			:= part2
+PART2_MNT			:= $(MNT_DIR)/$(PART2_NAME)
+PART2				:= ./$(PART2_NAME)
 
-PARTITIONS_IMG	:= $(PART0).img \
-				   $(PART1).img \
-				   $(PART2).img \
-				   $(PART3).img
+PART3_NAME			:= part3
+PART3_MNT			:= $(MNT_DIR)/$(PART3_NAME)
+PART3				:= ./$(PART3_NAME)
 
-IMGS			:= $(PARTITIONS_IMG) \
-				   $(OS).img
+PARTITIONS_IMG		:= $(PART0).img \
+					   $(PART1).img \
+					   $(PART2).img \
+					   $(PART3).img
 
 # OS Constants
 include							$(ROOT_DIR)/.config
@@ -85,21 +88,21 @@ CONFIG_VDL_CACHE_ENTRY_BYTES	:= $(shell printf "%d" $$(( \
 )))
 
 # Tools
-CC				:= gcc
-AS				:= nasm
-LD				:= ld
-DD				:= dd
-MKFS			:= mkfs
-CP				:= cp
-EMU				:= qemu-system-i386
+CC					:= gcc
+AS					:= nasm
+LD					:= ld
+DD					:= dd
+MKFS				:= mkfs
+CP					:= cp
+EMU					:= qemu-system-i386
 
 # Flags
-CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
-AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
-LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
-DDFLAGS			:= bs=$(DISK_SECTOR_BYTES) conv=notrunc
-EMUFLAGS		:= -S -gdb stdio
-INCLUDE			:= -I$(INC_DIR) -I$(LIB_DIR)
+CFLAGS				:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
+AFLAGS				:= -w+all -w+error -f elf32 -g -F dwarf
+LDFLAGS				:= -m elf_i386 -nostdlib --no-undefined
+DDFLAGS				:= bs=$(DISK_SECTOR_BYTES) conv=notrunc
+EMUFLAGS			:= -S -gdb stdio
+INCLUDE				:= -I$(INC_DIR) -I$(LIB_DIR)
 
 # Commands
 define assert_options

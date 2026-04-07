@@ -4,19 +4,26 @@
 ROOT_DIR			:= $(shell git rev-parse --show-toplevel)
 include 			build.mk
 
-PART0_KERNEL		:= $(PART0_MNT)/boot/kernel
-PART0_KERNEL_SRC	?= $(KERNEL).bin
+IMGS				:= $(PARTITIONS_IMG) \
+					   $(OS).img
 
-.PHONY:
+KERNEL_TO_LOAD		?= $(KERNEL)
+PART0_KERNEL		:= $(PART0_MNT)/boot/kernel
+
+.PHONY: test
 
 # OS Main Build
 all: $(PART0_KERNEL) $(OS).img
 
-$(PART0_KERNEL): $(PART0).img $(PART0_KERNEL_SRC)
+# OS Test Build
+test: KERNEL_TO_LOAD=$(TEST_KERNEL)
+test: $(PART0_KERNEL) $(OS).img
+
+$(PART0_KERNEL): $(PART0).img $(KERNEL_TO_LOAD).bin
 	mkdir -p $(PART0_MNT)
 	sudo mount $(PART0).img $(PART0_MNT)
 	sudo mkdir -p $(dir $@)
-	sudo $(CP) $(PART0_KERNEL_SRC) $@
+	sudo $(CP) $(KERNEL_TO_LOAD).bin $@
 	sudo umount $(PART0_MNT)
 
 $(KERNEL).bin: build-kernel ;
@@ -27,12 +34,19 @@ $(KERNEL).bin: build-kernel ;
 BOOTLOADER_ADDR		:= $(CONFIG_BOOT_STAGE2_ADDR)
 KERNEL_ADDR			:= $(CONFIG_KERNEL_ADDR)
 
-debug: all
+.PHONY: debug-test debug gdb
+
+debug-test: KERNEL_TO_LOAD=$(TEST_KERNEL)
+debug-test: test gdb
+
+debug: all gdb
+
+gdb:
 	gdb --tui \
 		-ex "set confirm off" \
 		-ex "add-symbol-file $(MBR).elf $(MBR_ADDR)" \
 		-ex "add-symbol-file $(BOOTLOADER).elf $(BOOTLOADER_ADDR)" \
-		-ex "add-symbol-file $(KERNEL).elf $(KERNEL_ADDR)" \
+		-ex "add-symbol-file $(KERNEL_TO_LOAD).elf $(KERNEL_ADDR)" \
 		-ex "target remote | $(EMU) $(EMUFLAGS) -hda $(OS).img"
 
 # =============================================================================
