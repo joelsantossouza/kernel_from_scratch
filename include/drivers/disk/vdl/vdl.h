@@ -10,17 +10,18 @@
 
 # include <stdint.h>
 # include <stdbool.h>
-# include "drivers/disk/vdl/config.h"
+# include "drivers/disk/disk.h"
+# include "autoconfig.h"
 
 # define BYTES_TO_CACHE_LBA(bytes) ({ \
 	__typeof__(bytes) _bytes = (bytes); \
-	_bytes -= _bytes % VDL_CACHE_BYTES; \
+	_bytes -= _bytes % CONFIG_VDL_CACHE_ENTRY_BYTES; \
 	_bytes / DISK_SECTOR_BYTES; \
 })
 
 typedef struct s_vdl_cache
 {
-	uint8_t		data[VDL_CACHE_BYTES];
+	uint8_t		data[CONFIG_VDL_CACHE_ENTRY_BYTES];
 	uint32_t	lba_start;
 	uint32_t	lba_end;
 	uint32_t	cycle;
@@ -43,6 +44,8 @@ typedef struct s_vdl_disk
 	uint8_t				no;
 }	t_vdl_disk;
 
-int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes);
+int	vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes);
+
+extern const t_vdl_driver	g_ata_driver;
 
 #endif

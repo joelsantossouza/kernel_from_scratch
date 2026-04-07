@@ -9,6 +9,7 @@
 #include "fs/fat/fat.h"
 #include "fs/fat/fat16/fat16.h"
 #include "fs/vfs/vfs_partition.h"
+#include "drivers/disk/disk.h"
 #include "drivers/disk/vdl/vdl.h"
 #include "kernel/macros.h"
 #include "math/math.h"
@@ -50,7 +51,7 @@ int	fat16_metadata_init(const t_vdl_disk *disk, const t_phy_partition *phy_part,
 	const uint32_t	fat_table_bytes = bpb->fat_sectors_16 * sector_bytes;
 	int				err_code;
 
-	err_code = disk_vdl_read(disk, fat_table_addr, metadata->table.fat16, 0xff);
+	err_code = vdl_read(disk, fat_table_addr, metadata->table.fat16, 0xff);
 	if (err_code != KERNEL_SUCCESS)
 		return (err_code);
 	metadata->table_entries = 0xff;
@@ -76,7 +77,7 @@ int	fat16_probe(const t_vdl_disk *disk, const t_phy_partition *phy_part, t_fat_m
 	int				err_code;
 	int				fat16_err_code;
 
-	err_code = disk_vdl_read(disk, partition_addr, &fat16_bpb, sizeof(fat16_bpb));
+	err_code = vdl_read(disk, partition_addr, &fat16_bpb, sizeof(fat16_bpb));
 	if (err_code != KERNEL_SUCCESS)
 	{
 		SAFE_PTRSET(fat_err_code, 0);

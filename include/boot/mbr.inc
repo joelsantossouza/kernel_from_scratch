@@ -7,10 +7,10 @@
 %define MBR_INC
 
 %include "boot/bios.inc"
-%include "drivers/disk/vdl/config.inc"
+%include "drivers/disk/disk.inc"
 
 %define MBR_ADDR					BIOS_BOOT_LOAD_ADDR
-%define MBR_BYTES					VDL_SECTOR_BYTES
+%define MBR_BYTES					DISK_SECTOR_BYTES
 
 ; Partition table
 %define MBR_PART_TABLE_ENTRY_BYTES	16

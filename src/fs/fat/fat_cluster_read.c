@@ -35,7 +35,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	{
 		addr = data_region + (*cluster - FAT_CLUSTER_DATA_START) * cluster_bytes + *offset;
 		bytes_to_read = MIN(bytes, cluster_bytes - *offset);
-		exit_stat = disk_vdl_read(disk, addr, ptr, bytes_to_read);
+		exit_stat = vdl_read(disk, addr, ptr, bytes_to_read);
 		if (exit_stat < 0)
 			return (exit_stat);
 		ptr += bytes_to_read;
@@ -52,7 +52,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	while (bytes >= cluster_bytes)
 	{
 		addr = data_region + (*cluster - FAT_CLUSTER_DATA_START) * cluster_bytes;
-		exit_stat = disk_vdl_read(disk, addr, ptr, cluster_bytes);
+		exit_stat = vdl_read(disk, addr, ptr, cluster_bytes);
 		if (exit_stat < 0)
 			return (exit_stat);
 		ptr += cluster_bytes;
@@ -66,7 +66,7 @@ int	fat_cluster_read(const t_vfs_partition *part, uint32_t *cluster, uint32_t *o
 	if (bytes > 0)
 	{
 		addr = data_region + (*cluster - FAT_CLUSTER_DATA_START) * cluster_bytes;
-		exit_stat = disk_vdl_read(disk, addr, ptr, bytes);
+		exit_stat = vdl_read(disk, addr, ptr, bytes);
 		if (exit_stat < 0)
 			return (exit_stat);
 		ptr += bytes;

@@ -7,9 +7,12 @@ include $(ROOT_DIR)/build.mk
 MBR_SRCS		:= mbr.asm
 
 BOOTLOADER_SRCS	:= boot_stage2.asm \
-				   $(DISK_DIR)/ata/disk_ata.c \
-				   $(DISK_DIR)/ata/disk_ata_stat.c \
-				   $(DISK_DIR)/vdl/disk_vdl.c \
+				   $(DISK_DIR)/ata/ata_driver.c \
+				   $(DISK_DIR)/ata/ata_io.c \
+				   $(DISK_DIR)/ata/ata_read.c \
+				   $(DISK_DIR)/ata/ata_stat.c \
+				   $(DISK_DIR)/vdl/vdl_disks.c \
+				   $(DISK_DIR)/vdl/vdl_operations.c \
 				   $(IO_DIR)/io.asm \
 				   $(FS_DIR)/vfs/vfs_mount_table.c \
 				   $(FS_DIR)/vfs/vfs_partition.c \

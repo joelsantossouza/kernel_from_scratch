@@ -26,12 +26,6 @@
 	_n - _n % _align; \
 })
 
-# define OFFSET(n, align) ({ \
-	__typeof__(n) _n = (n); \
-	__typeof__(align) _align = (align); \
-	_n % _align; \
-})
-
 # define IS_POWER_2(n) ({ \
 	__typeof__(n) _n = (n); \
 	_n != 0 && (_n & (_n - 1)) == 0; \

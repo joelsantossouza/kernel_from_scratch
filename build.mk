@@ -59,25 +59,28 @@ IMGS			:= $(PARTITIONS_IMG) \
 				   $(OS).img
 
 # OS Constants
-include						$(ROOT_DIR)/.config
-DISK_SECTOR_BYTES			:= 512
-MBR_SECTORS					:= 1
-BOOTLOADER_SECTORS			:= $(CONFIG_BOOT_STAGE2_SECTORS)
-BOOTLOADER_START			:= $(shell printf "%d" $$(( \
-							   $(CONFIG_BOOT_STAGE2_SECTOR) - 1 \
-)))
+include							$(ROOT_DIR)/.config
+DISK_SECTOR_BYTES				:= 512
+MBR_SECTORS						:= 1
+BOOTLOADER_SECTORS				:= $(CONFIG_BOOT_STAGE2_SECTORS)
 
-CONFIG_DISK_PART0_SECTORS	:= $(shell printf "%d" $$(( \
-							   $(CONFIG_DISK_PART0_END) - $(CONFIG_DISK_PART0_START) \
+BOOTLOADER_START				:= $(shell printf "%d" $$(( \
+								   $(CONFIG_BOOT_STAGE2_SECTOR) - 1 \
 )))
-CONFIG_DISK_PART1_SECTORS	:= $(shell printf "%d" $$(( \
-							   $(CONFIG_DISK_PART1_END) - $(CONFIG_DISK_PART1_START) \
+CONFIG_DISK_PART0_SECTORS		:= $(shell printf "%d" $$(( \
+								   $(CONFIG_DISK_PART0_END) - $(CONFIG_DISK_PART0_START) \
 )))
-CONFIG_DISK_PART2_SECTORS	:= $(shell printf "%d" $$(( \
-							   $(CONFIG_DISK_PART2_END) - $(CONFIG_DISK_PART2_START) \
+CONFIG_DISK_PART1_SECTORS		:= $(shell printf "%d" $$(( \
+								   $(CONFIG_DISK_PART1_END) - $(CONFIG_DISK_PART1_START) \
 )))
-CONFIG_DISK_PART3_SECTORS	:= $(shell printf "%d" $$(( \
-							   $(CONFIG_DISK_PART3_END) - $(CONFIG_DISK_PART3_START) \
+CONFIG_DISK_PART2_SECTORS		:= $(shell printf "%d" $$(( \
+								   $(CONFIG_DISK_PART2_END) - $(CONFIG_DISK_PART2_START) \
+)))
+CONFIG_DISK_PART3_SECTORS		:= $(shell printf "%d" $$(( \
+								   $(CONFIG_DISK_PART3_END) - $(CONFIG_DISK_PART3_START) \
+)))
+CONFIG_VDL_CACHE_ENTRY_BYTES	:= $(shell printf "%d" $$(( \
+								   $(CONFIG_VDL_CACHE_ENTRY_COUNT) * $(CONFIG_VDL_CACHE_ENTRY_SECTORS) \
 )))
 
 # Tools
@@ -162,6 +165,7 @@ $(CONFIG_HEADER).h: $(CONFIG_SCRIPT) $(CONFIG_FILE)
 	$(call append_config_header,CONFIG_DISK_PART1_SECTORS,$@)
 	$(call append_config_header,CONFIG_DISK_PART2_SECTORS,$@)
 	$(call append_config_header,CONFIG_DISK_PART3_SECTORS,$@)
+	$(call append_config_header,CONFIG_VDL_CACHE_ENTRY_BYTES,$@)
 
 $(CONFIG_HEADER).inc: $(CONFIG_HEADER).h
 	sed "s/#define/%define/g" $< > $@

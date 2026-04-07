@@ -23,6 +23,13 @@ menu "Disk Configuration"
 		range 1 4
 		default 2
 
+	comment "ATA Controller"
+
+	config ATA_TIMEOUT_CYCLES
+		int "Max cycles before ATA timeout"
+		range 100 1000
+		default 1000
+
 endmenu
 
 # =============================================================================

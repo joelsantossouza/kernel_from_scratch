@@ -16,7 +16,7 @@ int	vfs_partition_init(const t_vdl_disk *disk, uint8_t part_idx, t_vfs_partition
 	t_phy_partition	phy_part;
 	int				err_code;
 
-	err_code = disk_vdl_read(disk, MBR_PART_TABLE(part_idx), &phy_part, sizeof(phy_part));
+	err_code = vdl_read(disk, MBR_PART_TABLE(part_idx), &phy_part, sizeof(phy_part));
 	if (err_code != KERNEL_SUCCESS)
 		return (err_code);
 	err_code = vfs_table_detect_fs(disk, &phy_part, &vfs_part->vfs, &vfs_part->metadata);

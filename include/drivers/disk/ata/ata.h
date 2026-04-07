@@ -8,6 +8,8 @@
 #ifndef ATA_H
 # define ATA_H
 
+# include <stdint.h>
+
 // ATA Base ports
 # define ATAB_BUS1		0x1F0
 # define ATAB_BUS2		0x170
@@ -50,5 +52,13 @@
 # define ATAE_BBK		0x0080
 # define ATAE_TIMEOUT	0x0100
 # define ATAE_FAIL		0xFFFF
+
+// I/O ports ATA Controller routines
+void		ata_request_rw(uint16_t bus_port, uint8_t drive, uint8_t rw_cmd, uint32_t lba, uint8_t nsectors);
+uint16_t	ata_poll(uint16_t bus_port, uint8_t wait_mask, uint8_t wait_value, uint16_t *err_code);
+
+// Operations
+uint16_t	ata_read(uint8_t disk_no, uint32_t lba, uint16_t *buf, uint8_t nsectors);
+int			ata_to_errno(int ata_err);
 
 #endif

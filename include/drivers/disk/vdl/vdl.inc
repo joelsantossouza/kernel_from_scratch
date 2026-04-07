@@ -6,6 +6,10 @@
 %ifndef VDL_INC
 %define VDL_INC
 
+; Disk operations
 extern	disk_vdl_read
+
+; Disks
+extern	g_disk0
 
 %endif

@@ -22,7 +22,7 @@ int	fat16_rootdir_open(const t_fat_dir *rootdir, const char *filename, const cha
 
 	for (offset = 0; offset < rootdir_bytes; offset += sizeof(t_phy_fat_file))
 	{
-		err_code = disk_vdl_read(disk, rootdir_addr + offset, &entry, sizeof(entry));
+		err_code = vdl_read(disk, rootdir_addr + offset, &entry, sizeof(entry));
 		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
 		if (entry.name[0] == FAT_DIR_ENTRY_UNUSED)

@@ -1,5 +1,5 @@
 /*
- * File: disk_vdl.c
+ * File: vdl_operations.c
  * Author: Joel Souza
  * Date: 2026-03-07
  * Description: Virtual Disk Layer interface to communicate with different
@@ -9,12 +9,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "drivers/disk/vdl/vdl.h"
-#include "drivers/disk/vdl/config.h"
 #include "kernel/config.h"
 #include "string/string.h"
 #include "math/math.h"
 
-static t_vdl_cache	g_vdl_cache[VDL_CACHE_MAX] = {0};
+static t_vdl_cache	g_vdl_cache[CONFIG_VDL_CACHE_ENTRY_COUNT] = {0};
 static uint32_t		g_vdl_cache_cycle = 0;
 
 /*
@@ -33,7 +32,7 @@ void	vdl_cache_cycle_reset(void)
 	uint8_t	i;
 
 	i = -1;
-	while (++i < VDL_CACHE_MAX)
+	while (++i < CONFIG_VDL_CACHE_ENTRY_COUNT)
 		g_vdl_cache[i].cycle = 0;
 	g_vdl_cache_cycle = 0;
 }
@@ -63,7 +62,7 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
 
 	oldest = &g_vdl_cache[0];
 	i = -1;
-	while (++i < VDL_CACHE_MAX)
+	while (++i < CONFIG_VDL_CACHE_ENTRY_COUNT)
 	{
 		if (g_vdl_cache[i].cycle < oldest->cycle)
 			oldest = &g_vdl_cache[i];
@@ -123,7 +122,7 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, 
 	}
 	else if (lba_end <= cache->lba_end)
 		return (KERNEL_SUCCESS);
-	lba_end = MIN(lba_end, cache->lba_start + VDL_CACHE_SECTORS);
+	lba_end = MIN(lba_end, cache->lba_start + CONFIG_VDL_CACHE_ENTRY_SECTORS);
 	cache_offset = cache->data + SECTORS_TO_BYTES(cache->lba_end - cache->lba_start);
 	read_status = driver->read(
 		disk->no, cache->lba_end, cache_offset, lba_end - cache->lba_end
@@ -133,7 +132,7 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, 
 }
 
 /*
- * disk_vdl_read - Disk read abstraction
+ * vdl_read - Disk read abstraction
  *
  * DESCRIPTION
  * 	Read 'bytes' bytes from disk offset 'addr' into 'buf'.
@@ -158,10 +157,10 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, 
  * 	-EREMCHG == Media changed during read
  * 	-ENOENT == LBA ID not found on disk
  * */
-int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
+int	vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
 {
 	const uint32_t	lba_end = BYTES_TO_SECTORS_CEIL(addr + bytes);
-	const uint32_t	addr_unalign = OFFSET(addr, VDL_CACHE_BYTES);
+	const uint32_t	addr_unalign = addr % CONFIG_VDL_CACHE_ENTRY_BYTES;
 	t_vdl_cache		*cache;
 	uint32_t		bytes_to_read;
 	int				err_code;
@@ -172,20 +171,20 @@ int	disk_vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t byt
 		err_code = vdl_cache_update(disk, cache, addr, lba_end);
 		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
-		bytes_to_read = MIN(VDL_CACHE_BYTES - addr_unalign, bytes);
+		bytes_to_read = MIN(CONFIG_VDL_CACHE_ENTRY_BYTES - addr_unalign, bytes);
 		buf = mempcpy(buf, cache->data + addr_unalign, bytes_to_read);
 		addr += bytes_to_read;
 		bytes -= bytes_to_read;
 	}
-	while (bytes >= VDL_CACHE_BYTES)
+	while (bytes >= CONFIG_VDL_CACHE_ENTRY_BYTES)
 	{
 		vdl_cache_select(disk, addr, &cache);
 		err_code = vdl_cache_update(disk, cache, addr, lba_end);
 		if (err_code != KERNEL_SUCCESS)
 			return (err_code);
-		buf = mempcpy(buf, cache->data, VDL_CACHE_BYTES);
-		addr += VDL_CACHE_BYTES;
-		bytes -= VDL_CACHE_BYTES;
+		buf = mempcpy(buf, cache->data, CONFIG_VDL_CACHE_ENTRY_BYTES);
+		addr += CONFIG_VDL_CACHE_ENTRY_BYTES;
+		bytes -= CONFIG_VDL_CACHE_ENTRY_BYTES;
 	}
 	if (bytes > 0)
 	{

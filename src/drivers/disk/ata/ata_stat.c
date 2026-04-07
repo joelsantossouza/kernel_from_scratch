@@ -1,5 +1,5 @@
 /*
- * File: disk_ata_stat.c
+ * File: ata_stat.c
  * Author: Joel Souza
  * Date: 2026-03-10
  * Description: ATA status and error conversion functions
@@ -9,7 +9,7 @@
 #include "errno.h"
 
 /*
- * disk_ata_to_errno - Converts ATA errors to errno
+ * ata_to_errno - Converts ATA errors to errno
  *
  * DESCRIPTION
  * 	Converts ATA error status set on ATA error
@@ -26,7 +26,7 @@
  * 	EREMCHG == Media changed during read
  * 	ENOENT == LBA ID not found on disk
  * */
-int	disk_ata_to_errno(int ata_err)
+int	ata_to_errno(int ata_err)
 {
 	if (ata_err == ATAE_SUCCESS)
 		return (0);
