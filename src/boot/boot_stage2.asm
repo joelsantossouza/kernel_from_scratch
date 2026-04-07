@@ -7,18 +7,45 @@
 
 [BITS 32]
 
-%include "drivers/video/text/video_text.inc"
-
 section	.text
 boot_stage2:
-	push	0x7f
-	push	dword [text_size]
-	push	text
+	push	part0
+	push	0
+	push	g_disk
+	call	vfs_partition_init
 	add		esp, 12
 
-	jmp		$
+	push	kernel_file
+	push	kernel_path
+	push	part0
+	call	fat_file_open
+	add		esp, 12
 
+	mov		eax, dword [kernel_file + 36]
+	mov		dword [kernel_file_cluster], eax
+
+	push	dword [kernel_file + 40]
+	push	KERNEL_ADDR
+	push	kernel_file_offset
+	push	kernel_file_cluster
+	push	part0
+	call	fat_cluster_read
+	add		esp, 20
+
+	jmp		GDT_KERNEL_CODE:KERNEL_ADDR
 
 section	.data
-text:		db "This is a big text to test if the Video Text History read/write functions are working correctly. If you are being able to read its sentences without any obvious missing part, you passed in the test!!"
-text_size:	dd $ - text
+part0:
+	times 1024 db 0 ;WARNING: It will change when malloc be implemented on FAT metadata
+
+kernel_path:
+	db "boot/kernel", 0
+
+kernel_file:
+	times 44 db 0
+
+kernel_file_cluster:
+	dd 0
+
+kernel_file_offset:
+	dd 0

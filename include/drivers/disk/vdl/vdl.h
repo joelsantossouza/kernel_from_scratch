@@ -12,6 +12,12 @@
 # include <stdbool.h>
 # include "drivers/disk/vdl/config.h"
 
+# define BYTES_TO_CACHE_LBA(bytes) ({ \
+	__typeof__(bytes) _bytes = (bytes); \
+	_bytes -= _bytes % VDL_CACHE_BYTES; \
+	_bytes / DISK_SECTOR_BYTES; \
+})
+
 typedef struct s_vdl_cache
 {
 	uint8_t		data[VDL_CACHE_BYTES];

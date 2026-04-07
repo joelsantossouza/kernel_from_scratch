@@ -54,11 +54,10 @@ enum e_fat_cluster_stat
 };
 
 // FAT file
-# define FAT_FILE_NAME_MAX	8
-# define FAT_FILE_EXT_MAX	3
-
-enum e_fat_file_name_info
+enum e_fat_filename_limits
 {
+	FAT_FILE_NAME_MAX = 8,
+	FAT_FILE_EXT_MAX = 3,
 	FAT_FILE_FULLNAME_MAX = FAT_FILE_NAME_MAX + FAT_FILE_EXT_MAX,
 };
 

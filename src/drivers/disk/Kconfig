@@ -4,10 +4,24 @@
 
 menu "Disk Configuration"
 
+	comment "Physical Disk Layer"
+
 	config DISK_SECTORS
 		hex "Disk Total Sectors"
 		range 0x10000 0x20000
 		default 0x10000
+
+	comment "Virtual Disk Layer (VDL)"
+
+	config VDL_CACHE_ENTRY_COUNT
+		int "Number of Cache Entries"
+		range 1 16
+		default 8
+
+	config VDL_CACHE_ENTRY_SECTORS
+		int "Sectors per Cache Entry"
+		range 1 4
+		default 2
 
 endmenu
 
