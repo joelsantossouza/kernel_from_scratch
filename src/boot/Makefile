@@ -12,7 +12,8 @@ BOOTLOADER_SRCS	:= boot_stage2.asm \
 				   $(DISK_DIR)/ata/ata_read.c \
 				   $(DISK_DIR)/ata/ata_stat.c \
 				   $(DISK_DIR)/vdl/vdl_disks.c \
-				   $(DISK_DIR)/vdl/vdl_operations.c \
+				   $(DISK_DIR)/vdl/vdl_read.c \
+				   $(DISK_DIR)/vdl/vdl_cache.c \
 				   $(IO_DIR)/io.asm \
 				   $(FS_DIR)/vfs/vfs_mount_table.c \
 				   $(FS_DIR)/vfs/vfs_partition.c \

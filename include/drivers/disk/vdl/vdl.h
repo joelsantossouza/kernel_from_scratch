@@ -44,8 +44,14 @@ typedef struct s_vdl_disk
 	uint8_t				no;
 }	t_vdl_disk;
 
-int	vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes);
-
 extern const t_vdl_driver	g_ata_driver;
+
+// Disk operation abstractions
+int		vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes);
+
+// Disk cache
+void	vdl_cache_cycle_reset(void);
+void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selected);
+int		vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, uint32_t lba_end);
 
 #endif

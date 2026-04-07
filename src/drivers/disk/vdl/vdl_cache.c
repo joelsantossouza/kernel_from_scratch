@@ -1,17 +1,13 @@
 /*
- * File: vdl_operations.c
+ * File: vdl_cache.c
  * Author: Joel Souza
- * Date: 2026-03-07
- * Description: Virtual Disk Layer interface to communicate with different
- * 				disk types using cache to optimize performance.
+ * Date: 2026-04-07
+ * Description: Disk cache implementation to optimize read/write operations
  */
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "drivers/disk/vdl/vdl.h"
-#include "kernel/config.h"
-#include "string/string.h"
 #include "math/math.h"
+#include "kernel/config.h"
 
 static t_vdl_cache	g_vdl_cache[CONFIG_VDL_CACHE_ENTRY_COUNT] = {0};
 static uint32_t		g_vdl_cache_cycle = 0;
@@ -26,7 +22,6 @@ static uint32_t		g_vdl_cache_cycle = 0;
  * RETURN VALUE
  * 	None
  * */
-static inline
 void	vdl_cache_cycle_reset(void)
 {
 	uint8_t	i;
@@ -52,7 +47,6 @@ void	vdl_cache_cycle_reset(void)
  * RETURN VALUE
  * 	None.
  * */
-static inline
 void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selected)
 {
 	const uint8_t	disk_no = disk->no;
@@ -104,7 +98,6 @@ void	vdl_cache_select(const t_vdl_disk *disk, uint32_t addr, t_vdl_cache **selec
  * 	-EREMCHG == Media changed during read
  * 	-ENOENT == LBA ID not found on disk
  * */
-static inline
 int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, uint32_t lba_end)
 {
 	const t_vdl_driver	*driver = disk->driver;
@@ -129,70 +122,4 @@ int	vdl_cache_update(const t_vdl_disk *disk, t_vdl_cache *cache, uint32_t addr, 
 	);
 	cache->lba_end = lba_end;
 	return (-driver->to_errno(read_status));
-}
-
-/*
- * vdl_read - Disk read abstraction
- *
- * DESCRIPTION
- * 	Read 'bytes' bytes from disk offset 'addr' into 'buf'.
- * 	Uses disk drivers polymorphism for compatibility with any disk type.
- *
- * IMPLEMENTATION
- * 	Cache optimization to decrease number of requests to drivers.
- * 	g_vdl_cache is the table of VDL_CACHE_MAX entries, each storing
- * 	VDL_CACHE_BYTES bytes. If cache is full, it selects the oldest
- * 	entry to overwrite it.
- *
- * 	Three read phases:
- * 	1. Partial read to align addr to VDL_CACHE_BYTES.
- * 	2. Full VDL_CACHE_BYTES chunks read.
- * 	3. Remainder bytes of a cache-chunk.
- *
- * RETURN VALUE
- * 	0 == success
- * 	-ETIME == ATA controller request timeout
- * 	-ENXIO == CHS address not found on disk
- * 	-EIO == I/O error, uncorrectable data, bad block detected
- * 	-EREMCHG == Media changed during read
- * 	-ENOENT == LBA ID not found on disk
- * */
-int	vdl_read(const t_vdl_disk *disk, uint32_t addr, void *buf, uint32_t bytes)
-{
-	const uint32_t	lba_end = BYTES_TO_SECTORS_CEIL(addr + bytes);
-	const uint32_t	addr_unalign = addr % CONFIG_VDL_CACHE_ENTRY_BYTES;
-	t_vdl_cache		*cache;
-	uint32_t		bytes_to_read;
-	int				err_code;
-
-	if (addr_unalign)
-	{
-		vdl_cache_select(disk, addr, &cache);
-		err_code = vdl_cache_update(disk, cache, addr, lba_end);
-		if (err_code != KERNEL_SUCCESS)
-			return (err_code);
-		bytes_to_read = MIN(CONFIG_VDL_CACHE_ENTRY_BYTES - addr_unalign, bytes);
-		buf = mempcpy(buf, cache->data + addr_unalign, bytes_to_read);
-		addr += bytes_to_read;
-		bytes -= bytes_to_read;
-	}
-	while (bytes >= CONFIG_VDL_CACHE_ENTRY_BYTES)
-	{
-		vdl_cache_select(disk, addr, &cache);
-		err_code = vdl_cache_update(disk, cache, addr, lba_end);
-		if (err_code != KERNEL_SUCCESS)
-			return (err_code);
-		buf = mempcpy(buf, cache->data, CONFIG_VDL_CACHE_ENTRY_BYTES);
-		addr += CONFIG_VDL_CACHE_ENTRY_BYTES;
-		bytes -= CONFIG_VDL_CACHE_ENTRY_BYTES;
-	}
-	if (bytes > 0)
-	{
-		vdl_cache_select(disk, addr, &cache);
-		err_code = vdl_cache_update(disk, cache, addr, lba_end);
-		if (err_code != KERNEL_SUCCESS)
-			return (err_code);
-		mempcpy(buf, cache->data, bytes);
-	}
-	return (KERNEL_SUCCESS);
 }
