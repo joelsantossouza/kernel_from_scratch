@@ -62,6 +62,7 @@ IMGS			:= $(PARTITIONS_IMG) \
 include							$(ROOT_DIR)/.config
 DISK_SECTOR_BYTES				:= 512
 MBR_SECTORS						:= 1
+MBR_ADDR						:= 0x7C00
 BOOTLOADER_SECTORS				:= $(CONFIG_BOOT_STAGE2_SECTORS)
 
 BOOTLOADER_START				:= $(shell printf "%d" $$(( \
@@ -80,7 +81,7 @@ CONFIG_DISK_PART3_SECTORS		:= $(shell printf "%d" $$(( \
 								   $(CONFIG_DISK_PART3_END) - $(CONFIG_DISK_PART3_START) \
 )))
 CONFIG_VDL_CACHE_ENTRY_BYTES	:= $(shell printf "%d" $$(( \
-								   $(CONFIG_VDL_CACHE_ENTRY_COUNT) * $(CONFIG_VDL_CACHE_ENTRY_SECTORS) \
+								   $(CONFIG_VDL_CACHE_ENTRY_SECTORS) * $(DISK_SECTOR_BYTES) \
 )))
 
 # Tools
@@ -90,12 +91,14 @@ LD				:= ld
 DD				:= dd
 MKFS			:= mkfs
 CP				:= cp
+EMU				:= qemu-system-i386
 
 # Flags
 CFLAGS			:= -m32 -fno-pic -fno-pie -Wall -Wextra -Werror -g -ffreestanding -nostdlib -fno-builtin
 AFLAGS			:= -w+all -w+error -f elf32 -g -F dwarf
 LDFLAGS			:= -m elf_i386 -nostdlib --no-undefined
 DDFLAGS			:= bs=$(DISK_SECTOR_BYTES) conv=notrunc
+EMUFLAGS		:= -S -gdb stdio
 INCLUDE			:= -I$(INC_DIR) -I$(LIB_DIR)
 
 # Commands
@@ -203,26 +206,18 @@ build-kernel:
 $(PART0).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART0_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART0_FS_FAMILY) -F $(CONFIG_DISK_PART0_FS_VERSION) $@
-	mkdir -p $(PART0_MNT)
-	sudo mount $@ $(PART0_MNT)
 
 $(PART1).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART1_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART1_FS_FAMILY) -F $(CONFIG_DISK_PART1_FS_VERSION) $@
-	mkdir -p $(PART1_MNT)
-	sudo mount $@ $(PART1_MNT)
 
 $(PART2).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART2_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART2_FS_FAMILY) -F $(CONFIG_DISK_PART2_FS_VERSION) $@
-	mkdir -p $(PART2_MNT)
-	sudo mount $@ $(PART2_MNT)
 
 $(PART3).img:
 	$(DD) $(DDFLAGS) if=/dev/zero of=$@ count=$(CONFIG_DISK_PART3_SECTORS)
 	$(MKFS) -t $(CONFIG_DISK_PART3_FS_FAMILY) -F $(CONFIG_DISK_PART3_FS_VERSION) $@
-	mkdir -p $(PART3_MNT)
-	sudo mount $@ $(PART3_MNT)
 
 # OS Image
 $(OS).img: build-boot $(PARTITIONS_IMG)

@@ -8,3 +8,5 @@ source "src/drivers/disk/Kconfig"
 
 source "src/boot/Kconfig"
 
+source "src/kernel/Kconfig"
+

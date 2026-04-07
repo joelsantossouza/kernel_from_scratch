@@ -9,12 +9,12 @@ menu "MBR Configuration"
 # --------------------------------------
 	config MBR_PART0_BOOT_ATTR
 		hex
-		default 0x80 if VDL_PART0_BOOTABLE
+		default 0x80 if DISK_PART0_BOOTABLE
 		default 0x0
 
 	config MBR_PART0_TYPECODE
 		hex
-		default 0x0E if VDL_PART0_FS_FAT16_LBA
+		default 0x0E if DISK_PART0_FS_FAT16_LBA
 		default 0x0
 		
 # --------------------------------------
@@ -22,12 +22,12 @@ menu "MBR Configuration"
 # --------------------------------------
 	config MBR_PART1_BOOT_ATTR
 		hex
-		default 0x80 if VDL_PART1_BOOTABLE
+		default 0x80 if DISK_PART1_BOOTABLE
 		default 0x0
 
 	config MBR_PART1_TYPECODE
 		hex
-		default 0x0E if VDL_PART1_FS_FAT16_LBA
+		default 0x0E if DISK_PART1_FS_FAT16_LBA
 		default 0x0
 		
 # --------------------------------------
@@ -35,12 +35,12 @@ menu "MBR Configuration"
 # --------------------------------------
 	config MBR_PART2_BOOT_ATTR
 		hex
-		default 0x80 if VDL_PART2_BOOTABLE
+		default 0x80 if DISK_PART2_BOOTABLE
 		default 0x0
 
 	config MBR_PART2_TYPECODE
 		hex
-		default 0x0E if VDL_PART2_FS_FAT16_LBA
+		default 0x0E if DISK_PART2_FS_FAT16_LBA
 		default 0x0
 		
 # --------------------------------------
@@ -48,12 +48,12 @@ menu "MBR Configuration"
 # --------------------------------------
 	config MBR_PART3_BOOT_ATTR
 		hex
-		default 0x80 if VDL_PART3_BOOTABLE
+		default 0x80 if DISK_PART3_BOOTABLE
 		default 0x0
 
 	config MBR_PART3_TYPECODE
 		hex
-		default 0x0E if VDL_PART3_FS_FAT16_LBA
+		default 0x0E if DISK_PART3_FS_FAT16_LBA
 		default 0x0
 
 endmenu

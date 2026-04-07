@@ -1,0 +1,12 @@
+# =============================================================================
+# KERNEL CONFIGURATION
+# =============================================================================
+
+menu "Kernel Configuration"
+
+	config KERNEL_ADDR
+		hex "Address to load Kernel"
+		range 0x100000 0x200000
+		default 0x100000
+
+endmenu

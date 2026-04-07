@@ -11,7 +11,7 @@
 #include "fs/vfs/vfs_partition.h"
 #include "boot/mbr.h"
 #include "fs/vfs/config.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "kernel/macros.h"
 #include "errno.h"
 

@@ -9,7 +9,7 @@
 #include "drivers/disk/vdl/vdl.h"
 #include "string/string.h"
 #include "math/math.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 
 /*
  * vdl_read - Disk read abstraction

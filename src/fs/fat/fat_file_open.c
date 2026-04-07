@@ -7,7 +7,7 @@
 
 #include "fs/vfs/vfs_partition.h"
 #include "fs/fat/fat.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 
 int	fat_file_init(const t_vfs_partition *part, const t_phy_fat_file *entry, t_fat_file *file)
 {

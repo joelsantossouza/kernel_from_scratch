@@ -10,7 +10,7 @@
 #include "fs/fat/fat.h"
 #include "string/string.h"
 #include "ctype/ctype.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "errno.h"
 
 int	fat_file_name_convert_strict(uint8_t fat_fullname[FAT_FILE_FULLNAME_MAX], const char *filename)

@@ -5,7 +5,7 @@
  * Description: FAT16 detection and validation
  */
 
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "fs/fat/fat.h"
 #include "fs/fat/fat16/fat16.h"
 #include "fs/vfs/vfs_partition.h"

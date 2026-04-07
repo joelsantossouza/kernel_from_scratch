@@ -8,7 +8,7 @@
 #include "fs/vfs/vfs_partition.h"
 #include "fs/vfs/vfs_table.h"
 #include "drivers/disk/vdl/vdl.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "boot/mbr.h"
 
 int	vfs_partition_init(const t_vdl_disk *disk, uint8_t part_idx, t_vfs_partition *vfs_part)

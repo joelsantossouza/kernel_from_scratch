@@ -10,24 +10,30 @@ PART0_KERNEL_SRC	?= $(KERNEL).bin
 .PHONY:
 
 # OS Main Build
-all: $(PART0).img $(PART0_KERNEL) $(OS).img
+all: $(PART0_KERNEL) $(OS).img
 
-$(PART0_KERNEL): $(PART0_KERNEL_SRC)
+$(PART0_KERNEL): $(PART0).img $(PART0_KERNEL_SRC)
+	mkdir -p $(PART0_MNT)
+	sudo mount $(PART0).img $(PART0_MNT)
 	sudo mkdir -p $(dir $@)
-	sudo $(CP) $< $@
+	sudo $(CP) $(PART0_KERNEL_SRC) $@
+	sudo umount $(PART0_MNT)
 
 $(KERNEL).bin: build-kernel ;
 
 # =============================================================================
 # OS Simulation
 # =============================================================================
+BOOTLOADER_ADDR		:= $(CONFIG_BOOT_STAGE2_ADDR)
+KERNEL_ADDR			:= $(CONFIG_KERNEL_ADDR)
+
 debug: all
-	qemu-system-i386 -drive format=raw,file=$(DISK_IMG) -s -S -d int,cpu_reset 2>$(QEMU_LOG) &
 	gdb --tui \
 		-ex "set confirm off" \
-		-ex "add-symbol-file $(MBR_ELF) $(MBR_ADDR)" \
-		-ex "add-symbol-file $(BOOT_ELF) $(BOOT_ADDR)" \
-		-ex "target remote localhost:1234"
+		-ex "add-symbol-file $(MBR).elf $(MBR_ADDR)" \
+		-ex "add-symbol-file $(BOOTLOADER).elf $(BOOTLOADER_ADDR)" \
+		-ex "add-symbol-file $(KERNEL).elf $(KERNEL_ADDR)" \
+		-ex "target remote | $(EMU) $(EMUFLAGS) -hda $(OS).img"
 
 # =============================================================================
 # OS Clean up

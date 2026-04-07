@@ -40,9 +40,9 @@ LDFLAGS			+= -T $(BOOTLOADER_NAME).ld -defsym=CONFIG_BOOT_STAGE2_ADDR=$(CONFIG_B
 all: $(CONFIG_HEADER).inc $(BINS) $(ELFS)
 
 $(MBR_NAME).bin: $(MBR_SRCS)
-	$(AS) $(INCLUDE) -f bin $< -o $@
+	$(AS) -f bin $(INCLUDE) $< -o $@
 
 $(MBR_NAME).elf: $(MBR_SRCS)
-	$(AS) $(INCLUDE) -f elf32 $< -o $@
+	$(AS) $(AFLAGS) $(INCLUDE) $< -o $@
 
 $(BOOTLOADER_NAME).bin $(BOOTLOADER_NAME).elf: $(BOOTLOADER_OBJS)

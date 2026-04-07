@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "fs/fat/fat.h"
 #include "fs/vfs/vfs_partition.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "errno.h"
 
 int	fat_rootdir_init(const t_vfs_partition *part, t_fat_dir *rootdir)

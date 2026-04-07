@@ -8,7 +8,7 @@
 #include "fs/fat/fat.h"
 #include "fs/vfs/vfs_partition.h"
 #include "drivers/disk/vdl/vdl.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "errno.h"
 
 int	fat16_rootdir_open(const t_fat_dir *rootdir, const char *filename, const char **filename_next, t_fat_file *file)

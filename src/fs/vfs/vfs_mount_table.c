@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include "fs/vfs/vfs_mount_table.h"
 #include "string/string.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 #include "kernel/macros.h"
 #include "errno.h"
 

@@ -7,7 +7,7 @@
 
 #include "drivers/disk/vdl/vdl.h"
 #include "math/math.h"
-#include "kernel/config.h"
+#include "kernel/kernel.h"
 
 static t_vdl_cache	g_vdl_cache[CONFIG_VDL_CACHE_ENTRY_COUNT] = {0};
 static uint32_t		g_vdl_cache_cycle = 0;

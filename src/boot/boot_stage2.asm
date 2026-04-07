@@ -10,6 +10,8 @@
 %include "drivers/disk/vdl/vdl.inc"
 %include "fs/vfs/vfs_partition.inc"
 %include "fs/fat/fat.inc"
+%include "cpu/gdt.inc"
+%include "autoconfig.inc"
 
 section	.text
 boot_stage2:
@@ -29,14 +31,14 @@ boot_stage2:
 	mov		dword [kernel_file_cluster], eax
 
 	push	dword [kernel_file + 40]
-;	push	KERNEL_ADDR
+	push	CONFIG_KERNEL_ADDR
 	push	kernel_file_offset
 	push	kernel_file_cluster
 	push	part0
 	call	fat_cluster_read
 	add		esp, 20
 
-;	jmp		GDT_KERNEL_CODE:KERNEL_ADDR
+	jmp		GDT_KERNEL_CODE:CONFIG_KERNEL_ADDR
 
 section	.data
 part0:
