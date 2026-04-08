@@ -19,6 +19,7 @@ FS_DIR				:= $(SRC_DIR)/fs
 
 IO_DIR				:= $(DRIVERS_DIR)/io
 DISK_DIR			:= $(DRIVERS_DIR)/disk
+VIDEO_DIR			:= $(DRIVERS_DIR)/video
 
 STRING_DIR			:= $(LIB_DIR)/string
 

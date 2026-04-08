@@ -40,7 +40,11 @@ typedef struct s_video_text_config
 	uint32_t	screensize;
 }	t_video_text_config;
 
+// History
 uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr);
 uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count);
+
+// VGA
+uint32_t	video_text_vga_write(const char *text, uint32_t count, enum e_vga_text_color color);
 
 #endif
