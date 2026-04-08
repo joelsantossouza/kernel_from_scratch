@@ -94,6 +94,7 @@ AS					:= nasm
 LD					:= ld
 DD					:= dd
 MKFS				:= mkfs
+OBJCOPY				:= objcopy
 CP					:= cp
 EMU					:= qemu-system-i386
 
@@ -192,8 +193,8 @@ $(CONFIG_HEADER).inc: $(CONFIG_HEADER).h
 	$(AS) $(AFLAGS) $(INCLUDE) -MD $(@:.o=.d) $< -o $@
 
 # Binary
-%.bin:
-	$(LD) $(LDFLAGS) --oformat binary $^ -o $@
+%.bin: %.elf
+	$(OBJCOPY) -O binary $< $@
 
 # Elf
 %.elf:

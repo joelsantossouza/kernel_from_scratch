@@ -16,4 +16,4 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(BINS) $(ELFS)
 
-$(KERNEL_NAME).bin $(KERNEL_NAME).elf: $(KERNEL_OBJS)
+$(KERNEL_NAME).elf: $(KERNEL_OBJS)

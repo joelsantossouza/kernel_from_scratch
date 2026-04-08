@@ -46,5 +46,7 @@ uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count)
 
 // VGA
 uint32_t	video_text_vga_write(const char *text, uint32_t count, enum e_vga_text_color color);
+void		video_text_vga_scrollup(uint32_t nlines);
+void		video_text_vga_scrolldown(uint32_t nlines);
 
 #endif

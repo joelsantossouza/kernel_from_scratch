@@ -7,7 +7,7 @@
 
 %include "test/kernel/test_kernel.inc"
 
-section .asm
+section .text
 test_kernel_start:
 	call	test_kernel_main
 	jmp		$
