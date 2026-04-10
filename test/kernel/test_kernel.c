@@ -6,7 +6,7 @@
  */
 
 #include "kernel/kernel.h"
-
+#include "string/string.h"
 #include "drivers/video/text/video_text.h"
 #include "drivers/io/io.h"
 
@@ -101,25 +101,25 @@ int test_kernel_main(void)
 {
     keyboard_init();
 
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
+	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
 
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
-	video_text_vga_write("111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 99, VGA_TEXT_WHITE);
     while (1)
     {
         char c = getchar();

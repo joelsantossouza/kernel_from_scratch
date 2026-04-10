@@ -9,7 +9,8 @@ TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   $(IO_DIR)/io.asm \
 					   $(VIDEO_DIR)/text/video_text_history.c \
 					   $(VIDEO_DIR)/text/video_text_vga.c \
-					   $(STRING_DIR)/memcpy.asm
+					   $(STRING_DIR)/memcpy.asm \
+					   $(STRING_DIR)/memset.asm
 
 TEST_KERNEL_OBJS	:= $(addsuffix .o, $(TEST_KERNEL_SRCS))
 
