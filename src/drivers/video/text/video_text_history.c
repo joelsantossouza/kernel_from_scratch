@@ -7,13 +7,15 @@
  */
 
 #include <stdint.h>
+#include "drivers/video/text/video_text.h"
 #include "drivers/video/text/config.h"
 #include "string/string.h"
 #include "math/math.h"
 
 static uint16_t	g_video_text_history[VIDEO_TEXT_HISTORY_MAX];
-static uint32_t	g_video_text_history_size = 0;
 static uint32_t	g_video_text_history_offset = 0;
+static uint32_t	g_video_text_history_size = 0;
+uint32_t		g_video_text_history_lines = 0;
 
 uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr)
 {
@@ -37,7 +39,10 @@ uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr
 		g_video_text_history_offset += count;
 	}
 	if (g_video_text_history_size < VIDEO_TEXT_HISTORY_MAX)
+	{
 		g_video_text_history_size = MIN(g_video_text_history_size + count, VIDEO_TEXT_HISTORY_MAX);
+		g_video_text_history_lines = ALIGN_UP(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
+	}
 	return (count);
 }
 

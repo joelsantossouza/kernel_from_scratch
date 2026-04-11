@@ -10,6 +10,7 @@ TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   $(VIDEO_DIR)/text/video_text_config.c \
 					   $(VIDEO_DIR)/text/video_text_history.c \
 					   $(VIDEO_DIR)/text/video_text_write.c \
+					   $(VIDEO_DIR)/text/video_text_scroll.c \
 					   $(STRING_DIR)/memcpy.asm \
 					   $(STRING_DIR)/memset.asm
 

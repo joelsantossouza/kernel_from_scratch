@@ -123,11 +123,11 @@ int test_kernel_main(void)
     while (1)
     {
         char c = getchar();
-		//if (c == 'k')
-		//	video_text_vga_scrollup(1);
-		//else if (c == 'j')
-		//	video_text_vga_scrolldown(1);
-		//else
+		if (c == 'k')
+			video_text_scrollup(VIDEO_TEXT_VGA_ADDR, 1);
+		else if (c == 'j')
+			video_text_scrolldown(VIDEO_TEXT_VGA_ADDR, 1);
+		else
         	video_text_write(VIDEO_TEXT_VGA_ADDR, &c, 1, VGA_TEXT_WHITE);
     }
 
