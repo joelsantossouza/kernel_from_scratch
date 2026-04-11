@@ -7,8 +7,9 @@ include 			$(ROOT_DIR)/build.mk
 TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   test_kernel.c \
 					   $(IO_DIR)/io.asm \
+					   $(VIDEO_DIR)/text/video_text_config.c \
 					   $(VIDEO_DIR)/text/video_text_history.c \
-					   $(VIDEO_DIR)/text/video_text_vga.c \
+					   $(VIDEO_DIR)/text/video_text_write.c \
 					   $(STRING_DIR)/memcpy.asm \
 					   $(STRING_DIR)/memset.asm
 

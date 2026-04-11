@@ -38,15 +38,16 @@ typedef struct s_video_text_config
 	uint32_t	width;
 	uint32_t	height;
 	uint32_t	screensize;
+	uint32_t	last_row;
 }	t_video_text_config;
+
+extern t_video_text_config	g_video_text_config;
 
 // History
 uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr);
 uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count);
 
-// VGA
-uint32_t	video_text_vga_write(const char *text, uint32_t count, enum e_vga_text_color color);
-void		video_text_vga_scrollup(uint32_t nlines);
-void		video_text_vga_scrolldown(uint32_t nlines);
+// Operations
+uint32_t	video_text_write(uint16_t *addr, const char *text, uint32_t count, uint8_t attr);
 
 #endif
