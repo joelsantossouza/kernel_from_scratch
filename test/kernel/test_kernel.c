@@ -124,9 +124,9 @@ int test_kernel_main(void)
     {
         char c = getchar();
 		if (c == 'k')
-			video_text_scrollup(VIDEO_TEXT_VGA_ADDR, 1);
+			video_text_scroll_up(VIDEO_TEXT_VGA_ADDR, 1);
 		else if (c == 'j')
-			video_text_scrolldown(VIDEO_TEXT_VGA_ADDR, 1);
+			video_text_scroll_down(VIDEO_TEXT_VGA_ADDR, 1);
 		else
         	video_text_write(VIDEO_TEXT_VGA_ADDR, &c, 1, VGA_TEXT_WHITE);
     }
