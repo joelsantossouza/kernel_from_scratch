@@ -41,6 +41,8 @@ typedef struct s_video_text_config
 	uint32_t	last_row;
 }	t_video_text_config;
 
+typedef uint32_t	(*t_video_text_escape_fn)(void);
+
 extern t_video_text_config	g_video_text_config;
 extern uint32_t				g_video_text_offset;
 extern uint32_t				g_video_text_lineoffset;
@@ -52,7 +54,7 @@ uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr
 uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count);
 
 // Operations
-uint32_t	video_text_write(uint16_t *video_text_addr, const char *text, uint32_t count, uint8_t attr);
+void		video_text_write(uint16_t *video_text_addr, const char *text, uint32_t count, uint8_t attr);
 void		video_text_scroll_up(uint16_t *video_text_addr, uint32_t nlines);
 void		video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines);
 void		video_text_scroll_to_bottom(uint16_t *video_text_addr);

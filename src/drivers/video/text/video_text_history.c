@@ -71,3 +71,8 @@ uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count)
 	}
 	return (count);
 }
+
+uint32_t	video_text_history_set(uint32_t rewind, uint16_t set, uint32_t count)
+{
+
+}
