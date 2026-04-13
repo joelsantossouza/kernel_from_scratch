@@ -29,8 +29,8 @@ void	video_text_scroll_up(uint16_t *video_text_addr, uint32_t nlines)
 	if (g_video_text_scroll == scroll_next)
 		return ;
 	g_video_text_scroll = scroll_next;
-	if (g_video_text_lineoffset != 0)
-		line_remaining = g_video_text_config.width - g_video_text_lineoffset;
+	if (g_video_text_history_line_offset != 0)
+		line_remaining = g_video_text_config.width - g_video_text_history_line_offset;
 	else
 		line_remaining = 0;
 	scroll_cells = g_video_text_scroll * g_video_text_config.width - line_remaining;
@@ -50,8 +50,8 @@ void	video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines)
 		scroll_next = g_video_text_scroll - nlines;
 	if (g_video_text_scroll == scroll_next)
 		return ;
-	if (g_video_text_lineoffset != 0)
-		line_remaining = g_video_text_config.width - g_video_text_lineoffset;
+	if (g_video_text_history_line_offset != 0)
+		line_remaining = g_video_text_config.width - g_video_text_history_line_offset;
 	else
 		line_remaining = 0;
 	g_video_text_scroll = scroll_next;
@@ -63,15 +63,5 @@ void	video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines)
 	}
 	video_text_history_read(0, video_text_addr, g_video_text_offset);
 	padding_bytes = line_remaining * sizeof(uint16_t);
-	memset(video_text_addr + g_video_text_offset, 0, padding_bytes);
-}
-
-void	video_text_scroll_to_bottom(uint16_t *video_text_addr)
-{
-	const uint32_t	screen_remaining = g_video_text_config.screensize - g_video_text_offset;
-	const uint32_t	padding_bytes = screen_remaining * sizeof(uint16_t);
-
-	g_video_text_scroll = 0;
-	video_text_history_read(0, video_text_addr, g_video_text_offset);
 	memset(video_text_addr + g_video_text_offset, 0, padding_bytes);
 }

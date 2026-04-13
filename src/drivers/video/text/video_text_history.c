@@ -14,8 +14,9 @@
 
 static uint16_t	g_video_text_history[VIDEO_TEXT_HISTORY_MAX];
 static uint32_t	g_video_text_history_offset = 0;
-static uint32_t	g_video_text_history_size = 0;
+uint32_t		g_video_text_history_size = 0;
 uint32_t		g_video_text_history_lines = 0;
+uint32_t		g_video_text_history_line_offset = 0;
 
 uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr)
 {
@@ -38,11 +39,10 @@ uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr
 		memicpy8(&g_video_text_history[g_video_text_history_offset], text, count, attr);
 		g_video_text_history_offset += count;
 	}
-	if (g_video_text_history_size < VIDEO_TEXT_HISTORY_MAX)
-	{
-		g_video_text_history_size = MIN(g_video_text_history_size + count, VIDEO_TEXT_HISTORY_MAX);
-		g_video_text_history_lines = ALIGN_UP(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
-	}
+	g_video_text_history_line_offset += count;
+	if (g_video_text_history_line_offset >= g_video_text_config.width)
+		g_video_text_history_line_offset %= g_video_text_config.width;
+	video_text_history_size_increment(count);
 	return (count);
 }
 
@@ -74,5 +74,32 @@ uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count)
 
 uint32_t	video_text_history_set(uint32_t rewind, uint16_t set, uint32_t count)
 {
+	uint32_t	space_until_wrap_up;
+	uint32_t	offset;
 
+	if (rewind > g_video_text_history_size)
+		return (0);
+	if (count > VIDEO_TEXT_HISTORY_MAX)
+		count = VIDEO_TEXT_HISTORY_MAX;
+	offset = (g_video_text_history_offset + VIDEO_TEXT_HISTORY_MAX - rewind) % VIDEO_TEXT_HISTORY_MAX;
+	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - offset;
+	if (count > space_until_wrap_up)
+	{
+		memset(&g_video_text_history[offset], set, space_until_wrap_up * sizeof(uint16_t));
+		offset = count - space_until_wrap_up;
+		memset(g_video_text_history, set, offset * sizeof(uint16_t));
+	}
+	else
+	{
+		memset(&g_video_text_history[offset], set, count * sizeof(uint16_t));
+		offset += count;
+	}
+	if (rewind >= count)
+		return (count);
+	g_video_text_history_offset = offset;
+	g_video_text_history_line_offset += count;
+	if (g_video_text_history_line_offset >= g_video_text_config.width)
+		g_video_text_history_line_offset %= g_video_text_config.width;
+	video_text_history_size_increment(count);
+	return (count);
 }

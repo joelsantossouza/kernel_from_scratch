@@ -11,12 +11,11 @@
 #include "ctype/ctype.h"
 
 uint32_t	g_video_text_offset = 0;
-uint32_t	g_video_text_lineoffset = 0;
 
 static
 uint32_t	video_text_escape_newline(void)
 {
-	const uint32_t	line_remaining = g_video_text_config.width - g_video_text_lineoffset;
+	const uint32_t	line_remaining = g_video_text_config.width - g_video_text_history_line_offset;
 
 	return (video_text_history_set(0, 0, line_remaining));
 }
@@ -40,16 +39,13 @@ void	video_text_write(uint16_t *video_text_addr, const char *text, uint32_t coun
 			text++;
 		if (text > text_ptr)
 			entries_written += video_text_history_write(text_ptr, text - text_ptr, attr);
-		while (text < text_end && iscntrl(*text))
-			entries_written += g_video_text_escape_handlers[*text++]();
+		while (text < text_end && iscntrl((uint8_t)*text))
+			entries_written += g_video_text_escape_handlers[(uint8_t)*text++]();
 	}
-	g_video_text_lineoffset += entries_written;
-	if (g_video_text_lineoffset >= g_video_text_config.width)
-		g_video_text_lineoffset %= g_video_text_config.width;
 	g_video_text_offset += entries_written;
 	if (g_video_text_offset > g_video_text_config.screensize)
 	{
-		g_video_text_offset = g_video_text_config.last_row + g_video_text_lineoffset;
+		g_video_text_offset = g_video_text_config.last_row + g_video_text_history_line_offset;
 		video_text_scroll_to_bottom(video_text_addr);
 		return ;
 	}
