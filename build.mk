@@ -26,7 +26,7 @@ STRING_DIR			:= $(LIB_DIR)/string
 TEST_KERNEL_DIR		:= $(TEST_DIR)/kernel
 
 # OS Components
-OS_NAME				:= HavenOS
+OS_NAME				:= EdenOS
 OS					:= ./$(OS_NAME)
 
 MBR_NAME			:= mbr

@@ -101,34 +101,15 @@ int test_kernel_main(void)
 {
     keyboard_init();
 
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "1111122222333334444455555666667\n7778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "11111222223333344444555556\n6666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-	video_text_write(VIDEO_TEXT_VGA_ADDR, "111112222233333444445555566666777778888899999aaaaabbbbbcccccdddddeeeeefffffggggghhhhhiiiii", 80, VGA_TEXT_WHITE);
-
     while (1)
     {
         char c = getchar();
 		if (c == 'k')
-			video_text_scroll_up(VIDEO_TEXT_VGA_ADDR, 1);
+			vga_text_scroll_up(1);
 		else if (c == 'j')
-			video_text_scroll_down(VIDEO_TEXT_VGA_ADDR, 1);
+			vga_text_scroll_down(1);
 		else
-        	video_text_write(VIDEO_TEXT_VGA_ADDR, &c, 1, VGA_TEXT_WHITE);
+			vga_text_write(&c, 1, (VGA_TEXT_WHITE << 4) | VGA_TEXT_BLACK);
     }
 
     return KERNEL_SUCCESS;

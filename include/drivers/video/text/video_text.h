@@ -13,29 +13,6 @@
 # include "string/string.h"
 # include "math/math.h"
 
-// VGA
-# define VIDEO_TEXT_VGA_ADDR	(uint16_t *)0xB8000
-
-enum e_vga_text_color
-{
-	VGA_TEXT_BLACK = 0x0,
-	VGA_TEXT_DARK_BLUE,
-	VGA_TEXT_DARK_GREEN,
-	VGA_TEXT_DARK_CYAN,
-	VGA_TEXT_DARK_RED,
-	VGA_TEXT_DARK_MAGENTA,
-	VGA_TEXT_BROWN,
-	VGA_TEXT_LIGHT_GRAY,
-	VGA_TEXT_DARK_GRAY,
-	VGA_TEXT_LIGHT_BLUE,
-	VGA_TEXT_LIGHT_GREEN,
-	VGA_TEXT_LIGHT_CYAN,
-	VGA_TEXT_LIGHT_RED,
-	VGA_TEXT_LIGHT_MAGENTA,
-	VGA_TEXT_YELLOW,
-	VGA_TEXT_WHITE
-};
-
 typedef struct s_video_text_config
 {
 	uint32_t	width;
@@ -95,5 +72,46 @@ void	video_text_scroll_to_bottom(uint16_t *video_text_addr)
 
 // Operations
 void		video_text_write(uint16_t *video_text_addr, const char *text, uint32_t count, uint8_t attr);
+
+// VGA
+# define VGA_TEXT_ADDR	(uint16_t *)0xB8000
+
+enum e_vga_text_color
+{
+	VGA_TEXT_BLACK = 0x0,
+	VGA_TEXT_DARK_BLUE,
+	VGA_TEXT_DARK_GREEN,
+	VGA_TEXT_DARK_CYAN,
+	VGA_TEXT_DARK_RED,
+	VGA_TEXT_DARK_MAGENTA,
+	VGA_TEXT_BROWN,
+	VGA_TEXT_LIGHT_GRAY,
+	VGA_TEXT_DARK_GRAY,
+	VGA_TEXT_LIGHT_BLUE,
+	VGA_TEXT_LIGHT_GREEN,
+	VGA_TEXT_LIGHT_CYAN,
+	VGA_TEXT_LIGHT_RED,
+	VGA_TEXT_LIGHT_MAGENTA,
+	VGA_TEXT_YELLOW,
+	VGA_TEXT_WHITE
+};
+
+static inline
+void	vga_text_write(const char *text, uint32_t count, enum e_vga_text_color color)
+{
+	video_text_write(VGA_TEXT_ADDR, text, count, color);
+}
+
+static inline
+void	vga_text_scroll_up(uint32_t nlines)
+{
+	video_text_scroll_up(VGA_TEXT_ADDR, nlines);
+}
+
+static inline
+void	vga_text_scroll_down(uint32_t nlines)
+{
+	video_text_scroll_down(VGA_TEXT_ADDR, nlines);
+}
 
 #endif
