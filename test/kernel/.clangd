@@ -2,3 +2,4 @@ CompileFlags:
   Add:
     - "-I../../include"
     - "-I../../lib"
+    - "-I../../"

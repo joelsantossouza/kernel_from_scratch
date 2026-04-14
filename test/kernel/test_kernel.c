@@ -97,20 +97,10 @@ char getchar(void)
 
 /* ---------------- Test kernel main ---------------- */
 
+#include "test/lib/ctype/test_ctype.h"
+
 int test_kernel_main(void)
 {
-    keyboard_init();
-
-    while (1)
-    {
-        char c = getchar();
-		if (c == 'k')
-			vga_text_scroll_up(1);
-		else if (c == 'j')
-			vga_text_scroll_down(1);
-		else
-			vga_text_write(&c, 1, (VGA_TEXT_WHITE << 4) | VGA_TEXT_BLACK);
-    }
-
+	test_ctype_islower();
     return KERNEL_SUCCESS;
 }

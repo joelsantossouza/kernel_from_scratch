@@ -4,6 +4,10 @@
 ROOT_DIR			:= $(shell git rev-parse --show-toplevel)
 include 			$(ROOT_DIR)/build.mk
 
+TEST_LIB_DIR		:= $(TEST_DIR)/lib
+
+TEST_CTYPE_DIR		:= $(TEST_LIB_DIR)/ctype
+
 TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   test_kernel.c \
 					   $(IO_DIR)/io.asm \
@@ -12,7 +16,8 @@ TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   $(VIDEO_DIR)/text/video_text_write.c \
 					   $(VIDEO_DIR)/text/video_text_scroll.c \
 					   $(STRING_DIR)/memcpy.asm \
-					   $(STRING_DIR)/memset.asm
+					   $(STRING_DIR)/memset.asm \
+					   $(TEST_CTYPE_DIR)/test_ctype.c
 
 TEST_KERNEL_OBJS	:= $(addsuffix .o, $(TEST_KERNEL_SRCS))
 
