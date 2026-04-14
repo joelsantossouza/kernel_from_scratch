@@ -12,22 +12,35 @@
 # include <stdbool.h>
 # include "drivers/video/text/video_text.h"
 
+// Ensure true and false are bool type
+# undef true
+# undef false
+# define true				((bool)1)
+# define false				((bool)0)
+
+// Deeper Stringification
+# define UT_STRINGIFY2(x)	#x
+# define UT_STRINGIFY(x)	UT_STRINGIFY2(x)
+
 // Colors
 # define UT_COLOR_SUCCESS	VGA_TEXT_LIGHT_GREEN
 # define UT_COLOR_FAILURE	VGA_TEXT_DARK_RED
 # define UT_COLOR_LOCATION	VGA_TEXT_WHITE
 
-// Prefixes
-# define UT_PREFIX_SUCCESS	"[OK] - "
-# define UT_PREFIX_FAILURE	"[KO] - "
-# define UT_PREFIX_LOCATION	__FILE__ ":" __LINE__ ": "
+// Message Prefixes
+# define UT_MSGPFX_SUCCESS	"[OK] "
+# define UT_MSGPFX_FAILURE	"[KO] "
+# define UT_MSGPFX_LOCATION	""
+
+// Messages
+# define UT_MSG_LOCATION	__FILE__ ":" UT_STRINGIFY(__LINE__) ": "
 
 // Log
 # define UT_LOG(status, msg) \
 do \
 { \
-	vga_text_print(UT_PREFIX_LOCATION, UT_COLOR_LOCATION); \
-	vga_text_print(UT_PREFIX_##status msg, UT_PREFIX_##status); \
+	vga_text_print(UT_MSGPFX_LOCATION UT_MSG_LOCATION, UT_COLOR_LOCATION); \
+	vga_text_print(UT_MSGPFX_##status msg "\n", UT_COLOR_##status); \
 } \
 while (false)
 
@@ -39,9 +52,9 @@ do \
 						  bool: (expect) == !!(actual) \
 					); \
 	if (is_equal) \
-		UT_LOG(SUCCESS, #expect " == " #actual); \
+		UT_LOG(SUCCESS, #actual " == " #expect); \
 	else \
-		UT_LOG(FAILURE, #expect " != " #actual); \
+		UT_LOG(FAILURE, #actual " == " #expect); \
 } \
 while (false)
 

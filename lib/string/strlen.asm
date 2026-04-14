@@ -7,9 +7,27 @@
 
 %include "errno.inc"
 
+global	strlen
 global	strnlen_strict
 
 section	.asm
+strlen:
+	push	ebp
+	mov		ebp, esp
+
+	mov		edx, [ebp + 8]
+	xor		eax, eax
+
+.loop:
+	cmp		byte [edx + eax], 0
+	jz		.return
+	add		eax, 1
+	jmp		.loop
+
+.return:
+	pop		ebp
+	ret
+
 strnlen_strict:
 	push	ebp
 	mov		ebp, esp

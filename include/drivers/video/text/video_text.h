@@ -103,6 +103,12 @@ void	vga_text_write(const char *text, uint32_t count, enum e_vga_text_color colo
 }
 
 static inline
+void	vga_text_print(const char *text, enum e_vga_text_color color)
+{
+	video_text_write(VGA_TEXT_ADDR, text, strlen(text), color);
+}
+
+static inline
 void	vga_text_scroll_up(uint32_t nlines)
 {
 	video_text_scroll_up(VGA_TEXT_ADDR, nlines);
