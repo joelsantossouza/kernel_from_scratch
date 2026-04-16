@@ -98,9 +98,24 @@ char getchar(void)
 /* ---------------- Test kernel main ---------------- */
 
 #include "test/lib/ctype/test_ctype.h"
+#include "test/unit_test.h"
 
 int test_kernel_main(void)
 {
-	test_ctype_islower();
+	ut_startup();
+	UT_RUN_CATEGORY(ctype);
+
+	while (true)
+	{
+		char	c = getchar();
+		if (c == 'k')
+			vga_text_scroll_up(1);
+		else if (c == 'K')
+			vga_text_scroll_up(24);
+		else if (c == 'j')
+			vga_text_scroll_down(1);
+		else if (c == 'J')
+			vga_text_scroll_down(24);
+	}
     return KERNEL_SUCCESS;
 }

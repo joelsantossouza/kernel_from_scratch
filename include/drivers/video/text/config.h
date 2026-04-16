@@ -9,7 +9,7 @@
 # define VIDEO_TEXT_CONFIG_H
 
 // History
-# define VIDEO_TEXT_HISTORY_MAX		4000U
+# define VIDEO_TEXT_HISTORY_MAX		20000U
 
 // Screen
 # define VIDEO_TEXT_DEFAULT_WIDTH	80

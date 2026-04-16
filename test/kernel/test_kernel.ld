@@ -32,4 +32,11 @@ SECTIONS
 		*(.COMMON*)
 		*(.bss*)
 	} :data
+
+	.init_array :
+	{
+		__start_init_array = .;
+		*(.init_array*)
+		__stop_init_array = .;
+	}
 }
