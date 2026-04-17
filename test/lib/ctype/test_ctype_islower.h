@@ -9,7 +9,12 @@
 # define TEST_CTYPE_ISLOWER_H
 
 # include "ctype/ctype.h"
-# include "test/unit_test.h"
+# include "test/unit_test/unit_test.h"
+
+# ifndef TEST_CTYPE_H
+#  define TEST_CTYPE_H
+UT_CREATE_CATEGORY(ctype, "Test ctype library");
+# endif
 
 UT_CREATE_SUITE(ctype, islower, "Test islower function")
 
@@ -147,6 +152,11 @@ UT_CREATE_CASE(ctype, islower, false_cases, "Non lower characters case")
 	UT_EXPECT_EQ(false, islower(125));
 	UT_EXPECT_EQ(false, islower(126));
 	UT_EXPECT_EQ(false, islower(127));
+}
+
+UT_CREATE_CASE(ctype, islower, negative_inputs, "Negative chars as input")
+{
+	UT_EXPECT_EQ(false, islower(-159));
 }
 
 #endif

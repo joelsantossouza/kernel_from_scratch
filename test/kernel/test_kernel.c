@@ -97,12 +97,13 @@ char getchar(void)
 
 /* ---------------- Test kernel main ---------------- */
 
+#include <stdbool.h>
 #include "test/lib/ctype/test_ctype.h"
-#include "test/unit_test.h"
 
 int test_kernel_main(void)
 {
-	ut_startup();
+	memset(VGA_TEXT_ADDR, 0, 4000);
+	ut_init();
 	UT_RUN_CATEGORY(ctype);
 
 	while (true)

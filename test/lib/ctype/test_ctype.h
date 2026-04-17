@@ -8,8 +8,7 @@
 #ifndef TEST_CTYPE_H
 # define TEST_CTYPE_H
 
-# include "ctype/ctype.h"
-# include "test/unit_test.h"
+# include "test/unit_test/unit_test.h"
 
 UT_CREATE_CATEGORY(ctype, "Test ctype library");
 

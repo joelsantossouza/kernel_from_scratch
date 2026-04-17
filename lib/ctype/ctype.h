@@ -14,33 +14,25 @@
 static inline
 int	islower(int c)
 {
-	const uint8_t	uc = (uint8_t)c;
-
-	return (uc >= 'a' && uc <= 'z');
+	return (c >= 'a' && c <= 'z');
 }
 
 static inline
 int	toupper(int c)
 {
-	const uint8_t	uc = (uint8_t)c;
-
-	return (islower(uc) ? uc - ASCII_TABLE_CASE_OFFSET : uc);
+	return (islower(c) ? c - ASCII_TABLE_CASE_OFFSET : c);
 }
 
 static inline
 int	isprint(int c)
 {
-	const uint8_t	uc = (uint8_t)c;
-
-	return (uc >= ' ' && uc <= '~');
+	return (c >= ' ' && c <= '~');
 }
 
 static inline
 int	iscntrl(int c)
 {
-	const uint8_t	uc = (uint8_t)c;
-
-	return (uc <= ASCII_UNIT_SEPARATOR || uc == ASCII_DELETE);
+	return ((uint32_t)c <= ASCII_UNIT_SEPARATOR || c == ASCII_DELETE);
 }
 
 #endif
