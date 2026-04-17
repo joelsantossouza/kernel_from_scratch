@@ -12,6 +12,31 @@
 # include "ut_name.h"
 # include "ut_register.h"
 
+/*
+ * NAME
+ * 	UT_CREATE_CATEGORY, UT_CREATE_SUITE, UT_CREATE_CASE -
+ * 	Define unit test hierarchy components
+ *
+ * DESCRIPTION
+ * 	These macros define and initialize the core components of the
+ * 	unit test hierarchy: categories, suites, and cases. Each component
+ * 	is instantiated as a static global object and automatically
+ * 	registered within its parent group.
+ *
+ * 	UT_CREATE_CATEGORY(categ, descr)
+ * 		Defines a test category. A category is the top-level grouping
+ *		of test suites.
+ *
+ * 	UT_CREATE_SUITE(categ, suite, descr)
+ * 		Defines a test suite and registers it within the specified
+ * 		category.
+ *
+ * 	UT_CREATE_CASE(categ, suite, case, descr)
+ * 		Defines a test case, registers it within the specified suite,
+ * 		and begins the definition of the test function. The macro
+ * 		expands into a function declaration followed by its definition,
+ * 		so it must be immediately followed by a function body.
+ * */
 # define UT_CREATE_CATEGORY(categ, descr) \
 static t_category	UT_NAME_CATEGORY(categ) = { \
 	.suites = {0}, \

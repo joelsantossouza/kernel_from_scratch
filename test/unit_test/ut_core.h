@@ -62,6 +62,26 @@ typedef struct s_category
 extern	void (*__start_init_array[])(void);
 extern	void (*__stop_init_array[])(void);
 
+/*
+ * NAME
+ * 	ut_init - Initialize unit test framework
+ *
+ * DESCRIPTION
+ * 	Initializes the unit test system by executing all startup
+ * 	functions stored in the `.init_array` ELF section.
+ *
+ * 	These functions are typically inserted via compiler attributes
+ * 	(e.g., __attribute__((constructor))) and are used to perform
+ * 	automatic registration of test categories, suites, and cases.
+ *
+ * 	The function iterates over the range defined by the linker
+ * 	symbols `__start_init_array` and `__stop_init_array`, invoking
+ * 	each function pointer in sequence.
+ *
+ * 	This function must be called at the beginning of the program
+ * 	to ensure that all test components are properly registered
+ * 	before execution.
+ * */
 static
 void	ut_init(void)
 {

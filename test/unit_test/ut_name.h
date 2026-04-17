@@ -10,6 +10,28 @@
 
 # include "ut_utils.h"
 
+/*
+ * NAME
+ * 	UT_NAME_CATEGORY, UT_NAME_SUITE, UT_NAME_SUITE_REGISTER,
+ * 	UT_NAME_CASE, UT_NAME_CASE_TEST, UT_NAME_CASE_REGISTER
+ * 	- Unit test symbol name generation macros
+ *
+ * DESCRIPTION
+ * 	These macros generate standardized symbol names for unit test
+ * 	components using token concatenation.
+ *
+ * 	Naming follows a hierarchical pattern:
+ *
+ * 		ut_category_<categ>_suite_<suite>_case_<case>
+ *
+ * 	Additional suffixes are appended depending on the symbol type:
+ *
+ * 		_test       → test function
+ * 		_register   → registration function
+ *
+ * 	This ensures consistent and collision-free naming across
+ * 	categories, suites, and test cases.
+ * */
 # define UT_NAME_CATEGORY(categ) \
 UT_CAT2(ut_category_, categ)
 

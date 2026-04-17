@@ -12,6 +12,23 @@
 # include <stdbool.h>
 # include "ut_log.h"
 
+/*
+ * NAME
+ * 	UT_EXPECT_EQ - Expression equality tester
+ *
+ * DESCRIPTION
+ * 	Tests whether the actual value is equal to the expected value.
+ *
+ * 	The comparison behavior is selected based on the type of the
+ * 	expected value using _Generic. Currently, the following types
+ * 	are supported:
+ * 		- bool: compares (expect) with !!(actual)
+ *
+ * 	The macro logs the result as SUCCESS if the comparison evaluates
+ * 	to true, or FAILURE otherwise. The logged message includes the
+ * 	stringified expressions:
+ * 		"actual == expect"
+ * */
 # define UT_EXPECT_EQ(expect, actual) \
 do \
 { \
