@@ -52,6 +52,7 @@ void	ut_run_suite(const t_suite *suite)
 	UT_LOG_DESCRIPTION(SUITE, suite->description);
 	for (i = 0; i < entries; i++)
 		ut_run_case(suite->cases[i]);
+	vga_text_print("\n", 0);
 }
 
 static inline
@@ -63,6 +64,7 @@ void	ut_run_category(const t_category *category)
 	UT_LOG_DESCRIPTION(CATEGORY, category->description);
 	for (i = 0; i < entries; i++)
 		ut_run_suite(category->suites[i]);
+	vga_text_print("\n\n", 0);
 }
 
 /*

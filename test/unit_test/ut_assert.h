@@ -33,7 +33,8 @@
 do \
 { \
 	bool is_equal = _Generic((expect), \
-						  bool: (expect) == !!(actual) \
+						  bool: ((bool)(expect)) == ((bool)(actual)), \
+						  default: (expect) == (actual) \
 					); \
 	if (is_equal) \
 		UT_LOG_STATUS(SUCCESS, #actual " == " #expect); \
