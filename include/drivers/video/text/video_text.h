@@ -41,7 +41,7 @@ void	video_text_history_size_update(uint32_t new_size)
 	if (g_video_text_history_size < VIDEO_TEXT_HISTORY_MAX)
 	{
 		g_video_text_history_size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
-		g_video_text_history_lines = ALIGN_UP(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
+		g_video_text_history_lines = align_up(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
 	}
 }
 
@@ -51,7 +51,7 @@ void	video_text_history_size_increment(uint32_t amount)
 	if (g_video_text_history_size < VIDEO_TEXT_HISTORY_MAX)
 	{
 		g_video_text_history_size = MIN(g_video_text_history_size + amount, VIDEO_TEXT_HISTORY_MAX);
-		g_video_text_history_lines = ALIGN_UP(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
+		g_video_text_history_lines = align_up(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
 	}
 }
 

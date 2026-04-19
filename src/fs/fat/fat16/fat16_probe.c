@@ -24,7 +24,7 @@ int	fat16_probe_bpb(const t_phy_fat16_bpb *bpb)
 	if (bpb->bytes_per_sector != 512 && bpb->bytes_per_sector != 1024
 		&& bpb->bytes_per_sector != 2048 && bpb->bytes_per_sector != 4096)
 		return (FAT_EBAD_BYTES_PER_SECT);
-	if (bpb->sectors_per_cluster == 0 || !IS_POWER_2(bpb->sectors_per_cluster))
+	if (bpb->sectors_per_cluster == 0 || !is_pow2(bpb->sectors_per_cluster))
 		return (FAT_EBAD_SECTS_PER_CLUS);
 	if (bpb->reserved_sectors_count == 0)
 		return (FAT_EBAD_RSVD_SECTS_CNT);

@@ -99,12 +99,14 @@ char getchar(void)
 
 #include <stdbool.h>
 #include "test/lib/ctype/test_ctype.h"
+#include "test/lib/math/test_math.h"
 
 int test_kernel_main(void)
 {
 	memset(VGA_TEXT_ADDR, 0, 4000);
 	ut_init();
 	UT_RUN_CATEGORY(ctype);
+	UT_RUN_CATEGORY(math);
 
 	while (true)
 	{
