@@ -9,6 +9,7 @@
 # define UT_LOG_H
 
 # include <stdbool.h>
+# include "drivers/video/text/video_text.h"
 
 /*
  * NAME
@@ -41,9 +42,23 @@
 # define UT_LOG_STATUS(type, msg) \
 do \
 { \
-	vga_text_print(UT_LOCATION, UT_COLOR_LOCATION); \
-	vga_text_print( \
-		UT_MSGPFX_##type msg "\n", UT_COLOR_##type \
+	const uint32_t	location_len = strlen(UT_LOCATION); \
+	uint32_t		msg_len = strlen(UT_MSGPFX_##type msg); \
+	const char		*full_msg; \
+	\
+	if (location_len + msg_len > g_video_text_config.width) \
+	{ \
+		full_msg = "\n" UT_MSGPFX_##type msg "\n"; \
+		msg_len += 2; \
+	} \
+	else \
+	{ \
+		full_msg = UT_MSGPFX_##type msg "\n"; \
+		msg_len += 1; \
+	} \
+	vga_text_write(UT_LOCATION, location_len, UT_COLOR_LOCATION); \
+	vga_text_write( \
+		full_msg, msg_len, UT_COLOR_##type \
 	); \
 } \
 while (false)

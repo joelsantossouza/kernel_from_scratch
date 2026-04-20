@@ -100,6 +100,7 @@ char getchar(void)
 #include <stdbool.h>
 #include "test/lib/ctype/test_ctype.h"
 #include "test/lib/math/test_math.h"
+#include "test/lib/string/test_string.h"
 
 int test_kernel_main(void)
 {
@@ -107,6 +108,7 @@ int test_kernel_main(void)
 	ut_init();
 	UT_RUN_CATEGORY(ctype);
 	UT_RUN_CATEGORY(math);
+	UT_RUN_CATEGORY(string);
 
 	while (true)
 	{

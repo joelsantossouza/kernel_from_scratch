@@ -10,6 +10,7 @@
 # define UT_ASSERT_H
 
 # include <stdbool.h>
+# include "string/string.h"
 # include "ut_log.h"
 
 /*
@@ -22,7 +23,9 @@
  * 	The comparison behavior is selected based on the type of the
  * 	expected value using _Generic. Currently, the following types
  * 	are supported:
- * 		- bool: compares (expect) with !!(actual)
+ * 		- bool: compares (bool)(expect) == (bool)(actual)
+ * 		- char *: compares strcmp(expect, actual) == 0
+ * 		- default: compares (expect) == (actual)
  *
  * 	The macro logs the result as SUCCESS if the comparison evaluates
  * 	to true, or FAILURE otherwise. The logged message includes the
@@ -33,7 +36,8 @@
 do \
 { \
 	bool is_equal = _Generic((expect), \
-						  bool: ((bool)(expect)) == ((bool)(actual)), \
+						  bool: ((bool)(uint32_t)(expect)) == ((bool)(uint32_t)(actual)), \
+						  char *: strcmp((const char *)(expect), (const char *)(actual)) == 0, \
 						  default: (expect) == (actual) \
 					); \
 	if (is_equal) \

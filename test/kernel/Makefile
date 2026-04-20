@@ -18,6 +18,7 @@ TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   $(STRING_DIR)/memcpy.asm \
 					   $(STRING_DIR)/memset.asm \
 					   $(STRING_DIR)/strlen.asm \
+					   $(STRING_DIR)/strcmp.asm
 
 TEST_KERNEL_OBJS	:= $(addsuffix .o, $(TEST_KERNEL_SRCS))
 
