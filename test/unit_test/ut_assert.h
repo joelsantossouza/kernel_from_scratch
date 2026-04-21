@@ -15,19 +15,23 @@
 
 /*
  * NAME
- * 	UT_EXPECT_EQ - Expression equality tester
+ * 	UT_EXPECT_EQ, UT_EXPECT_MEMEQ - Expression equality testers
  *
  * DESCRIPTION
- * 	Tests whether the actual value is equal to the expected value.
+ * 	Macros to test whether the actual value matches the expected value.
  *
- * 	The comparison behavior is selected based on the type of the
- * 	expected value using _Generic. Currently, the following types
- * 	are supported:
- * 		- bool: compares (bool)(expect) == (bool)(actual)
- * 		- char *: compares strcmp(expect, actual) == 0
- * 		- default: compares (expect) == (actual)
+ * 	UT_EXPECT_EQ(expect, actual):
+ * 		Compares two expressions for equality. The comparison behavior
+ * 		is selected based on the type of the expected value using _Generic:
+ * 			- bool: compares (bool)(expect) == (bool)(actual)
+ * 			- default: compares (expect) == (actual)
  *
- * 	The macro logs the result as SUCCESS if the comparison evaluates
+ * 	UT_EXPECT_MEMEQ(expect, actual, size):
+ * 		Compares two memory regions for equality. Both expect and actual
+ * 		are interpreted as pointers to memory, and memcmp() is used to
+ * 		compare 'size' bytes.
+ *
+ * 	The macros log the result as SUCCESS if the comparison evaluates
  * 	to true, or FAILURE otherwise. The logged message includes the
  * 	stringified expressions:
  * 		"actual == expect"
@@ -37,9 +41,19 @@ do \
 { \
 	bool is_equal = _Generic((expect), \
 						  bool: ((bool)(uint32_t)(expect)) == ((bool)(uint32_t)(actual)), \
-						  char *: strcmp((const char *)(expect), (const char *)(actual)) == 0, \
 						  default: (expect) == (actual) \
 					); \
+	if (is_equal) \
+		UT_LOG_STATUS(SUCCESS, #actual " == " #expect); \
+	else \
+		UT_LOG_STATUS(FAILURE, #actual " == " #expect); \
+} \
+while (false)
+
+# define UT_EXPECT_MEMEQ(expect, actual, size) \
+do \
+{ \
+	bool is_equal = memcmp((const void *)(expect), (const void *)(actual), (uint32_t)size) == 0; \
 	if (is_equal) \
 		UT_LOG_STATUS(SUCCESS, #actual " == " #expect); \
 	else \

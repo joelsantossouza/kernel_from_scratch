@@ -17,6 +17,7 @@ TEST_KERNEL_SRCS	:= test_kernel.asm \
 					   $(VIDEO_DIR)/text/video_text_scroll.c \
 					   $(STRING_DIR)/memcpy.asm \
 					   $(STRING_DIR)/memset.asm \
+					   $(STRING_DIR)/memcmp.asm \
 					   $(STRING_DIR)/strlen.asm \
 					   $(STRING_DIR)/strcmp.asm
 

@@ -42,24 +42,10 @@
 # define UT_LOG_STATUS(type, msg) \
 do \
 { \
-	const uint32_t	location_len = strlen(UT_LOCATION); \
-	uint32_t		msg_len = strlen(UT_MSGPFX_##type msg); \
-	const char		*full_msg; \
-	\
-	if (location_len + msg_len > g_video_text_config.width) \
-	{ \
-		full_msg = "\n" UT_MSGPFX_##type msg "\n"; \
-		msg_len += 2; \
-	} \
-	else \
-	{ \
-		full_msg = UT_MSGPFX_##type msg "\n"; \
-		msg_len += 1; \
-	} \
-	vga_text_write(UT_LOCATION, location_len, UT_COLOR_LOCATION); \
-	vga_text_write( \
-		full_msg, msg_len, UT_COLOR_##type \
-	); \
+	vga_text_print(UT_LOCATION, UT_COLOR_LOCATION); \
+	vga_text_print(UT_MSGPFX_##type, UT_COLOR_##type); \
+	vga_text_print(msg, UT_COLOR_##type); \
+	vga_text_print("\n", UT_COLOR_##type); \
 } \
 while (false)
 
