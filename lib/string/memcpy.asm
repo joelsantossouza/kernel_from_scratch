@@ -152,7 +152,7 @@ memicpy8:
 	jae		.interleave_byte
 
 .return:
-	mov		eax, edi
+	mov		eax, [ebp + 8]
 	pop		ebx
 	pop		esi
 	pop		edi
