@@ -13,6 +13,39 @@ global	memmove
 global	memicpy8
 
 section	.asm
+
+; NAME
+; 	memcpy, mempcpy, memmove, memicpy8 - Memory copy functions
+;
+; SYNOPSIS
+; 	void	*memcpy(void *dest, const void *src, uint32_t n);
+; 	void	*mempcpy(void *dest, const void *src, uint32_t n);
+; 	void	*memmove(void *dest, const void *src, uint32_t n);
+; 	void	*memicpy8(void *dest, const void *src, uint32_t n, uint8_t attr);
+;
+; DESCRIPTION
+; 	These functions copy n bytes from the memory area pointed to by src
+; 	to the memory area pointed to by dest.
+;
+; memcpy(), mempcpy(), and memicpy8():
+; 	The behavior is undefined if the source and destination memory
+; 	regions overlap.
+;
+; memmove():
+; 	Guarantees correct copying even if the source and destination
+; 	memory regions overlap. It handles overlap by adjusting the
+; 	copy direction.
+;
+; memicpy8():
+; 	Copies bytes from src to dest while interleaving each byte
+; 	with the attribute byte 'attr'.
+;
+; 	Resulting layout: {src[0], attr, src[1], attr, ...}
+;
+; RETURN VALUE
+; 	memcpy(), memmove(), and memicpy8() return dest.
+;
+; 	mempcpy() returns dest + n.
 mempcpy:
 	push	ebp
 	mov		ebp, esp

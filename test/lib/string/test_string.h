@@ -131,7 +131,7 @@ UT_CREATE_CASE(string, memicpy8, nothing_to_copy, "Test with nbytes == 0, then n
 }
 UT_CREATE_CASE(string, memicpy8, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
-	UT_EXPECT_MEMEQ(interleaved_src1, memicpy8(aligned_dst, aligned_src1, 8, '.'), 16);
+	UT_EXPECT_MEMEQ(interleaved_src1, memicpy8(aligned_dst, aligned_src1, 7, '.'), 14);
 }
 UT_CREATE_CASE(string, memicpy8, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
