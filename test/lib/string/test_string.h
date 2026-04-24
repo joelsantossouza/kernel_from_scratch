@@ -138,4 +138,38 @@ UT_CREATE_CASE(string, memicpy8, unaligned_memory, "Test with memory unaligned t
 	UT_EXPECT_MEMEQ(interleaved_src2, memicpy8(unaligned_dst, unaligned_src2, 8, '.'), 16);
 }
 
+/*
+ * int	memcmp(void *s1, void *s2, uint32_t n)
+ *
+ * Function to compare n bytes of s1 and s2 memory areas
+ * */
+UT_CREATE_SUITE(string, memcmp, "Test memcmp function")
+const char	*aligned_src_lt = aligned_src1;
+const char	*aligned_src_gt = aligned_src1 + 4;
+const char	*unaligned_src_gt = aligned_src2 + 1;
+const char	*unaligned_src_lt = aligned_src2 + 5;
+
+UT_CREATE_CASE(string, memcmp, nothing_to_compare, "Test with nbytes == 0, then should always return 0")
+{
+	UT_EXPECT_EQ(0, memcmp(src1, src2, 0));
+}
+UT_CREATE_CASE(string, memcmp, small_comparison, "Test with 0 < nbytes < 32-bit chunk")
+{
+	UT_EXPECT_LT(0, memcmp("abc", "abz", 3));
+	UT_EXPECT_EQ(0, memcmp("abc", "abc", 3));
+	UT_EXPECT_GT(0, memcmp("abz", "abc", 3));
+}
+UT_CREATE_CASE(string, memcmp, aligned_memory, "Test comparisons with memory aligned to 32-bit chunk")
+{
+	UT_EXPECT_LT(0, memcmp(aligned_src_lt, aligned_src_gt, 2048));
+	UT_EXPECT_EQ(0, memcmp(aligned_src1, aligned_src1, 2048));
+	UT_EXPECT_GT(0, memcmp(aligned_src_gt, aligned_src_lt, 2048));
+}
+UT_CREATE_CASE(string, memcmp, unaligned_memory, "Test comparisons with memory unaligned to 32-bit chunk")
+{
+	UT_EXPECT_LT(0, memcmp(unaligned_src_lt, unaligned_src_gt, 2048));
+	UT_EXPECT_EQ(0, memcmp(unaligned_src1, unaligned_src1, 2048));
+	UT_EXPECT_GT(0, memcmp(unaligned_src_gt, unaligned_src_lt, 2048));
+}
+
 #endif

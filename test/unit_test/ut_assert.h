@@ -15,26 +15,36 @@
 
 /*
  * NAME
- * 	UT_EXPECT_EQ, UT_EXPECT_MEMEQ - Expression equality testers
+ * 	UT_EXPECT_EQ, UT_EXPECT_MEMEQ,
+ * 	UT_EXPECT_LT, UT_EXPECT_GT
+ * 	- Expression expectation testers
  *
  * DESCRIPTION
- * 	Macros to test whether the actual value matches the expected value.
+ * 	Macros to verify whether an actual expression satisfies an
+ * 	expected condition.
+ *
+ * 	Comparison behavior may be selected according to the type of
+ * 	the expected expression using _Generic.
  *
  * 	UT_EXPECT_EQ(expect, actual):
- * 		Compares two expressions for equality. The comparison behavior
- * 		is selected based on the type of the expected value using _Generic:
- * 			- bool: compares (bool)(expect) == (bool)(actual)
- * 			- default: compares (expect) == (actual)
+ * 		Verifies equality between two expressions.
  *
  * 	UT_EXPECT_MEMEQ(expect, actual, size):
- * 		Compares two memory regions for equality. Both expect and actual
- * 		are interpreted as pointers to memory, and memcmp() is used to
- * 		compare 'size' bytes.
+ * 		Verifies equality between two memory regions by comparing
+ * 		exactly 'size' bytes using memcmp().
  *
- * 	The macros log the result as SUCCESS if the comparison evaluates
- * 	to true, or FAILURE otherwise. The logged message includes the
- * 	stringified expressions:
- * 		"actual == expect"
+ * 	UT_EXPECT_LT(limit, actual):
+ * 		Verifies whether actual is less than limit.
+ *
+ * 	UT_EXPECT_GT(limit, actual):
+ * 		Verifies whether actual is greater than limit.
+ *
+ * 	The macros log SUCCESS if the condition evaluates to true,
+ * 	or FAILURE otherwise. Logged messages include the stringified
+ * 	expressions.
+ *
+ * 	On FAILURE, execution continues normally. This differs from
+ * 	the UT_ASSERT_* family, which halts execution.
  * */
 # define UT_EXPECT_EQ(expect, actual) \
 do \
@@ -58,6 +68,32 @@ do \
 		UT_LOG_STATUS(SUCCESS, #actual " == " #expect); \
 	else \
 		UT_LOG_STATUS(FAILURE, #actual " == " #expect); \
+} \
+while (false)
+
+# define UT_EXPECT_LT(limit, actual) \
+do \
+{ \
+	bool is_less = _Generic((limit), \
+						 default: (actual) < (limit) \
+					); \
+	if (is_less) \
+		UT_LOG_STATUS(SUCCESS, #actual " < " #limit); \
+	else \
+		UT_LOG_STATUS(FAILURE, #actual " < " #limit); \
+} \
+while (false)
+
+# define UT_EXPECT_GT(limit, actual) \
+do \
+{ \
+	bool is_greater = _Generic((limit), \
+							default: (actual) > (limit) \
+						); \
+	if (is_greater) \
+		UT_LOG_STATUS(SUCCESS, #actual " > " #limit); \
+	else \
+		UT_LOG_STATUS(FAILURE, #actual " > " #limit); \
 } \
 while (false)
 

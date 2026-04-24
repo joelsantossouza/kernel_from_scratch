@@ -10,6 +10,23 @@
 global	memcmp
 
 section	.asm
+
+; NAME
+; 	memcmp - Memory comparison function
+;
+; SYNOPSIS
+; 	int	memcmp(const void *s1, const void *s2, uint32_t n);
+;
+; DESCRIPTION
+; 	Compares the first n bytes of the memory regions pointed
+; 	to by s1 and s2.
+;
+; 	If n is zero, the function returns zero.
+;
+; RETURN VALUE
+; 	Returns an integer less than, equal to, or greater than zero
+; 	if the first differing byte in s1 is less than, equal to,
+; 	or greater than the corresponding byte in s2.
 memcmp:
 	push	ebp
 	mov		ebp, esp
