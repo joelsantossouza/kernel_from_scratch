@@ -15,7 +15,7 @@
 
 /*
  * NAME
- * 	UT_EXPECT_EQ, UT_EXPECT_MEMEQ,
+ * 	UT_EXPECT_EQ, UT_EXPECT_EQMEM,
  * 	UT_EXPECT_LT, UT_EXPECT_GT
  * 	- Expression expectation testers
  *
@@ -29,7 +29,7 @@
  * 	UT_EXPECT_EQ(expect, actual):
  * 		Verifies equality between two expressions.
  *
- * 	UT_EXPECT_MEMEQ(expect, actual, size):
+ * 	UT_EXPECT_EQMEM(expect, actual, size):
  * 		Verifies equality between two memory regions by comparing
  * 		exactly 'size' bytes using memcmp().
  *
@@ -60,7 +60,7 @@ do \
 } \
 while (false)
 
-# define UT_EXPECT_MEMEQ(expect, actual, size) \
+# define UT_EXPECT_EQMEM(expect, actual, size) \
 do \
 { \
 	bool is_equal = memcmp((const void *)(expect), (const void *)(actual), (uint32_t)size) == 0; \

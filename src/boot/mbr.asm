@@ -126,7 +126,7 @@ boot_start:
 	cli
 	lgdt	[gdt_descriptor]
 	mov		eax, cr0
-	or		eax, CPU_CR0_PE
+	or		eax, CR0_PE
 	mov		cr0, eax
 	jmp		GDT_KERNEL_CODE:.init_32bit_mode
 

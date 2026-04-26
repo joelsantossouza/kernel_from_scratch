@@ -9,6 +9,7 @@
 # define TEST_STRING_H
 
 # include "test/unit_test/unit_test.h"
+# include "cpu/flags.h"
 
 UT_CREATE_CATEGORY(string, "Test string library")
 const char	aligned_src1[4096] __attribute__((aligned(4))) = {
@@ -42,17 +43,22 @@ UT_CREATE_CASE(string, memcpy, nothing_to_copy, "Test with nbytes == 0, then not
 	char	dst_backup[4] = {0};
 
 	memcpy(dst, dst_backup, 4);
-	UT_EXPECT_MEMEQ(dst_backup, memcpy(dst, src2, 0), 4);
+	UT_EXPECT_EQMEM(dst_backup, memcpy(dst, src2, 0), 4);
+}
+UT_CREATE_CASE(string, memcpy, direction_flag, "Set direction flag, and must still copying forward")
+{
+	__asm__("std");
+	UT_EXPECT_EQMEM(src2, memcpy(dst, src2, 16), 16);
 }
 UT_CREATE_CASE(string, memcpy, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
-	UT_EXPECT_MEMEQ(aligned_src1, memcpy(aligned_dst, aligned_src1, 4), 4);
-	UT_EXPECT_MEMEQ(aligned_src1, memcpy(aligned_dst, aligned_src1, 4095), 4095);
+	UT_EXPECT_EQMEM(aligned_src1, memcpy(aligned_dst, aligned_src1, 4), 4);
+	UT_EXPECT_EQMEM(aligned_src1, memcpy(aligned_dst, aligned_src1, 4095), 4095);
 }
 UT_CREATE_CASE(string, memcpy, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
-	UT_EXPECT_MEMEQ(unaligned_src2, memcpy(unaligned_dst, unaligned_src2, 3), 3);
-	UT_EXPECT_MEMEQ(unaligned_src2, memcpy(unaligned_dst, unaligned_src2, 4094), 4094);
+	UT_EXPECT_EQMEM(unaligned_src2, memcpy(unaligned_dst, unaligned_src2, 3), 3);
+	UT_EXPECT_EQMEM(unaligned_src2, memcpy(unaligned_dst, unaligned_src2, 4094), 4094);
 }
 
 /*
@@ -87,21 +93,26 @@ UT_CREATE_CASE(string, memmove, overlap_nothing_to_copy, "Test overlap with nbyt
 
 	memset(dst, 0, 4);
 	memcpy(dst + 4, dst_backup, 4);
-	UT_EXPECT_MEMEQ(dst_backup, memmove(dst + 4, dst, 0), 4);
+	UT_EXPECT_EQMEM(dst_backup, memmove(dst + 4, dst, 0), 4);
+}
+UT_CREATE_CASE(string, memmove, is_direction_flag_clean, "Test if direction flag is clean after memmove() call")
+{
+	memmove(dst + 4, dst, 16);
+	UT_EXPECT_EQ(0, cpu_flags_get() & CPU_FLAGS_DF);
 }
 UT_CREATE_CASE(string, memmove, overlap_aligned_memory, "Test overlap with memory aligned to 32-bit chunk")
 {
 	const char	*src_backup = aligned_src2;
 
 	memcpy(aligned_dst, src_backup, 4089);
-	UT_EXPECT_MEMEQ(src_backup, memmove(aligned_dst + 4, aligned_dst, 4089), 4089);
+	UT_EXPECT_EQMEM(src_backup, memmove(aligned_dst + 4, aligned_dst, 4089), 4089);
 }
 UT_CREATE_CASE(string, memmove, overlap_unaligned_memory, "Test overlap with memory unaligned to 32-bit chunk")
 {
 	const char	*src_backup = aligned_src1;
 
 	memcpy(unaligned_dst, src_backup, 4089);
-	UT_EXPECT_MEMEQ(src_backup, memmove(unaligned_dst + 4, unaligned_dst, 4089), 4089);
+	UT_EXPECT_EQMEM(src_backup, memmove(unaligned_dst + 4, unaligned_dst, 4089), 4089);
 }
 
 /*
@@ -127,15 +138,15 @@ UT_CREATE_CASE(string, memicpy8, nothing_to_copy, "Test with nbytes == 0, then n
 	char	dst_backup[8] = {0};
 
 	memcpy(dst, dst_backup, 8);
-	UT_EXPECT_MEMEQ(dst_backup, memicpy8(dst, src1, 0, 0xFF), 8);
+	UT_EXPECT_EQMEM(dst_backup, memicpy8(dst, src1, 0, 0xFF), 8);
 }
 UT_CREATE_CASE(string, memicpy8, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
-	UT_EXPECT_MEMEQ(interleaved_src1, memicpy8(aligned_dst, aligned_src1, 7, '.'), 14);
+	UT_EXPECT_EQMEM(interleaved_src1, memicpy8(aligned_dst, aligned_src1, 7, '.'), 14);
 }
 UT_CREATE_CASE(string, memicpy8, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
-	UT_EXPECT_MEMEQ(interleaved_src2, memicpy8(unaligned_dst, unaligned_src2, 8, '.'), 16);
+	UT_EXPECT_EQMEM(interleaved_src2, memicpy8(unaligned_dst, unaligned_src2, 8, '.'), 16);
 }
 
 /*
@@ -152,6 +163,16 @@ const char	*unaligned_src_lt = aligned_src2 + 5;
 UT_CREATE_CASE(string, memcmp, nothing_to_compare, "Test with nbytes == 0, then should always return 0")
 {
 	UT_EXPECT_EQ(0, memcmp(src1, src2, 0));
+}
+UT_CREATE_CASE(string, memcmp, direction_flag, "Set direction flag, and must still comparing forward")
+{
+	// If reverse compare occur, will return not equal once the backward part of
+	// s1 and s2 are differents. Otherwise will return equal
+	const char	*s1_forward_eq = aligned_src1 + 2048;
+	const char	*s2_forward_eq = aligned_src2 + 4;
+
+	__asm__("std");
+	UT_EXPECT_EQ(0, memcmp(s1_forward_eq, s2_forward_eq, 16));
 }
 UT_CREATE_CASE(string, memcmp, small_comparison, "Test with 0 < nbytes < 32-bit chunk")
 {

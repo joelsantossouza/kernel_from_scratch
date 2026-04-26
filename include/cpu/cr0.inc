@@ -6,6 +6,6 @@
 %ifndef CR0_INC
 %define CR0_INC
 
-%define CPU_CR0_PE	0x1		; Protected Enable
+%define CR0_PE	0x1	; Protected Enable
 
 %endif
