@@ -10,6 +10,19 @@
 global	memset
 
 section	.asm
+
+; NAME
+; 	memset - Memory set function
+;
+; SYNOPSIS
+; 	void	*memset(void *dest, int c, uint32_t n);
+;
+; DESCRIPTION
+; 	This function set the first n bytes of memory area
+; 	pointed to by dest with the constant byte c.
+;
+; RETURN VALUE
+; 	Returns a pointer to the memory area pointed to by dest.
 memset:
 	push	ebp
 	mov		ebp, esp

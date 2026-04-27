@@ -28,7 +28,7 @@ char		*unaligned_dst = aligned_dst + 2;
 char		*dst = aligned_dst;
 
 /*
- * void *memcpy(void *dst, void *src, uint32_t n)
+ * void	*memcpy(void *dest, const void *src, uint32_t n);
  * 
  * Function to copy n bytes from src into dst, then return a pointer to
  * dest
@@ -62,8 +62,8 @@ UT_CREATE_CASE(string, memcpy, unaligned_memory, "Test with memory unaligned to 
 }
 
 /*
- * void *mempcpy(void *dst, void *src, uint32_t n)
- * 
+ * void	*mempcpy(void *dest, const void *src, uint32_t n);
+ *
  * Same as memcpy, but the only difference is that it retuns a
  * pointer to dest + n instead.
  * */
@@ -74,7 +74,7 @@ UT_CREATE_CASE(string, mempcpy, return_val_check, "Test if the return address ma
 }
 
 /*
- * void *memmove(void *dst, void *src, uint32_t n)
+ * void	*memmove(void *dest, const void *src, uint32_t n);
  *
  * Same as memcpy, with the differential of solving the memcpy's
  * overlap memory limitation
@@ -116,7 +116,7 @@ UT_CREATE_CASE(string, memmove, overlap_unaligned_memory, "Test overlap with mem
 }
 
 /*
- * void *memicpy8(void *dst, void *src, uint32_t n, uint8_t attr)
+ * void	*memicpy8(void *dest, const void *src, uint32_t n, uint8_t attr);
  *
  * Function to copy n bytes of src into dst, interleaving byte-per-byte
  * with attr
@@ -150,7 +150,7 @@ UT_CREATE_CASE(string, memicpy8, unaligned_memory, "Test with memory unaligned t
 }
 
 /*
- * int	memcmp(void *s1, void *s2, uint32_t n)
+ * int	memcmp(const void *s1, const void *s2, uint32_t n);
  *
  * Function to compare n bytes of s1 and s2 memory areas
  * */
@@ -191,6 +191,43 @@ UT_CREATE_CASE(string, memcmp, unaligned_memory, "Test comparisons with memory u
 	UT_EXPECT_LT(0, memcmp(unaligned_src_lt, unaligned_src_gt, 2048));
 	UT_EXPECT_EQ(0, memcmp(unaligned_src1, unaligned_src1, 2048));
 	UT_EXPECT_GT(0, memcmp(unaligned_src_gt, unaligned_src_lt, 2048));
+}
+
+/*
+ * void	*memset(void *dest, int c, uint32_t n);
+ *
+ * Function to set n bytes of dest to c
+ * */
+UT_CREATE_SUITE(string, memset, "Test memset function")
+UT_CREATE_CASE(string, memset, return_val_check, "Test if the return address match the dest's address")
+{
+	UT_EXPECT_EQ(dst, memset(dst, 1, 8));
+}
+UT_CREATE_CASE(string, memset, nothing_to_compare, "Test with nbytes == 0, then nothing must be set")
+{
+	char	dst_backup[8] = {0};
+
+	memcpy(dst, dst_backup, 8);
+	UT_EXPECT_EQMEM(dst_backup, memset(dst, 1, 0), 8);
+}
+UT_CREATE_CASE(string, memset, direction_flag, "Set direction flag, and must still forward memory setting")
+{
+	const char	*expected_buf = aligned_src1;
+
+	__asm__("std");
+	UT_EXPECT_EQMEM(expected_buf, memset(dst, 24, 16), 16);
+}
+UT_CREATE_CASE(string, memset, aligned_memory, "Test with memory aligned to 32-bit chunk")
+{
+	const char	*expected_buf = aligned_src2;
+
+	UT_EXPECT_EQMEM(expected_buf, memset(aligned_dst, 42, 2039), 2039);
+}
+UT_CREATE_CASE(string, memset, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
+{
+	const char	*expected_buf = unaligned_src1;
+
+	UT_EXPECT_EQMEM(expected_buf, memset(unaligned_dst, 24, 2039), 2039);
 }
 
 #endif
