@@ -8,6 +8,20 @@
 global	strcmp
 
 section	.asm
+
+; NAME
+; 	strcmp - Compare two strings
+;
+; SYNOPSIS
+; 	int	strcmp(const char *s1, const char *s2);
+;
+; DESCRIPTION
+; 	Compares the two null-terminated strings
+; 	s1 and s2 based on its characters value.
+;
+; RETURN VALUE
+; 	Returns an integer less than, equal to, or greater than zero if s1 is
+; 	found, respectively, to be less than, to match, or be greater than s2.
 strcmp:
 	push	ebp
 	mov		ebp, esp

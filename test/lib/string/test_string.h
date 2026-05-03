@@ -10,6 +10,7 @@
 
 # include "test/unit_test/unit_test.h"
 # include "cpu/flags.h"
+# include "errno.h"
 
 UT_CREATE_CATEGORY(string, "Test string library")
 const char	aligned_src1[4096] __attribute__((aligned(4))) = {
@@ -228,6 +229,83 @@ UT_CREATE_CASE(string, memset, unaligned_memory, "Test with memory unaligned to 
 	const char	*expected_buf = unaligned_src1;
 
 	UT_EXPECT_EQMEM(expected_buf, memset(unaligned_dst, 24, 2039), 2039);
+}
+
+/*
+ * int	strcmp(const char *s1, const char *s2);
+ *
+ * Function to compare the two strings s1 and s2.
+ * */
+UT_CREATE_SUITE(string, strcmp, "Test strcmp function")
+UT_CREATE_CASE(string, strcmp, s1_smaller, "Test with string1 smaller")
+{
+	UT_EXPECT_LT(0, strcmp("", "abc"));
+	UT_EXPECT_LT(0, strcmp("abCd", "abcd"));
+}
+UT_CREATE_CASE(string, strcmp, equal, "Test with s1 equal to s2")
+{
+	UT_EXPECT_EQ(0, strcmp("", ""));
+	UT_EXPECT_EQ(0, strcmp("abCd", "abCd"));
+}
+UT_CREATE_CASE(string, strcmp, s1_greater, "Test with string1 greater")
+{
+	UT_EXPECT_GT(0, strcmp("abc", ""));
+	UT_EXPECT_GT(0, strcmp("abcd", "abCd"));
+}
+
+/*
+ * uint32_t	strlen(const char *s);
+ *
+ * Function to calculate the length of a string
+ * */
+UT_CREATE_SUITE(string, strlen, "Test strlen function")
+UT_CREATE_CASE(string, strlen, len_0, "Test with strings of length 0")
+{
+	UT_EXPECT_EQ(0, strlen(""));
+}
+UT_CREATE_CASE(string, strlen, len_gt_0, "Test with strings of length > 0")
+{
+	UT_EXPECT_EQ(5, strlen("01234"));
+	UT_EXPECT_EQ(10, strlen("0123456789"));
+}
+
+/*
+ * int strnlen_strict(const char *s, uint32_t n, uint32_t *len);
+ *
+ * Computes the length of string s up to a maximum of n bytes and stores
+ * the result in *len.
+ *
+ * Returns 0 if the string length is less than or equal to n.
+ * Returns -ENAMETOOLONG if the string exceeds n bytes, in which case
+ * *len is set to n.
+ */
+UT_CREATE_SUITE(string, strnlen_strict, "Test strnlen_strict function")
+uint32_t	len;
+
+UT_CREATE_CASE(string, strnlen_strict, return_val_check_valid, "Test with s length <= n, then return val must be 0")
+{
+	UT_EXPECT_EQ(0, strnlen_strict("", 0, &len));
+	UT_EXPECT_EQ(0, strnlen_strict("", 3, &len));
+	UT_EXPECT_EQ(0, strnlen_strict("abc", 3, &len));
+}
+UT_CREATE_CASE(string, strnlen_strict, len_val_valid, "Test length calculation with s length <= n")
+{
+	UT_LOG_CALL(strnlen_strict("", 0, &len));
+	UT_EXPECT_EQ(0, len);
+	UT_LOG_CALL(strnlen_strict("abc", 3, &len));
+	UT_EXPECT_EQ(3, len);
+}
+UT_CREATE_CASE(string, strnlen_strict, return_val_check_invalid, "Test with s length > n, then return val must be -ENAMETOOLONG")
+{
+	UT_EXPECT_EQ(-ENAMETOOLONG, strnlen_strict("a", 0, &len));
+	UT_EXPECT_EQ(-ENAMETOOLONG, strnlen_strict("abcd", 3, &len));
+}
+UT_CREATE_CASE(string, strnlen_strict, len_val_invalid, "Test with s length > n, then length calculation should be equal to n")
+{
+	UT_LOG_CALL(strnlen_strict("a", 0, &len));
+	UT_EXPECT_EQ(0, len);
+	UT_LOG_CALL(strnlen_strict("abcd", 3, &len));
+	UT_EXPECT_EQ(3, len);
 }
 
 #endif

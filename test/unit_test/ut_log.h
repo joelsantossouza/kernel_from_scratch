@@ -14,7 +14,7 @@
 /*
  * NAME
  * 	UT_LOG_STATUS, UT_LOG_DESCRIPTION,
- * 	UT_LOG_FATAL - Unit test logging macros
+ * 	UT_LOG_FATAL, UT_LOG_CALL - Unit test logging macros
  *
  * DESCRIPTION
  * 	These macros provide formatted logging utilities for the unit
@@ -38,6 +38,10 @@
  * 	UT_LOG_FATAL(type, msg)
  * 		Logs a message including source location and halts execution
  * 		by entering an infinite loop.
+ *
+ * 	UT_LOG_CALL(call)
+ * 		Logs the expression and then evaluates it. Useful for test
+ * 		expressions that produce side effects, which are validated separately.
  * */
 # define UT_LOG_STATUS(type, msg) \
 do \
@@ -63,6 +67,14 @@ do \
 { \
 	UT_LOG_STATUS(type, msg); \
 	while (true); \
+} \
+while (false)
+
+# define UT_LOG_CALL(call) \
+do \
+{ \
+	vga_text_print(UT_MSGPFX_CALL #call "\n", UT_COLOR_CALL); \
+	(call); \
 } \
 while (false)
 

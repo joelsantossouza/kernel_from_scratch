@@ -18,7 +18,7 @@ void		*memset(void *dest, int c, uint32_t n);
 int			memcmp(const void *s1, const void *s2, uint32_t n);
 
 uint32_t	strlen(const char *s);
-int			strnlen_strict(const char *str, uint32_t n, uint32_t *len);
+int			strnlen_strict(const char *s, uint32_t n, uint32_t *len);
 int			strcmp(const char *s1, const char *s2);
 
 #endif

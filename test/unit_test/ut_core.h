@@ -22,6 +22,7 @@
 # define UT_COLOR_SUITE			VGA_TEXT_LIGHT_BLUE
 # define UT_COLOR_CATEGORY		VGA_TEXT_DARK_BLUE
 # define UT_COLOR_LOCATION		VGA_TEXT_LIGHT_GRAY
+# define UT_COLOR_CALL			VGA_TEXT_BROWN
 
 // Message Prefixes
 # define UT_MSGPFX_ERROR		"[ERROR] "
@@ -30,6 +31,7 @@
 # define UT_MSGPFX_CASE			"[CASE] "
 # define UT_MSGPFX_SUITE		"[SUITE] "
 # define UT_MSGPFX_CATEGORY		"[CATEGORY] "
+# define UT_MSGPFX_CALL			"[CALLING] "
 
 // Messages
 # define UT_MSG_CATEGORY_FULL	"Category capacity is full"
