@@ -101,6 +101,7 @@ char getchar(void)
 #include "test/lib/ctype/test_ctype.h"
 #include "test/lib/math/test_math.h"
 #include "test/lib/string/test_string.h"
+#include "test/drivers/video/text/test_video_text_history.h"
 
 int test_kernel_main(void)
 {
@@ -109,6 +110,7 @@ int test_kernel_main(void)
 	UT_RUN_CATEGORY(ctype);
 	UT_RUN_CATEGORY(math);
 	UT_RUN_CATEGORY(string);
+	UT_RUN_CATEGORY(video_text_history);
 
 	while (true)
 	{

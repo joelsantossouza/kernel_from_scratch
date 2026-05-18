@@ -13,6 +13,8 @@
 # include "string/string.h"
 # include "math/math.h"
 
+typedef uint32_t	(*t_video_text_escape_fn)(void);
+
 typedef struct s_video_text_config
 {
 	uint32_t	width;
@@ -21,41 +23,48 @@ typedef struct s_video_text_config
 	uint32_t	last_row;
 }	t_video_text_config;
 
-typedef uint32_t	(*t_video_text_escape_fn)(void);
-
 extern t_video_text_config	g_video_text_config;
 extern uint32_t				g_video_text_offset;
-extern uint32_t				g_video_text_history_size;
-extern uint32_t				g_video_text_history_lines;
-extern uint32_t				g_video_text_history_line_offset;
-extern uint32_t				g_video_text_scroll;
 
 // History
-uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr);
-uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count);
-uint32_t	video_text_history_set(uint32_t rewind, uint16_t set, uint32_t count);
+typedef struct s_video_text_history
+{
+	uint16_t	data[VIDEO_TEXT_HISTORY_MAX];
+	uint32_t	offset;
+	uint32_t	size;
+	uint32_t	lines;
+	uint32_t	line_offset;
+}	t_video_text_history;
+
+extern t_video_text_history	g_video_text_history;
+
+uint32_t	video_text_history_write(t_video_text_history *history, const char *text, uint32_t count, uint8_t attr);
+uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t rewind, uint16_t *buf, uint32_t count);
+uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count);
 
 static inline
-void	video_text_history_size_update(uint32_t new_size)
+void	video_text_history_size_update(t_video_text_history *history, uint32_t new_size)
 {
-	if (g_video_text_history_size < VIDEO_TEXT_HISTORY_MAX)
+	if (history->size < VIDEO_TEXT_HISTORY_MAX)
 	{
-		g_video_text_history_size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
-		g_video_text_history_lines = align_up(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
+		history->size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
+		history->lines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
 	}
 }
 
 static inline
-void	video_text_history_size_increment(uint32_t amount)
+void	video_text_history_size_increment(t_video_text_history *history, uint32_t amount)
 {
-	if (g_video_text_history_size < VIDEO_TEXT_HISTORY_MAX)
+	if (history->size < VIDEO_TEXT_HISTORY_MAX)
 	{
-		g_video_text_history_size = MIN(g_video_text_history_size + amount, VIDEO_TEXT_HISTORY_MAX);
-		g_video_text_history_lines = align_up(g_video_text_history_size, g_video_text_config.width) / g_video_text_config.width;
+		history->size = MIN(history->size + amount, VIDEO_TEXT_HISTORY_MAX);
+		history->lines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
 	}
 }
 
 // Scroll
+extern uint32_t	g_video_text_scroll;
+
 void		video_text_scroll_up(uint16_t *video_text_addr, uint32_t nlines);
 void		video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines);
 
@@ -66,7 +75,7 @@ void	video_text_scroll_to_bottom(uint16_t *video_text_addr)
 	const uint32_t	padding_bytes = screen_remaining * sizeof(uint16_t);
 
 	g_video_text_scroll = 0;
-	video_text_history_read(0, video_text_addr, g_video_text_offset);
+	video_text_history_read(&g_video_text_history, 0, video_text_addr, g_video_text_offset);
 	memset(video_text_addr + g_video_text_offset, 0, padding_bytes);
 }
 

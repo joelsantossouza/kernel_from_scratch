@@ -12,94 +12,94 @@
 #include "string/string.h"
 #include "math/math.h"
 
-static uint16_t	g_video_text_history[VIDEO_TEXT_HISTORY_MAX];
-static uint32_t	g_video_text_history_offset = 0;
-uint32_t		g_video_text_history_size = 0;
-uint32_t		g_video_text_history_lines = 0;
-uint32_t		g_video_text_history_line_offset = 0;
+t_video_text_history	g_video_text_history = {0};
 
-uint32_t	video_text_history_write(const char *text, uint32_t count, uint8_t attr)
+uint32_t	video_text_history_write(t_video_text_history *history, const char *text, uint32_t count, uint8_t attr)
 {
 	uint32_t	space_until_wrap_up;
+	uint32_t	next_offset;
 
 	if (count > VIDEO_TEXT_HISTORY_MAX)
 	{
 		text += count - VIDEO_TEXT_HISTORY_MAX;
+		next_offset = history->offset + count % VIDEO_TEXT_HISTORY_MAX;
+		history->offset = next_offset >= VIDEO_TEXT_HISTORY_MAX
+			? next_offset - VIDEO_TEXT_HISTORY_MAX : next_offset;
 		count = VIDEO_TEXT_HISTORY_MAX;
 	}
-	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - g_video_text_history_offset;
+	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - history->offset;
 	if (count > space_until_wrap_up)
 	{
-		memicpy8(&g_video_text_history[g_video_text_history_offset], text, space_until_wrap_up, attr);
-		g_video_text_history_offset = count - space_until_wrap_up;
-		memicpy8(g_video_text_history, &text[space_until_wrap_up], g_video_text_history_offset, attr);
+		memicpy8(&history->data[history->offset], text, space_until_wrap_up, attr);
+		history->offset = count - space_until_wrap_up;
+		memicpy8(history->data, &text[space_until_wrap_up], history->offset, attr);
 	}
 	else
 	{
-		memicpy8(&g_video_text_history[g_video_text_history_offset], text, count, attr);
-		g_video_text_history_offset += count;
+		memicpy8(&history->data[history->offset], text, count, attr);
+		history->offset += count;
 	}
-	g_video_text_history_line_offset += count;
-	if (g_video_text_history_line_offset >= g_video_text_config.width)
-		g_video_text_history_line_offset %= g_video_text_config.width;
-	video_text_history_size_increment(count);
+	history->line_offset += count;
+	if (history->line_offset >= g_video_text_config.width)
+		history->line_offset %= g_video_text_config.width;
+	video_text_history_size_increment(history, count);
 	return (count);
 }
 
-uint32_t	video_text_history_read(uint32_t rewind, uint16_t *buf, uint32_t count)
+uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t rewind, uint16_t *buf, uint32_t count)
 {
 	uint32_t	space_until_wrap_down;
 	uint32_t	second_chunk_size;
 	uint32_t	offset;
 
-	if (rewind >= g_video_text_history_size)
+	if (rewind >= history->size)
 		return (0);
-	offset = (g_video_text_history_offset + VIDEO_TEXT_HISTORY_MAX - rewind - 1) % VIDEO_TEXT_HISTORY_MAX;
-	count = MIN(count, g_video_text_history_size - rewind);
+	offset = (history->offset + VIDEO_TEXT_HISTORY_MAX - rewind - 1) % VIDEO_TEXT_HISTORY_MAX;
+	count = MIN(count, history->size - rewind);
 	space_until_wrap_down = offset + 1;
 	if (count > space_until_wrap_down)
 	{
 		second_chunk_size = count - space_until_wrap_down;
-		memcpy(&buf[second_chunk_size], g_video_text_history, space_until_wrap_down * sizeof(uint16_t));
+		memcpy(&buf[second_chunk_size], history->data, space_until_wrap_down * sizeof(uint16_t));
 		offset = VIDEO_TEXT_HISTORY_MAX - second_chunk_size;
-		memcpy(buf, &g_video_text_history[offset], second_chunk_size * sizeof(uint16_t));
+		memcpy(buf, &history->data[offset], second_chunk_size * sizeof(uint16_t));
 	}
 	else
 	{
 		offset = space_until_wrap_down - count;
-		memcpy(buf, &g_video_text_history[offset], count * sizeof(uint16_t));
+		memcpy(buf, &history->data[offset], count * sizeof(uint16_t));
 	}
 	return (count);
 }
 
-uint32_t	video_text_history_set(uint32_t rewind, uint16_t set, uint32_t count)
+uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count)
 {
 	uint32_t	space_until_wrap_up;
 	uint32_t	offset;
 
-	if (rewind > g_video_text_history_size)
+	if (rewind > history->size)
 		return (0);
 	if (count > VIDEO_TEXT_HISTORY_MAX)
 		count = VIDEO_TEXT_HISTORY_MAX;
-	offset = (g_video_text_history_offset + VIDEO_TEXT_HISTORY_MAX - rewind) % VIDEO_TEXT_HISTORY_MAX;
+	offset = (history->offset + VIDEO_TEXT_HISTORY_MAX - rewind) % VIDEO_TEXT_HISTORY_MAX;
 	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - offset;
 	if (count > space_until_wrap_up)
 	{
-		memset(&g_video_text_history[offset], set, space_until_wrap_up * sizeof(uint16_t));
+		memset(&history->data[offset], set, space_until_wrap_up * sizeof(uint16_t));
 		offset = count - space_until_wrap_up;
-		memset(g_video_text_history, set, offset * sizeof(uint16_t));
+		memset(history->data, set, offset * sizeof(uint16_t));
 	}
 	else
 	{
-		memset(&g_video_text_history[offset], set, count * sizeof(uint16_t));
+		memset(&history->data[offset], set, count * sizeof(uint16_t));
 		offset += count;
 	}
 	if (rewind >= count)
 		return (count);
-	g_video_text_history_offset = offset;
-	g_video_text_history_line_offset += count;
-	if (g_video_text_history_line_offset >= g_video_text_config.width)
-		g_video_text_history_line_offset %= g_video_text_config.width;
-	video_text_history_size_increment(count);
+	history->offset = offset;
+	history->line_offset += count;
+	if (history->line_offset >= g_video_text_config.width)
+		history->line_offset %= g_video_text_config.width;
+	video_text_history_size_increment(history, count);
 	return (count);
 }

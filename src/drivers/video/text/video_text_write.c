@@ -15,9 +15,9 @@ uint32_t	g_video_text_offset = 0;
 static
 uint32_t	video_text_escape_newline(void)
 {
-	const uint32_t	line_remaining = g_video_text_config.width - g_video_text_history_line_offset;
+	const uint32_t	line_remaining = g_video_text_config.width - g_video_text_history.line_offset;
 
-	return (video_text_history_set(0, 0, line_remaining));
+	return (video_text_history_set(&g_video_text_history, 0, 0, line_remaining));
 }
 
 static const t_video_text_escape_fn	g_video_text_escape_handlers[ASCII_TABLE_MAX] = {
@@ -38,19 +38,19 @@ void	video_text_write(uint16_t *video_text_addr, const char *text, uint32_t coun
 		while (text < text_end && isprint(*text))
 			text++;
 		if (text > text_ptr)
-			entries_written += video_text_history_write(text_ptr, text - text_ptr, attr);
+			entries_written += video_text_history_write(&g_video_text_history, text_ptr, text - text_ptr, attr);
 		while (text < text_end && iscntrl((uint8_t)*text))
 			entries_written += g_video_text_escape_handlers[(uint8_t)*text++]();
 	}
 	g_video_text_offset += entries_written;
 	if (g_video_text_offset > g_video_text_config.screensize)
 	{
-		g_video_text_offset = g_video_text_config.last_row + g_video_text_history_line_offset;
+		g_video_text_offset = g_video_text_config.last_row + g_video_text_history.line_offset;
 		video_text_scroll_to_bottom(video_text_addr);
 		return ;
 	}
 	if (g_video_text_scroll == 0)
-		video_text_history_read(0, video_text_addr + curr_offset, entries_written);
+		video_text_history_read(&g_video_text_history, 0, video_text_addr + curr_offset, entries_written);
 	else
 		video_text_scroll_to_bottom(video_text_addr);
 }

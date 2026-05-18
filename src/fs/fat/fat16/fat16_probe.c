@@ -51,7 +51,7 @@ int	fat16_metadata_init(const t_vdl_disk *disk, const t_phy_partition *phy_part,
 	const uint32_t	fat_table_bytes = bpb->fat_sectors_16 * sector_bytes;
 	int				err_code;
 
-	err_code = vdl_read(disk, fat_table_addr, metadata->table.fat16, 0xff);
+	err_code = vdl_read(disk, fat_table_addr, metadata->table.fat16, 0xff * sizeof(uint16_t));
 	if (err_code != KERNEL_SUCCESS)
 		return (err_code);
 	metadata->table_entries = 0xff;

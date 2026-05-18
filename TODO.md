@@ -22,3 +22,19 @@ File Systems:
     Insert dynamic allocation on fat_table storage
     Implement VFS (Vitual File System) layer
     Add more file systems interfaces
+
+-------\\
+
+1. Integrate the autoconfig to remaining subsystems:
+    fs, video_text
+
+2. phy_partition should live under mbr, and be called instead mbr_part_table_entry
+
+3. Instead of phy_fat_fies, be fat_dir_entry
+
+4. Split fat16_probe into:
+    fat16_validate,
+    fat16_metadata_init
+
+5. VFS_TABLE_MAX is not being used, so it can be removed. Rename
+    the g_vfs_table_hash to -> g_vfs_table_hash_mbr
