@@ -14,17 +14,82 @@
 
 t_video_text_history	g_video_text_history = {0};
 
+/*
+ * NAME
+ * 	video_text_history_write,
+ * 	video_text_history_read - Circular history buffer operations
+ *
+ * SYNOPSIS
+ * 	typedef struct s_video_text_history
+ * 	{
+ * 		uint16_t	data[VIDEO_TEXT_HISTORY_MAX];
+ * 		uint32_t	offset;
+ * 		uint32_t	size;
+ * 		uint32_t	lines;
+ * 		uint32_t	line_offset;
+ * 	}	t_video_text_history;
+ *
+ * DESCRIPTION
+ * 	video_text_history_write()
+ * 		Writes up to 'count' bytes from 'text' into the history buffer,
+ * 		interleaving each byte with 'attr', using a circular buffer layout.
+ *
+ * 		When the write exceeds VIDEO_TEXT_HISTORY_MAX, the oldest entries
+ * 		are overwritten. If 'count' is greater than VIDEO_TEXT_HISTORY_MAX,
+ * 		it is clamped to VIDEO_TEXT_HISTORY_MAX.
+ *
+ * 		The function updates the internal state of the history structure,
+ * 		including offset, size, and line tracking fields.
+ *
+ * 	video_text_history_read()
+ * 		Reads up to 'count' history entries into 'buf', beginning at the
+ * 		position located 'rewind' entries before the current history offset
+ * 		and traversing backwards.
+ *
+ * 		If 'count' exceeds the number of available entries
+ * 		(history->size - rewind), the read is truncated.
+ *
+ * 		If 'rewind' is greater than or equal to history->size, no entries
+ * 		are read.
+ *
+ * UNDEFINED BEHAVIOUR
+ * 	Passing a history structure with invalid internal state.
+ *
+ * 	Examples include:
+ * 		- history->offset >= VIDEO_TEXT_HISTORY_MAX
+ * 		- history->size > VIDEO_TEXT_HISTORY_MAX
+ * 		- history->lines > VIDEO_TEXT_HISTORY_MAX / g_video_text_config.width
+ * 		- history->line_offset >= g_video_text_config.width
+ * 		- Metadata fields do not represent the current internal state
+ * 		  of the history
+ *
+ * RETURN VALUE
+ * 	video_text_history_write()
+ *
+ * 		Returns the number of history entries written:
+ * 			min(count, VIDEO_TEXT_HISTORY_MAX)
+ *
+ * 	video_text_history_read()
+ *
+ * 		Returns the number of history entries read:
+ * 			min(count, history->size - rewind)
+ *
+ * 		If rewind >= history->size, returns 0.
+ * */
 uint32_t	video_text_history_write(t_video_text_history *history, const char *text, uint32_t count, uint8_t attr)
 {
 	uint32_t	space_until_wrap_up;
+	uint32_t	overwrite_tail;
 	uint32_t	next_offset;
 
 	if (count > VIDEO_TEXT_HISTORY_MAX)
 	{
 		text += count - VIDEO_TEXT_HISTORY_MAX;
-		next_offset = history->offset + count % VIDEO_TEXT_HISTORY_MAX;
+		overwrite_tail = count % VIDEO_TEXT_HISTORY_MAX;
+		next_offset = history->offset + overwrite_tail;
 		history->offset = next_offset >= VIDEO_TEXT_HISTORY_MAX
 			? next_offset - VIDEO_TEXT_HISTORY_MAX : next_offset;
+		history->line_offset += overwrite_tail;
 		count = VIDEO_TEXT_HISTORY_MAX;
 	}
 	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - history->offset;

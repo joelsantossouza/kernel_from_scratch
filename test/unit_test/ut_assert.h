@@ -30,7 +30,11 @@
  * 		Verifies equality between two expressions.
  *
  * 	UT_EXPECT_EQMEM(expect, actual, size):
- * 		Verifies equality between two memory regions by comparing
+ * 		Verifies that two memory regions are equal by comparing
+ * 		exactly 'size' bytes using memcmp().
+ *
+ * 	UT_EXPECT_NEQMEM(expect, actual, size):
+ * 		Verifies that two memory regions are different by comparing
  * 		exactly 'size' bytes using memcmp().
  *
  * 	UT_EXPECT_LT(limit, actual):
@@ -68,6 +72,17 @@ do \
 		UT_LOG_STATUS(SUCCESS, #actual " == " #expect); \
 	else \
 		UT_LOG_STATUS(FAILURE, #actual " == " #expect); \
+} \
+while (false)
+
+# define UT_EXPECT_NEQMEM(expect, actual, size) \
+do \
+{ \
+	bool is_not_equal = memcmp((const void *)(expect), (const void *)(actual), (uint32_t)size) != 0; \
+	if (is_not_equal) \
+		UT_LOG_STATUS(SUCCESS, #actual " != " #expect); \
+	else \
+		UT_LOG_STATUS(FAILURE, #actual " != " #expect); \
 } \
 while (false)
 

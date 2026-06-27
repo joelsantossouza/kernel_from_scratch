@@ -13,20 +13,20 @@
 # include "errno.h"
 
 UT_CREATE_CATEGORY(string, "Test string library")
-const char	aligned_src1[4096] __attribute__((aligned(4))) = {
+static const char	aligned_src1[4096] __attribute__((aligned(4))) = {
 	[0 ... 2047] = 24, [2048 ... sizeof(aligned_src1) - 1] = 42
 };
-const char	aligned_src2[4096] __attribute__((aligned(4))) = {
+static const char	aligned_src2[4096] __attribute__((aligned(4))) = {
 	[0 ... 2047] = 42, [2048 ... sizeof(aligned_src2) - 1] = 24
 };
-const char	*unaligned_src1 = aligned_src1 + 1;
-const char	*unaligned_src2 = aligned_src2 + 1;
-const char	*src1 = aligned_src1;
-const char	*src2 = aligned_src2;
+static const char	*unaligned_src1 = aligned_src1 + 1;
+static const char	*unaligned_src2 = aligned_src2 + 1;
+static const char	*src1 = aligned_src1;
+static const char	*src2 = aligned_src2;
 
-char		aligned_dst[4096] __attribute__((aligned(4)));
-char		*unaligned_dst = aligned_dst + 2;
-char		*dst = aligned_dst;
+static char		aligned_dst[4096] __attribute__((aligned(4)));
+static char		*unaligned_dst = aligned_dst + 2;
+static char		*dst = aligned_dst;
 
 /*
  * void	*memcpy(void *dest, const void *src, uint32_t n);
