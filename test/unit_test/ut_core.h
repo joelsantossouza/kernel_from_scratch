@@ -53,7 +53,7 @@ typedef struct s_suite
 	const char		*description;
 }	t_suite;
 
-# define UT_SUITES_PER_CATEGORY	10
+# define UT_SUITES_PER_CATEGORY	20
 typedef struct s_category
 {
 	const t_suite	*suites[UT_SUITES_PER_CATEGORY];
