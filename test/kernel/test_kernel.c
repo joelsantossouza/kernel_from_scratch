@@ -98,6 +98,7 @@ char getchar(void)
 /* ---------------- Test kernel main ---------------- */
 
 #include <stdbool.h>
+#include "kernel/process/process.h"
 #include "test/lib/ctype/test_ctype.h"
 #include "test/lib/math/test_math.h"
 #include "test/lib/string/test_string.h"
@@ -106,7 +107,7 @@ char getchar(void)
 int test_kernel_main(void)
 {
 	memset(VGA_TEXT_ADDR, 0, 4000);
-	ut_init();
+	process_init_array();
 	UT_RUN_CATEGORY(ctype);
 	UT_RUN_CATEGORY(math);
 	UT_RUN_CATEGORY(string);
