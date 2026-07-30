@@ -15,6 +15,8 @@ void		*mempcpy(void *dest, const void *src, uint32_t n);
 void		*memmove(void *dest, const void *src, uint32_t n);
 void		*memicpy8(void *dest, const void *src, uint32_t n, uint8_t attr);
 void		*memset(void *dest, int c, uint32_t n);
+void		*memsetw(void *dest, int c, uint32_t n);
+void		*memset_pattern(void *dest, const void *pattern, uint32_t pattern_size, uint32_t n);
 int			memcmp(const void *s1, const void *s2, uint32_t n);
 
 uint32_t	strlen(const char *s);
