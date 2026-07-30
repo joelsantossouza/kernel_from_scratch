@@ -150,13 +150,13 @@ uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, 
 	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - offset;
 	if (count > space_until_wrap_up)
 	{
-		memset(&history->data[offset], set, space_until_wrap_up * sizeof(uint16_t));
+		memsetw(&history->data[offset], set, space_until_wrap_up);
 		offset = count - space_until_wrap_up;
-		memset(history->data, set, offset * sizeof(uint16_t));
+		memsetw(history->data, set, offset);
 	}
 	else
 	{
-		memset(&history->data[offset], set, count * sizeof(uint16_t));
+		memsetw(&history->data[offset], set, count);
 		offset += count;
 	}
 	if (rewind >= count)
