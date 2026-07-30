@@ -30,7 +30,7 @@ File Systems:
 
 2. phy_partition should live under mbr, and be called instead mbr_part_table_entry
 
-3. Instead of phy_fat_fies, be fat_dir_entry
+3. Instead of phy_fat_files, be fat_dir_entry
 
 4. Split fat16_probe into:
     fat16_validate,
@@ -38,3 +38,9 @@ File Systems:
 
 5. VFS_TABLE_MAX is not being used, so it can be removed. Rename
     the g_vfs_table_hash to -> g_vfs_table_hash_mbr
+
+6. Kconfig is buggy at first run time, appearing repetitively the config menu
+
+7. Create all objects under obj/
+
+8. Add copyright on header
