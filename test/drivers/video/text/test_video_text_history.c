@@ -44,14 +44,15 @@ static uint32_t	expected_offset;
 static uint32_t	expected_line_offset;
 static uint32_t	expected_size;
 static uint32_t	expected_lines;
+static uint16_t	expected_data[VIDEO_TEXT_HISTORY_MAX];
 static uint32_t	ret;
 
 static
-void	simulate_side_effects(uint32_t nbytes)
+void	simulate_side_effects(uint32_t nentries)
 {
-	expected_offset = (history_test.offset + nbytes) % VIDEO_TEXT_HISTORY_MAX;
+	expected_offset = (history_test.offset + nentries) % VIDEO_TEXT_HISTORY_MAX;
 	expected_line_offset = expected_offset % g_video_text_config.width;
-	expected_size = MIN(history_test.size + nbytes, VIDEO_TEXT_HISTORY_MAX);
+	expected_size = MIN(history_test.size + nentries, VIDEO_TEXT_HISTORY_MAX);
 	expected_lines = align_up(expected_size, g_video_text_config.width) / g_video_text_config.width;
 }
 
@@ -73,43 +74,43 @@ void	test_side_effects(void)
 UT_CREATE_SUITE(video_text_history, write, "Test history write functionality")
 UT_CREATE_CASE(video_text_history, write, no_wrap, "Writing data without history wrap")
 {
-	const uint32_t	nbytes = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	nentries = VIDEO_TEXT_HISTORY_1_PERCENT;
 
 	init_history_test(0, 0);
-	simulate_side_effects(nbytes);
-	UT_LOG_CALL(ret = video_text_history_write(&history_test, src_raw, nbytes, SRC_ATTR));
-	UT_EXPECT_EQMEM(src_attributed, history_test.data, nbytes * sizeof(uint16_t));
-	UT_EXPECT_EQ(nbytes, ret);
+	simulate_side_effects(nentries);
+	UT_LOG_CALL(ret = video_text_history_write(&history_test, src_raw, nentries, SRC_ATTR));
+	UT_EXPECT_EQMEM(src_attributed, history_test.data, nentries * sizeof(uint16_t));
+	UT_EXPECT_EQ(nentries, ret);
 	test_side_effects();
 }
 UT_CREATE_CASE(video_text_history, write, with_wrap, "Writing data with history wrap")
 {
-	const uint32_t	total_nbytes = VIDEO_TEXT_HISTORY_1_PERCENT;
-	const uint32_t	chunk1_nbytes = total_nbytes / 2;
-	const uint32_t	chunk2_nbytes = total_nbytes - chunk1_nbytes;
-	const uint32_t	initial_offset = VIDEO_TEXT_HISTORY_MAX - chunk1_nbytes;
+	const uint32_t	total_nentries = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	chunk1_nentries = total_nentries / 2;
+	const uint32_t	chunk2_nentries = total_nentries - chunk1_nentries;
+	const uint32_t	initial_offset = VIDEO_TEXT_HISTORY_MAX - chunk1_nentries;
 
 	init_history_test(initial_offset, 0);
-	simulate_side_effects(total_nbytes);
-	UT_LOG_CALL(ret = video_text_history_write(&history_test, src_raw, total_nbytes, SRC_ATTR));
-	UT_LOG_CALL(memcpy(result, &history_test.data[initial_offset], chunk1_nbytes * sizeof(uint16_t)));
-	UT_LOG_CALL(memcpy(&result[chunk1_nbytes], history_test.data, chunk2_nbytes * sizeof(uint16_t)));
-	UT_EXPECT_EQMEM(src_attributed, result, total_nbytes * sizeof(uint16_t));
-	UT_EXPECT_EQ(total_nbytes, ret);
+	simulate_side_effects(total_nentries);
+	UT_LOG_CALL(ret = video_text_history_write(&history_test, src_raw, total_nentries, SRC_ATTR));
+	UT_LOG_CALL(memcpy(result, &history_test.data[initial_offset], chunk1_nentries * sizeof(uint16_t)));
+	UT_LOG_CALL(memcpy(&result[chunk1_nentries], history_test.data, chunk2_nentries * sizeof(uint16_t)));
+	UT_EXPECT_EQMEM(src_attributed, result, total_nentries * sizeof(uint16_t));
+	UT_EXPECT_EQ(total_nentries, ret);
 	test_side_effects();
 }
 UT_CREATE_CASE(video_text_history, write, over_history_max, "Writing more than VIDEO_TEXT_HISTORY_MAX entries")
 {
-	const uint32_t	overwrite_nbytes = 17;
-	const uint32_t	oversized_nbytes = VIDEO_TEXT_HISTORY_MAX + overwrite_nbytes;
-	const uint32_t	remaining_nbytes = VIDEO_TEXT_HISTORY_MAX - overwrite_nbytes;
+	const uint32_t	overwrite_nentries = 17;
+	const uint32_t	oversized_nentries = VIDEO_TEXT_HISTORY_MAX + overwrite_nentries;
+	const uint32_t	remaining_nentries = VIDEO_TEXT_HISTORY_MAX - overwrite_nentries;
 
 	init_history_test(0, 0);
-	simulate_side_effects(oversized_nbytes);
-	UT_LOG_CALL(ret = video_text_history_write(&history_test, src_raw, oversized_nbytes, SRC_ATTR));
-	UT_LOG_CALL(memcpy(result, &history_test.data[overwrite_nbytes], remaining_nbytes * sizeof(uint16_t)));
-	UT_LOG_CALL(memcpy(&result[remaining_nbytes], history_test.data, overwrite_nbytes * sizeof(uint16_t)));
-	UT_EXPECT_EQMEM(&src_attributed[overwrite_nbytes], result, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
+	simulate_side_effects(oversized_nentries);
+	UT_LOG_CALL(ret = video_text_history_write(&history_test, src_raw, oversized_nentries, SRC_ATTR));
+	UT_LOG_CALL(memcpy(result, &history_test.data[overwrite_nentries], remaining_nentries * sizeof(uint16_t)));
+	UT_LOG_CALL(memcpy(&result[remaining_nentries], history_test.data, overwrite_nentries * sizeof(uint16_t)));
+	UT_EXPECT_EQMEM(&src_attributed[overwrite_nentries], result, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
 	UT_EXPECT_EQ(VIDEO_TEXT_HISTORY_MAX, ret);
 	test_side_effects();
 }
@@ -124,60 +125,58 @@ UT_CREATE_CASE(video_text_history, write, over_history_max, "Writing more than V
 UT_CREATE_SUITE(video_text_history, read, "Test history read functionality")
 UT_CREATE_CASE(video_text_history, read, no_wrap, "Reading data without history wrap")
 {
-	const uint32_t	nbytes = VIDEO_TEXT_HISTORY_1_PERCENT;
-	const uint32_t	offset = nbytes % VIDEO_TEXT_HISTORY_MAX;
+	const uint32_t	nentries = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	offset = nentries % VIDEO_TEXT_HISTORY_MAX;
 
-	init_history_test(offset, nbytes);
-	UT_LOG_CALL(memcpy(history_test.data, src_attributed, nbytes * sizeof(uint16_t)));
-	UT_LOG_CALL(ret = video_text_history_read(&history_test, 0, result, nbytes));
-	UT_EXPECT_EQMEM(src_attributed, result, nbytes * sizeof(uint16_t));
-	UT_EXPECT_EQ(nbytes, ret);
+	init_history_test(offset, nentries);
+	UT_LOG_CALL(memcpy(history_test.data, src_attributed, nentries * sizeof(uint16_t)));
+	UT_LOG_CALL(ret = video_text_history_read(&history_test, 0, result, nentries));
+	UT_EXPECT_EQMEM(src_attributed, result, nentries * sizeof(uint16_t));
+	UT_EXPECT_EQ(nentries, ret);
 }
 UT_CREATE_CASE(video_text_history, read, with_wrap, "Reading data with history wrap")
 {
-	const uint32_t	total_nbytes = VIDEO_TEXT_HISTORY_1_PERCENT;
-	const uint32_t	chunk1_nbytes = total_nbytes / 2;
-	const uint32_t	chunk2_nbytes = total_nbytes - chunk1_nbytes;
-	const uint32_t	initial_offset = VIDEO_TEXT_HISTORY_MAX - chunk1_nbytes;
+	const uint32_t	total_nentries = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	chunk1_nentries = total_nentries / 2;
+	const uint32_t	chunk2_nentries = total_nentries - chunk1_nentries;
+	const uint32_t	initial_offset = VIDEO_TEXT_HISTORY_MAX - chunk1_nentries;
 
-	init_history_test(chunk2_nbytes, total_nbytes);
-	UT_LOG_CALL(memcpy(&history_test.data[initial_offset], src_attributed, chunk1_nbytes * sizeof(uint16_t)));
-	UT_LOG_CALL(memcpy(history_test.data, &src_attributed[chunk1_nbytes], chunk2_nbytes * sizeof(uint16_t)));
-	UT_LOG_CALL(ret = video_text_history_read(&history_test, 0, result, total_nbytes));
-	UT_EXPECT_EQMEM(src_attributed, result, total_nbytes * sizeof(uint16_t));
-	UT_EXPECT_EQ(total_nbytes, ret);
+	init_history_test(chunk2_nentries, total_nentries);
+	UT_LOG_CALL(memcpy(&history_test.data[initial_offset], src_attributed, chunk1_nentries * sizeof(uint16_t)));
+	UT_LOG_CALL(memcpy(history_test.data, &src_attributed[chunk1_nentries], chunk2_nentries * sizeof(uint16_t)));
+	UT_LOG_CALL(ret = video_text_history_read(&history_test, 0, result, total_nentries));
+	UT_EXPECT_EQMEM(src_attributed, result, total_nentries * sizeof(uint16_t));
+	UT_EXPECT_EQ(total_nentries, ret);
 }
 UT_CREATE_CASE(video_text_history, read, over_history_size, "Reading more than the current history size")
 {
 	const uint32_t	history_size = VIDEO_TEXT_HISTORY_1_PERCENT;
 	const uint32_t	offset = history_size % VIDEO_TEXT_HISTORY_MAX;
-	const uint32_t	extra_nbytes = 1;
-	const uint32_t	oversized_nbytes = history_size + extra_nbytes;
-	uint16_t		expected_result[oversized_nbytes];
+	const uint32_t	extra_nentries = 1;
+	const uint32_t	oversized_nentries = history_size + extra_nentries;
 
 	init_history_test(offset, history_size);
-	memcpy(expected_result, src_attributed, history_size * sizeof(uint16_t));
-	memcpy(&expected_result[history_size], &result[history_size], extra_nbytes * sizeof(uint16_t));
+	memcpy(expected_data, src_attributed, history_size * sizeof(uint16_t));
+	memcpy(&expected_data[history_size], &result[history_size], extra_nentries * sizeof(uint16_t));
 	UT_LOG_CALL(memcpy(history_test.data, src_attributed, history_size * sizeof(uint16_t)));
-	UT_LOG_CALL(ret = video_text_history_read(&history_test, 0, result, oversized_nbytes));
-	UT_EXPECT_EQMEM(expected_result, result, oversized_nbytes * sizeof(uint16_t));
+	UT_LOG_CALL(ret = video_text_history_read(&history_test, 0, result, oversized_nentries));
+	UT_EXPECT_EQMEM(expected_data, result, oversized_nentries * sizeof(uint16_t));
 	UT_EXPECT_EQ(history_size, ret);
 }
 UT_CREATE_CASE(video_text_history, read, in_bounds_rewind, "Reading data with rewind < history->size")
 {
 	const uint32_t	history_size = VIDEO_TEXT_HISTORY_1_PERCENT;
 	const uint32_t	offset = history_size % VIDEO_TEXT_HISTORY_MAX;
-	const uint32_t	remaining_nbytes = 1;
-	const uint32_t	rewind = history_size - remaining_nbytes;
-	uint16_t		expected_result[history_size];
+	const uint32_t	remaining_nentries = 1;
+	const uint32_t	rewind = history_size - remaining_nentries;
 
 	init_history_test(offset, history_size);
-	memcpy(expected_result, src_attributed, remaining_nbytes * sizeof(uint16_t));
-	memcpy(&expected_result[remaining_nbytes], &result[remaining_nbytes], rewind * sizeof(uint16_t));
+	memcpy(expected_data, src_attributed, remaining_nentries * sizeof(uint16_t));
+	memcpy(&expected_data[remaining_nentries], &result[remaining_nentries], rewind * sizeof(uint16_t));
 	UT_LOG_CALL(memcpy(history_test.data, src_attributed, history_size * sizeof(uint16_t)));
 	UT_LOG_CALL(ret = video_text_history_read(&history_test, rewind, result, history_size));
-	UT_EXPECT_EQMEM(expected_result, result, history_size * sizeof(uint16_t));
-	UT_EXPECT_EQ(remaining_nbytes, ret);
+	UT_EXPECT_EQMEM(expected_data, result, history_size * sizeof(uint16_t));
+	UT_EXPECT_EQ(remaining_nentries, ret);
 }
 UT_CREATE_CASE(video_text_history, read, out_of_bounds_rewind, "Reading data with rewind >= history->size")
 {
