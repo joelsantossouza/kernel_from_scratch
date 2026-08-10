@@ -199,7 +199,22 @@ UT_CREATE_CASE(video_text_history, read, out_of_bounds_rewind, "Reading data wit
  * */
 UT_CREATE_SUITE(video_text_history, set, "Test history set functionality")
 UT_CREATE_CASE(video_text_history, set, no_wrap, "Setting data without history wrap")
-{}
+{
+	const uint32_t	nborder_left = 1;
+	const uint32_t	nborder_right = 1;
+	const uint32_t	nentries_to_set = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	nentries_to_compare = nborder_left + nentries_to_set + nborder_right;
+
+	init_history_test(nborder_left, 0);
+	simulate_side_effects(nentries_to_set);
+	memcpy(expected_data, history_test.data, nborder_left * sizeof(uint16_t));
+	memsetw(&expected_data[nborder_left], SRC_UNIFORM_WORD, nentries_to_set);
+	memcpy(&expected_data[nborder_left + nentries_to_set], &history_test.data[nborder_left + nentries_to_set], nborder_right * sizeof(uint16_t));
+	UT_LOG_CALL(ret = video_text_history_set(&history_test, 0, SRC_UNIFORM_WORD, nentries_to_set));
+	UT_EXPECT_EQMEM(expected_data, history_test.data, nentries_to_compare * sizeof(uint16_t));
+	UT_EXPECT_EQ(nentries_to_set, ret);
+	test_side_effects();
+}
 UT_CREATE_CASE(video_text_history, set, with_wrap, "Setting data with history wrap")
 {}
 UT_CREATE_CASE(video_text_history, set, update_data_only, "Update old data")
