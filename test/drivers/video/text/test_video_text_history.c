@@ -246,12 +246,23 @@ UT_CREATE_CASE(video_text_history, set, update_data_only, "Update old data")
 	const uint32_t	rewind = history_size;
 
 	init_history_test(offset, history_size);
+	simulate_side_effects(0);
 	UT_LOG_CALL(ret = video_text_history_set(&history_test, rewind, SRC_UNIFORM_WORD, history_size));
 	UT_EXPECT_EQMEM(src_uniform_words, history_test.data, history_size * sizeof(uint16_t));
 	UT_EXPECT_EQ(history_size, ret);
+	test_side_effects();
 }
 UT_CREATE_CASE(video_text_history, set, append_data_only, "Append new data")
-{}
+{
+	const uint32_t	nentries = VIDEO_TEXT_HISTORY_1_PERCENT;
+
+	init_history_test(0, 0);
+	simulate_side_effects(nentries);
+	UT_LOG_CALL(ret = video_text_history_set(&history_test, 0, SRC_UNIFORM_WORD, nentries));
+	UT_EXPECT_EQMEM(src_uniform_words, history_test.data, nentries * sizeof(uint16_t));
+	UT_EXPECT_EQ(nentries, ret);
+	test_side_effects();
+}
 UT_CREATE_CASE(video_text_history, set, update_and_append_data, "Update old data and append new data")
 {}
 UT_CREATE_CASE(video_text_history, set, over_history_max, "Setting more than VIDEO_TEXT_HISTORY_MAX entries")
