@@ -203,7 +203,7 @@ UT_CREATE_CASE(video_text_history, set, no_wrap, "Setting data without history w
 	const uint32_t	nborder_left = 1;
 	const uint32_t	nborder_right = 1;
 	const uint32_t	nentries_to_set = VIDEO_TEXT_HISTORY_1_PERCENT;
-	const uint32_t	nentries_to_compare = nborder_left + nentries_to_set + nborder_right;
+	const uint32_t	nentries_to_cmp = nborder_left + nentries_to_set + nborder_right;
 
 	init_history_test(nborder_left, 0);
 	simulate_side_effects(nentries_to_set);
@@ -211,12 +211,34 @@ UT_CREATE_CASE(video_text_history, set, no_wrap, "Setting data without history w
 	memsetw(&expected_data[nborder_left], SRC_UNIFORM_WORD, nentries_to_set);
 	memcpy(&expected_data[nborder_left + nentries_to_set], &history_test.data[nborder_left + nentries_to_set], nborder_right * sizeof(uint16_t));
 	UT_LOG_CALL(ret = video_text_history_set(&history_test, 0, SRC_UNIFORM_WORD, nentries_to_set));
-	UT_EXPECT_EQMEM(expected_data, history_test.data, nentries_to_compare * sizeof(uint16_t));
+	UT_EXPECT_EQMEM(expected_data, history_test.data, nentries_to_cmp * sizeof(uint16_t));
 	UT_EXPECT_EQ(nentries_to_set, ret);
 	test_side_effects();
 }
 UT_CREATE_CASE(video_text_history, set, with_wrap, "Setting data with history wrap")
-{}
+{
+	const uint32_t	nborder_left = 1;
+	const uint32_t	nborder_right = 1;
+	const uint32_t	nentries_to_set = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	nentries_to_cmp = nborder_left + nentries_to_set + nborder_right;
+	const uint32_t	chunk1_nentries = nentries_to_set / 2;
+	const uint32_t	chunk2_nentries = nentries_to_set - chunk1_nentries;
+	const uint32_t	initial_offset = VIDEO_TEXT_HISTORY_MAX - chunk1_nentries;
+
+	init_history_test(initial_offset, 0);
+	simulate_side_effects(nentries_to_set);
+	memcpy(expected_data, &history_test.data[initial_offset - nborder_left], nborder_left * sizeof(uint16_t));
+	memsetw(&expected_data[nborder_left], SRC_UNIFORM_WORD, nentries_to_set);
+	memcpy(&expected_data[nborder_left + nentries_to_set], &history_test.data[chunk2_nentries], nborder_right * sizeof(uint16_t));
+	UT_LOG_CALL(ret = video_text_history_set(&history_test, 0, SRC_UNIFORM_WORD, nentries_to_set));
+	memcpy(result, &history_test.data[initial_offset - nborder_left], nborder_left * sizeof(uint16_t));
+	memcpy(&result[nborder_left], &history_test.data[initial_offset], chunk1_nentries * sizeof(uint16_t));
+	memcpy(&result[nborder_left + chunk1_nentries], history_test.data, chunk2_nentries * sizeof(uint16_t));
+	memcpy(&result[nborder_left + nentries_to_set], &history_test.data[chunk2_nentries], nborder_right * sizeof(uint16_t));
+	UT_EXPECT_EQMEM(expected_data, result, nentries_to_cmp * sizeof(uint16_t));
+	UT_EXPECT_EQ(nentries_to_set, ret);
+	test_side_effects();
+}
 UT_CREATE_CASE(video_text_history, set, update_data_only, "Update old data")
 {
 	const uint32_t	history_size = VIDEO_TEXT_HISTORY_1_PERCENT;
