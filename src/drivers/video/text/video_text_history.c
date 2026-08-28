@@ -140,6 +140,7 @@ uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t r
 uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count)
 {
 	uint32_t	space_until_wrap_up;
+	uint32_t	nentries_appended;
 	uint32_t	offset;
 
 	if (rewind > history->size)
@@ -161,10 +162,11 @@ uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, 
 	}
 	if (rewind >= count)
 		return (count);
+	nentries_appended = count - rewind;
 	history->offset = offset;
-	history->line_offset += count;
+	history->line_offset += nentries_appended;
 	if (history->line_offset >= g_video_text_config.width)
 		history->line_offset %= g_video_text_config.width;
-	video_text_history_size_increment(history, count);
+	video_text_history_size_increment(history, nentries_appended);
 	return (count);
 }
