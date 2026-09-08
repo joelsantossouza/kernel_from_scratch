@@ -44,3 +44,5 @@ File Systems:
 7. Create all objects under obj/
 
 8. Add copyright on header
+
+9. Add docker to build the EdenOS.img
