@@ -32,7 +32,7 @@ typedef struct s_video_text_history
 	uint16_t	data[VIDEO_TEXT_HISTORY_MAX];
 	uint32_t	offset;
 	uint32_t	size;
-	uint32_t	lines;
+	uint32_t	nlines;
 	uint32_t	line_offset;
 }	t_video_text_history;
 
@@ -43,22 +43,42 @@ uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t r
 uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count);
 
 static inline
-void	video_text_history_size_update(t_video_text_history *history, uint32_t new_size)
+void	video_text_history_offset_advance(uint32_t *offset, uint32_t bounded_amount)
+{
+	const uint32_t	next_offset = *offset + bounded_amount;
+
+	if (next_offset >= VIDEO_TEXT_HISTORY_MAX)
+		*offset = next_offset - VIDEO_TEXT_HISTORY_MAX;
+	else
+		*offset = next_offset;
+}
+
+static inline
+void	video_text_history_offset_rewind(uint32_t *offset, uint32_t bounded_amount)
+{
+	if (*offset >= bounded_amount)
+		*offset -= bounded_amount;
+	else
+		*offset += VIDEO_TEXT_HISTORY_MAX - bounded_amount;
+}
+
+static inline
+void	video_text_history_size_and_nlines_update(t_video_text_history *history, uint32_t new_size)
 {
 	if (history->size < VIDEO_TEXT_HISTORY_MAX)
 	{
 		history->size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
-		history->lines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
+		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
 	}
 }
 
 static inline
-void	video_text_history_size_increment(t_video_text_history *history, uint32_t amount)
+void	video_text_history_size_and_nlines_increment(t_video_text_history *history, uint32_t amount)
 {
 	if (history->size < VIDEO_TEXT_HISTORY_MAX)
 	{
 		history->size = MIN(history->size + amount, VIDEO_TEXT_HISTORY_MAX);
-		history->lines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
+		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
 	}
 }
 

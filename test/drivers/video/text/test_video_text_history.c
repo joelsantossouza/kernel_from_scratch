@@ -35,7 +35,7 @@ void	init_history_test(uint32_t offset, uint32_t size)
 	history_test.offset = offset;
 	history_test.line_offset = offset % g_video_text_config.width;
 	history_test.size = size;
-	history_test.lines = align_up(size, g_video_text_config.width) / g_video_text_config.width;
+	history_test.nlines = align_up(size, g_video_text_config.width) / g_video_text_config.width;
 	memset(history_test.data, 0, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
 	memset(result, 0, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
 }
@@ -43,7 +43,7 @@ void	init_history_test(uint32_t offset, uint32_t size)
 static uint32_t	expected_offset;
 static uint32_t	expected_line_offset;
 static uint32_t	expected_size;
-static uint32_t	expected_lines;
+static uint32_t	expected_nlines;
 static uint16_t	expected_data[VIDEO_TEXT_HISTORY_MAX];
 static uint32_t	ret;
 
@@ -53,7 +53,7 @@ void	simulate_side_effects(uint32_t nentries)
 	expected_offset = (history_test.offset + nentries) % VIDEO_TEXT_HISTORY_MAX;
 	expected_line_offset = expected_offset % g_video_text_config.width;
 	expected_size = MIN(history_test.size + nentries, VIDEO_TEXT_HISTORY_MAX);
-	expected_lines = align_up(expected_size, g_video_text_config.width) / g_video_text_config.width;
+	expected_nlines = align_up(expected_size, g_video_text_config.width) / g_video_text_config.width;
 }
 
 static
@@ -62,7 +62,7 @@ void	test_side_effects(void)
 	UT_EXPECT_EQ(expected_offset, history_test.offset);
 	UT_EXPECT_EQ(expected_line_offset, history_test.line_offset);
 	UT_EXPECT_EQ(expected_size, history_test.size);
-	UT_EXPECT_EQ(expected_lines, history_test.lines);
+	UT_EXPECT_EQ(expected_nlines, history_test.nlines);
 }
 
 /*

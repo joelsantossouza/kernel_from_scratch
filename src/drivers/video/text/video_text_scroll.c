@@ -20,9 +20,9 @@ void	video_text_scroll_up(uint16_t *video_text_addr, uint32_t nlines)
 	uint32_t	scroll_cells;
 	uint32_t	line_remaining;
 
-	if (g_video_text_history.lines < g_video_text_config.height)
+	if (g_video_text_history.nlines < g_video_text_config.height)
 		return ;
-	scroll_max = g_video_text_history.lines - g_video_text_config.height;
+	scroll_max = g_video_text_history.nlines - g_video_text_config.height;
 	scroll_next = g_video_text_scroll + nlines;
 	if (scroll_next > scroll_max)
 		scroll_next = scroll_max;
