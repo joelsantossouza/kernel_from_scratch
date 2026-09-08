@@ -89,6 +89,10 @@ uint32_t	video_text_history_write(t_video_text_history *history, const char *tex
 		history->line_offset += overwrite_tail;
 		count = VIDEO_TEXT_HISTORY_MAX;
 	}
+	else
+		history->line_offset += count;
+	if (history->line_offset >= g_video_text_config.width)
+		history->line_offset %= g_video_text_config.width;
 	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - history->offset;
 	if (count > space_until_wrap_up)
 	{
