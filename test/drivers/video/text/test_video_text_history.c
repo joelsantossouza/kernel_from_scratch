@@ -304,4 +304,15 @@ UT_CREATE_CASE(video_text_history, set, over_history_max, "Setting more than VID
 UT_CREATE_CASE(video_text_history, set, in_bounds_rewind, "Setting data with rewind <= history->size")
 {}
 UT_CREATE_CASE(video_text_history, set, out_of_bounds_rewind, "Setting data with rewind > history->size")
-{}
+{
+	const uint32_t	history_size = VIDEO_TEXT_HISTORY_1_PERCENT;
+	const uint32_t	rewind = history_size + 1;
+
+	init_history_test(history_size, history_size);
+	simulate_side_effects(0);
+	UT_LOG_CALL(memset(expected_data, 0, history_size * sizeof(uint16_t)));
+	UT_LOG_CALL(ret = video_text_history_set(&history_test, rewind, SRC_UNIFORM_WORD, history_size));
+	UT_EXPECT_EQMEM(expected_data, history_test.data, history_size * sizeof(uint16_t));
+	UT_EXPECT_EQ(0, ret);
+	test_side_effects();
+}
