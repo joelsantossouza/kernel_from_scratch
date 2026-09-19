@@ -101,7 +101,7 @@ UT_CREATE_CASE(video_text_history, write, with_wrap, "Writing data with history 
 }
 UT_CREATE_CASE(video_text_history, write, over_history_max, "Writing more than VIDEO_TEXT_HISTORY_MAX entries")
 {
-	const uint32_t	overwrite_nentries = 17;
+	const uint32_t	overwrite_nentries = 1;
 	const uint32_t	oversized_nentries = VIDEO_TEXT_HISTORY_MAX + overwrite_nentries;
 	const uint32_t	remaining_nentries = VIDEO_TEXT_HISTORY_MAX - overwrite_nentries;
 
@@ -279,7 +279,28 @@ UT_CREATE_CASE(video_text_history, set, update_and_append_data, "Update old data
 	test_side_effects();
 }
 UT_CREATE_CASE(video_text_history, set, over_history_max, "Setting more than VIDEO_TEXT_HISTORY_MAX entries")
-{}
+{
+	const uint32_t	overwrite_nentries = 1;
+	const uint32_t	oversized_nentries = VIDEO_TEXT_HISTORY_MAX + overwrite_nentries;
+
+	vga_text_print("\n// With rewind < overwrite_nentries\n", VGA_TEXT_LIGHT_MAGENTA);
+	init_history_test(0, 0);
+	simulate_side_effects(oversized_nentries);
+	UT_LOG_CALL(ret = video_text_history_set(&history_test, 0, SRC_UNIFORM_WORD, oversized_nentries));
+	UT_EXPECT_EQMEM(src_uniform_words, history_test.data, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
+	UT_EXPECT_EQ(VIDEO_TEXT_HISTORY_MAX, ret);
+	test_side_effects();
+
+	const uint32_t	rewind = VIDEO_TEXT_HISTORY_MAX;
+
+	vga_text_print("\n// With rewind > overwrite_nentries\n", VGA_TEXT_LIGHT_MAGENTA);
+	init_history_test(0, VIDEO_TEXT_HISTORY_MAX);
+	simulate_side_effects(oversized_nentries - rewind);
+	UT_LOG_CALL(ret = video_text_history_set(&history_test, rewind, SRC_UNIFORM_WORD, oversized_nentries));
+	UT_EXPECT_EQMEM(src_uniform_words, history_test.data, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
+	UT_EXPECT_EQ(VIDEO_TEXT_HISTORY_MAX, ret);
+	test_side_effects();
+}
 UT_CREATE_CASE(video_text_history, set, in_bounds_rewind, "Setting data with rewind <= history->size")
 {}
 UT_CREATE_CASE(video_text_history, set, out_of_bounds_rewind, "Setting data with rewind > history->size")
