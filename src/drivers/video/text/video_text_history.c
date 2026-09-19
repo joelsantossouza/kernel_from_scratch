@@ -142,8 +142,18 @@ uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, 
 
 	if (rewind > history->size)
 		return (0);
-	if (count > VIDEO_TEXT_HISTORY_MAX)
-		count = VIDEO_TEXT_HISTORY_MAX;
+	if (count >= VIDEO_TEXT_HISTORY_MAX)
+	{
+		nentries_appended = count % VIDEO_TEXT_HISTORY_MAX;
+		if (nentries_appended < rewind)
+			nentries_appended += VIDEO_TEXT_HISTORY_MAX;
+		nentries_appended -= rewind;
+		video_text_history_offset_advance_bounded(&history->offset, nentries_appended, VIDEO_TEXT_HISTORY_MAX);
+		video_text_history_offset_advance(&history->line_offset, nentries_appended, g_video_text_config.width);
+		video_text_history_size_and_nlines_update(history, VIDEO_TEXT_HISTORY_MAX);
+		memsetw(history->data, set, VIDEO_TEXT_HISTORY_MAX);
+		return (VIDEO_TEXT_HISTORY_MAX);
+	}
 	offset = history->offset;
 	video_text_history_offset_rewind_bounded(&offset, rewind, VIDEO_TEXT_HISTORY_MAX);
 	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - offset;
