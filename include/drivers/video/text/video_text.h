@@ -43,23 +43,31 @@ uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t r
 uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count);
 
 static inline
-void	video_text_history_offset_advance(uint32_t *offset, uint32_t bounded_amount)
+void	video_text_history_offset_advance_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
 {
-	const uint32_t	next_offset = *offset + bounded_amount;
+	const uint32_t	next_offset = *bounded_offset + bounded_amount;
 
-	if (next_offset >= VIDEO_TEXT_HISTORY_MAX)
-		*offset = next_offset - VIDEO_TEXT_HISTORY_MAX;
+	if (next_offset >= bound)
+		*bounded_offset = next_offset - bound;
 	else
-		*offset = next_offset;
+		*bounded_offset = next_offset;
 }
 
 static inline
-void	video_text_history_offset_rewind(uint32_t *offset, uint32_t bounded_amount)
+void	video_text_history_offset_rewind_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
 {
-	if (*offset >= bounded_amount)
-		*offset -= bounded_amount;
+	if (*bounded_offset >= bounded_amount)
+		*bounded_offset -= bounded_amount;
 	else
-		*offset += VIDEO_TEXT_HISTORY_MAX - bounded_amount;
+		*bounded_offset += bound - bounded_amount;
+}
+
+static inline
+void	video_text_history_offset_advance(uint32_t *offset, uint32_t amount, uint32_t bound)
+{
+	*offset += amount;
+	if (*offset >= bound)
+		*offset %= bound;
 }
 
 static inline
