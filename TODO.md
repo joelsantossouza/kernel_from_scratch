@@ -46,3 +46,5 @@ File Systems:
 8. Add copyright on header
 
 9. Add docker to build the EdenOS.img
+
+10. Move all helper and optmization functions/macros under kernel scope into a specialized library
