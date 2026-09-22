@@ -124,6 +124,8 @@ int test_kernel_main(void)
 			vga_text_scroll_down(1);
 		else if (c == 'J')
 			vga_text_scroll_down(24);
+		else
+			vga_text_write(&c, 1, VGA_TEXT_BROWN);
 	}
     return KERNEL_SUCCESS;
 }

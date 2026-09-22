@@ -43,7 +43,7 @@ void	video_text_write(uint16_t *video_text_addr, const char *text, uint32_t coun
 			entries_written += g_video_text_escape_handlers[(uint8_t)*text++]();
 	}
 	g_video_text_offset += entries_written;
-	if (g_video_text_offset > g_video_text_config.screensize)
+	if (g_video_text_offset >= g_video_text_config.screensize)
 	{
 		g_video_text_offset = g_video_text_config.last_row + g_video_text_history.line_offset;
 		video_text_scroll_to_bottom(video_text_addr);

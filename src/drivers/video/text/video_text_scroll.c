@@ -29,10 +29,7 @@ void	video_text_scroll_up(uint16_t *video_text_addr, uint32_t nlines)
 	if (g_video_text_scroll == scroll_next)
 		return ;
 	g_video_text_scroll = scroll_next;
-	if (g_video_text_history.line_offset != 0)
-		line_remaining = g_video_text_config.width - g_video_text_history.line_offset;
-	else
-		line_remaining = 0;
+	line_remaining = g_video_text_config.width - g_video_text_history.line_offset;
 	scroll_cells = g_video_text_scroll * g_video_text_config.width - line_remaining;
 	video_text_history_read(&g_video_text_history, scroll_cells, video_text_addr, g_video_text_config.screensize);
 }
@@ -50,10 +47,7 @@ void	video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines)
 		scroll_next = g_video_text_scroll - nlines;
 	if (g_video_text_scroll == scroll_next)
 		return ;
-	if (g_video_text_history.line_offset != 0)
-		line_remaining = g_video_text_config.width - g_video_text_history.line_offset;
-	else
-		line_remaining = 0;
+	line_remaining = g_video_text_config.width - g_video_text_history.line_offset;
 	g_video_text_scroll = scroll_next;
 	if (g_video_text_scroll > 0)
 	{
