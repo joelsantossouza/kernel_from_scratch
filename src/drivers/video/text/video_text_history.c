@@ -46,11 +46,27 @@ t_video_text_history	g_video_text_history = {0};
  * 		position located 'rewind' entries before the current history offset
  * 		and traversing backwards.
  *
+ * 		If 'rewind' is greater than or equal to history->size, no entries
+ * 		are read.
+ *
  * 		If 'count' exceeds the number of available entries
  * 		(history->size - rewind), the read is truncated.
  *
- * 		If 'rewind' is greater than or equal to history->size, no entries
- * 		are read.
+ * 	video_text_history_set()
+ * 		Sets up to 'count' words to 'set' in the history buffer, beginning
+ * 		at the position located 'rewind' entries before the current history
+ * 		offset and traversing forward.
+ *
+ * 		If 'rewind' is greater than history->size, no entries are set.
+ *
+ * 		If 'count' is less than or equal to 'rewind', the write does not
+ * 		reach the current history offset, and only existing history entries
+ * 		are updated. The internal state of the history is unchanged.
+ *
+ * 		If 'count' is greater than 'rewind', the first 'rewind' entries
+ * 		update the history up to the current history offset, and the
+ * 		remaining entries are appended to the history. The internal state
+ * 		of the history is updated accordingly.
  *
  * UNDEFINED BEHAVIOUR
  * 	Passing a history structure with invalid internal state.
@@ -64,7 +80,7 @@ t_video_text_history	g_video_text_history = {0};
  * 		  of the history
  *
  * RETURN VALUE
- * 	video_text_history_write()
+ * 	video_text_history_write(), video_text_history_set()
  *
  * 		Returns the number of history entries written:
  * 			min(count, VIDEO_TEXT_HISTORY_MAX)
