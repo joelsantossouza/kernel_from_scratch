@@ -25,6 +25,8 @@ File Systems:
 
 -------\\
 
+0. Reverify if theres any way of having only one header file shared to asm and c code
+
 1. Integrate the autoconfig to remaining subsystems:
     fs, video_text
 
