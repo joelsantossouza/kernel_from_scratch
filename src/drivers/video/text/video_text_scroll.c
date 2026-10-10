@@ -59,3 +59,14 @@ void	video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines)
 	padding_bytes = line_remaining * sizeof(uint16_t);
 	memset(video_text_addr + g_video_text_offset, 0, padding_bytes);
 }
+
+void	video_text_scroll_to_bottom(uint16_t *video_text_addr)
+{
+	const uint32_t	screen_remaining = g_video_text_config.screensize - g_video_text_offset;
+	const uint32_t	padding_bytes = screen_remaining * sizeof(uint16_t);
+
+	g_video_text_scroll = 0;
+	video_text_history_read(&g_video_text_history, 0, video_text_addr, g_video_text_offset);
+	memset(video_text_addr + g_video_text_offset, 0, padding_bytes);
+}
+

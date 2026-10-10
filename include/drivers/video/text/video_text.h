@@ -42,70 +42,12 @@ uint32_t	video_text_history_write(t_video_text_history *history, const char *tex
 uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t rewind, uint16_t *buf, uint32_t count);
 uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count);
 
-static inline
-void	video_text_history_offset_advance_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
-{
-	const uint32_t	next_offset = *bounded_offset + bounded_amount;
-
-	if (next_offset >= bound)
-		*bounded_offset = next_offset - bound;
-	else
-		*bounded_offset = next_offset;
-}
-
-static inline
-void	video_text_history_offset_rewind_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
-{
-	if (*bounded_offset >= bounded_amount)
-		*bounded_offset -= bounded_amount;
-	else
-		*bounded_offset += bound - bounded_amount;
-}
-
-static inline
-void	video_text_history_offset_advance(uint32_t *offset, uint32_t amount, uint32_t bound)
-{
-	*offset += amount;
-	if (*offset >= bound)
-		*offset %= bound;
-}
-
-static inline
-void	video_text_history_size_and_nlines_update(t_video_text_history *history, uint32_t new_size)
-{
-	if (history->size < VIDEO_TEXT_HISTORY_MAX)
-	{
-		history->size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
-		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
-	}
-}
-
-static inline
-void	video_text_history_size_and_nlines_increment(t_video_text_history *history, uint32_t amount)
-{
-	if (history->size < VIDEO_TEXT_HISTORY_MAX)
-	{
-		history->size = MIN(history->size + amount, VIDEO_TEXT_HISTORY_MAX);
-		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
-	}
-}
-
 // Scroll
 extern uint32_t	g_video_text_scroll;
 
 void		video_text_scroll_up(uint16_t *video_text_addr, uint32_t nlines);
 void		video_text_scroll_down(uint16_t *video_text_addr, uint32_t nlines);
-
-static inline
-void	video_text_scroll_to_bottom(uint16_t *video_text_addr)
-{
-	const uint32_t	screen_remaining = g_video_text_config.screensize - g_video_text_offset;
-	const uint32_t	padding_bytes = screen_remaining * sizeof(uint16_t);
-
-	g_video_text_scroll = 0;
-	video_text_history_read(&g_video_text_history, 0, video_text_addr, g_video_text_offset);
-	memset(video_text_addr + g_video_text_offset, 0, padding_bytes);
-}
+void		video_text_scroll_to_bottom(uint16_t *video_text_addr);
 
 // Operations
 void		video_text_write(uint16_t *video_text_addr, const char *text, uint32_t count, uint8_t attr);

@@ -14,6 +14,54 @@
 
 t_video_text_history	g_video_text_history = {0};
 
+static inline
+void	video_text_history_offset_advance_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
+{
+	const uint32_t	next_offset = *bounded_offset + bounded_amount;
+
+	if (next_offset >= bound)
+		*bounded_offset = next_offset - bound;
+	else
+		*bounded_offset = next_offset;
+}
+
+static inline
+void	video_text_history_offset_rewind_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
+{
+	if (*bounded_offset >= bounded_amount)
+		*bounded_offset -= bounded_amount;
+	else
+		*bounded_offset += bound - bounded_amount;
+}
+
+static inline
+void	video_text_history_offset_advance(uint32_t *offset, uint32_t amount, uint32_t bound)
+{
+	*offset += amount;
+	if (*offset >= bound)
+		*offset %= bound;
+}
+
+static inline
+void	video_text_history_size_and_nlines_update(t_video_text_history *history, uint32_t new_size)
+{
+	if (history->size < VIDEO_TEXT_HISTORY_MAX)
+	{
+		history->size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
+		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
+	}
+}
+
+static inline
+void	video_text_history_size_and_nlines_increment(t_video_text_history *history, uint32_t amount)
+{
+	if (history->size < VIDEO_TEXT_HISTORY_MAX)
+	{
+		history->size = MIN(history->size + amount, VIDEO_TEXT_HISTORY_MAX);
+		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
+	}
+}
+
 /*
  * NAME
  * 	video_text_history_write,
