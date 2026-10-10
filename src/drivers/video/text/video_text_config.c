@@ -14,5 +14,4 @@ t_video_text_config	g_video_text_config = {
 	.height = VIDEO_TEXT_DEFAULT_HEIGHT,
 	.screensize = VIDEO_TEXT_DEFAULT_WIDTH * VIDEO_TEXT_DEFAULT_HEIGHT,
 	.last_row = VIDEO_TEXT_DEFAULT_WIDTH * VIDEO_TEXT_DEFAULT_HEIGHT - VIDEO_TEXT_DEFAULT_WIDTH,
-	.last_line = VIDEO_TEXT_DEFAULT_HEIGHT - 1,
 };

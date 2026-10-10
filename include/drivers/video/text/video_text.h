@@ -21,7 +21,6 @@ typedef struct s_video_text_config
 	uint32_t	height;
 	uint32_t	screensize;
 	uint32_t	last_row;
-	uint32_t	last_line;
 }	t_video_text_config;
 
 extern t_video_text_config	g_video_text_config;
