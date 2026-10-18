@@ -52,3 +52,6 @@ File Systems:
 10. Move all helper and optmization functions/macros under kernel scope into a specialized library
 
 11. Create a specialized library circular_buffer and update all video_text_history_* functions to use it. (Some of the functions such as video_text_history_offset_* will have to be replaced to the respective circular_buffer_offset_*)
+
+12. Remove all suffix *_read or *_write or *_<operation> in files once each file will hold all operations in that object:
+Example: vdl_read.c -> vdl.c (inside vdl.c file ==> vdl_read(), vdl_write()...)
