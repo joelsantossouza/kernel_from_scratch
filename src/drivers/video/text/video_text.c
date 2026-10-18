@@ -18,13 +18,13 @@ t_video_text g_video_text_default = {
 };
 
 static
-uint32_t	video_text_escape_newline(t_video_text *video_text)
+uint32_t	video_text_escape_newline(t_video_text *video_text, uint32_t count)
 {
 	const t_video_text_history	* const history = &video_text->history;
 	const t_video_text_config	* const config = video_text->config;
-	const uint32_t				line_remaining = config->width - history->line_offset;
+	const uint32_t				set_cells = config->width * count - history->line_offset;
 
-	return (video_text_history_set(video_text, 0, 0, line_remaining));
+	return (video_text_history_set(video_text, 0, 0, set_cells));
 }
 
 static const t_video_text_escape_fn	g_video_text_escape_handlers[ASCII_TABLE_MAX] = {
@@ -32,9 +32,6 @@ static const t_video_text_escape_fn	g_video_text_escape_handlers[ASCII_TABLE_MAX
 };
 
 //TODO: maybe improve last part of function to always scroll to bottom if data will ever be written on video text.
-//TODO: Before loop decide start loop (printable/control characters loop).
-//TODO: In printable loop accumulate the number of printable character to print once
-//TODO: In control loop accumulate the number of consecutive control character to transmit the paratmer N respectivelly
 void	video_text_write(t_video_text *video_text, uint16_t *graphics_array_addr, const char *text, uint32_t count, uint8_t attr)
 {
 	const t_video_text_history	* const history = &video_text->history;
@@ -43,17 +40,30 @@ void	video_text_write(t_video_text *video_text, uint16_t *graphics_array_addr, c
 	const char					*text_end = text + count;
 	const char					*text_ptr;
 	uint32_t					entries_written;
+	uint8_t						text_old_chr;
 
+	if (text == text_end)
+		return ;
 	entries_written = 0;
+	if (isprint((uint8_t)*text))
+		goto video_text_write_printable;
+	goto video_text_write_control;
 	while (text < text_end)
 	{
-		text_ptr = text;
-		while (text < text_end && isprint(*text))
+video_text_write_printable:
+		text_ptr = text++;
+		while (text < text_end && isprint((uint8_t)*text))
 			text++;
-		if (text > text_ptr)
-			entries_written += video_text_history_write(video_text, text_ptr, text - text_ptr, attr);
+		entries_written += video_text_history_write(video_text, text_ptr, text - text_ptr, attr);
 		while (text < text_end && iscntrl((uint8_t)*text))
-			entries_written += g_video_text_escape_handlers[(uint8_t)*text++](video_text);
+		{
+video_text_write_control:
+			text_old_chr = *text;
+			text_ptr = text++;
+			while (text < text_end && *text == text_old_chr)
+				text++;
+			entries_written += g_video_text_escape_handlers[text_old_chr](video_text, text - text_ptr);
+		}
 	}
 	video_text->screen_offset += entries_written;
 	if (video_text->screen_offset >= config->screensize)

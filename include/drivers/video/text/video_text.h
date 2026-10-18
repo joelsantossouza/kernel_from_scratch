@@ -38,7 +38,7 @@ typedef struct s_video_text
 	uint32_t					scroll;
 }	t_video_text;
 
-typedef uint32_t	(*t_video_text_escape_fn)(t_video_text *video_text);
+typedef uint32_t	(*t_video_text_escape_fn)(t_video_text *video_text, uint32_t count);
 
 extern t_video_text_config	g_video_text_config_default;
 extern t_video_text			g_video_text_default;
