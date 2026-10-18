@@ -12,8 +12,6 @@
 #include "string/string.h"
 #include "math/math.h"
 
-t_video_text_history	g_video_text_history = {0};
-
 static inline
 void	video_text_history_offset_advance_bounded(uint32_t *bounded_offset, uint32_t bounded_amount, uint32_t bound)
 {
@@ -43,29 +41,37 @@ void	video_text_history_offset_advance(uint32_t *offset, uint32_t amount, uint32
 }
 
 static inline
-void	video_text_history_size_and_nlines_update(t_video_text_history *history, uint32_t new_size)
+void	video_text_history_size_and_nlines_update(t_video_text *video_text, uint32_t new_size)
 {
+	t_video_text_history		* const history = &video_text->history;
+	const t_video_text_config	* const config = video_text->config;
+
 	if (history->size < VIDEO_TEXT_HISTORY_MAX)
 	{
 		history->size = MIN(new_size, VIDEO_TEXT_HISTORY_MAX);
-		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
+		history->nlines = align_up(history->size, config->width) / config->width;
 	}
 }
 
 static inline
-void	video_text_history_size_and_nlines_increment(t_video_text_history *history, uint32_t amount)
+void	video_text_history_size_and_nlines_increment(t_video_text *video_text, uint32_t amount)
 {
+	t_video_text_history		* const history = &video_text->history;
+	const t_video_text_config	* const config = video_text->config;
+
 	if (history->size < VIDEO_TEXT_HISTORY_MAX)
 	{
 		history->size = MIN(history->size + amount, VIDEO_TEXT_HISTORY_MAX);
-		history->nlines = align_up(history->size, g_video_text_config.width) / g_video_text_config.width;
+		history->nlines = align_up(history->size, config->width) / config->width;
 	}
 }
 
+// TODO: update doc
 /*
  * NAME
  * 	video_text_history_write,
- * 	video_text_history_read - Circular history buffer operations
+ * 	video_text_history_read,
+ * 	video_text_history_set - Circular history buffer operations
  *
  * SYNOPSIS
  * 	typedef struct s_video_text_history
@@ -140,21 +146,23 @@ void	video_text_history_size_and_nlines_increment(t_video_text_history *history,
  *
  * 		If rewind >= history->size, returns 0.
  * */
-uint32_t	video_text_history_write(t_video_text_history *history, const char *text, uint32_t count, uint8_t attr)
+uint32_t	video_text_history_write(t_video_text *video_text, const char *text, uint32_t count, uint8_t attr)
 {
-	uint32_t	space_until_wrap_up;
-	uint32_t	overwrite_tail;
+	t_video_text_history		* const history = &video_text->history;
+	const t_video_text_config	* const config = video_text->config;
+	uint32_t					space_until_wrap_up;
+	uint32_t					overwrite_tail;
 
 	if (count > VIDEO_TEXT_HISTORY_MAX)
 	{
 		text += count - VIDEO_TEXT_HISTORY_MAX;
 		overwrite_tail = count % VIDEO_TEXT_HISTORY_MAX;
 		video_text_history_offset_advance_bounded(&history->offset, overwrite_tail, VIDEO_TEXT_HISTORY_MAX);
-		video_text_history_offset_advance(&history->line_offset, overwrite_tail, g_video_text_config.width);
+		video_text_history_offset_advance(&history->line_offset, overwrite_tail, config->width);
 		count = VIDEO_TEXT_HISTORY_MAX;
 	}
 	else
-		video_text_history_offset_advance(&history->line_offset, count, g_video_text_config.width);
+		video_text_history_offset_advance(&history->line_offset, count, config->width);
 	space_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - history->offset;
 	if (count > space_until_wrap_up)
 	{
@@ -167,15 +175,16 @@ uint32_t	video_text_history_write(t_video_text_history *history, const char *tex
 		memicpy8(&history->data[history->offset], text, count, attr);
 		history->offset += count;
 	}
-	video_text_history_size_and_nlines_increment(history, count);
+	video_text_history_size_and_nlines_increment(video_text, count);
 	return (count);
 }
 
-uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t rewind, uint16_t *buf, uint32_t count)
+uint32_t	video_text_history_read(const t_video_text *video_text, uint32_t rewind, uint16_t *buf, uint32_t count)
 {
-	uint32_t	space_until_wrap_down;
-	uint32_t	second_chunk_size;
-	uint32_t	offset;
+	const t_video_text_history	* const history = &video_text->history;
+	uint32_t					space_until_wrap_down;
+	uint32_t					second_chunk_size;
+	uint32_t					offset;
 
 	if (rewind >= history->size)
 		return (0);
@@ -198,11 +207,13 @@ uint32_t	video_text_history_read(const t_video_text_history *history, uint32_t r
 	return (count);
 }
 
-uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, uint16_t set, uint32_t count)
+uint32_t	video_text_history_set(t_video_text *video_text, uint32_t rewind, uint16_t set, uint32_t count)
 {
-	uint32_t	space_until_wrap_up;
-	uint32_t	nentries_appended;
-	uint32_t	offset;
+	t_video_text_history		* const history = &video_text->history;
+	const t_video_text_config	* const config = video_text->config;
+	uint32_t					space_until_wrap_up;
+	uint32_t					nentries_appended;
+	uint32_t					offset;
 
 	if (rewind > history->size)
 		return (0);
@@ -213,8 +224,8 @@ uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, 
 			nentries_appended += VIDEO_TEXT_HISTORY_MAX;
 		nentries_appended -= rewind;
 		video_text_history_offset_advance_bounded(&history->offset, nentries_appended, VIDEO_TEXT_HISTORY_MAX);
-		video_text_history_offset_advance(&history->line_offset, nentries_appended, g_video_text_config.width);
-		video_text_history_size_and_nlines_update(history, VIDEO_TEXT_HISTORY_MAX);
+		video_text_history_offset_advance(&history->line_offset, nentries_appended, config->width);
+		video_text_history_size_and_nlines_update(video_text, VIDEO_TEXT_HISTORY_MAX);
 		memsetw(history->data, set, VIDEO_TEXT_HISTORY_MAX);
 		return (VIDEO_TEXT_HISTORY_MAX);
 	}
@@ -236,7 +247,7 @@ uint32_t	video_text_history_set(t_video_text_history *history, uint32_t rewind, 
 		return (count);
 	nentries_appended = count - rewind;
 	history->offset = offset;
-	video_text_history_offset_advance(&history->line_offset, nentries_appended, g_video_text_config.width);
-	video_text_history_size_and_nlines_increment(history, nentries_appended);
+	video_text_history_offset_advance(&history->line_offset, nentries_appended, config->width);
+	video_text_history_size_and_nlines_increment(video_text, nentries_appended);
 	return (count);
 }

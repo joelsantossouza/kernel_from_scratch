@@ -12,33 +12,34 @@
 
 UT_CREATE_CATEGORY(string, "Test string library")
 
-static char					aligned_src[SRC_SIZE] __attribute__((aligned(ALIGN_32)));
-static char					aligned_dst[SRC_SIZE] __attribute__((aligned(ALIGN_32)));
+static char					g_aligned_src[SRC_SIZE] __attribute__((aligned(ALIGN_32)));
+static char					g_aligned_dst[SRC_SIZE] __attribute__((aligned(ALIGN_32)));
 
-static char					unaligned_src_raw[SRC_SIZE + 1] __attribute__((aligned(ALIGN_32)));
-static char					unaligned_dst_raw[SRC_SIZE + 1] __attribute__((aligned(ALIGN_32)));
-static char					*unaligned_src = unaligned_src_raw + 1;
-static char					*unaligned_dst = unaligned_dst_raw + 1;
+static char					g_unaligned_src_raw[SRC_SIZE + 1] __attribute__((aligned(ALIGN_32)));
+static char					g_unaligned_dst_raw[SRC_SIZE + 1] __attribute__((aligned(ALIGN_32)));
+static char					*g_unaligned_src = g_unaligned_src_raw + 1;
+static char					*g_unaligned_dst = g_unaligned_dst_raw + 1;
 
-static uint16_t				attributed_src[SRC_SIZE];
-static uint16_t				uniform_words_src[SRC_SIZE] = {
+static uint16_t				g_attributed_src[SRC_SIZE];
+static uint16_t				g_uniform_words_src[SRC_SIZE] = {
 	[0 ... SRC_SIZE - 1] = SRC_UNIFORM_WORD
 };
-static char					uniform_bytes_src[SRC_SIZE] = {
+static char					g_uniform_bytes_src[SRC_SIZE] = {
 	[0 ... SRC_SIZE - 1] = SRC_UNIFORM_BYTE
 };
 
-static char					expected_result[SRC_SIZE];
+static char					g_expected_result[SRC_SIZE];
 
 static const uint32_t		SRC_SIZE_1_PERCENT = SRC_SIZE * 0.01;
 
+// TODO: Manually set memory pattern instead of calling the memset_pattern()
 __attribute__((constructor))
 static void	test_string_src_init(void)
 {
-	memset_pattern(aligned_src, SRC_PATTERN, SRC_PATTERN_SIZE, SRC_SIZE);
-	memset_pattern(unaligned_src, SRC_PATTERN, SRC_PATTERN_SIZE, SRC_SIZE);
+	memset_pattern(g_aligned_src, SRC_PATTERN, SRC_PATTERN_SIZE, SRC_SIZE);
+	memset_pattern(g_unaligned_src, SRC_PATTERN, SRC_PATTERN_SIZE, SRC_SIZE);
 	for (int i = 0; i < SRC_SIZE; i++)
-		attributed_src[i] = (SRC_ATTR << 8) | aligned_src[i];
+		g_attributed_src[i] = (SRC_ATTR << 8) | g_aligned_src[i];
 }
 
 /*
@@ -50,38 +51,38 @@ static void	test_string_src_init(void)
 UT_CREATE_SUITE(string, memcpy, "Test memcpy function")
 UT_CREATE_CASE(string, memcpy, return_val_check, "Test if the return address match the dest's address")
 {
-	UT_EXPECT_EQ(aligned_dst, memcpy(aligned_dst, aligned_src, 0));
-	UT_EXPECT_EQ(aligned_dst, memcpy(aligned_dst, aligned_src, 8));
+	UT_EXPECT_EQ(g_aligned_dst, memcpy(g_aligned_dst, g_aligned_src, 0));
+	UT_EXPECT_EQ(g_aligned_dst, memcpy(g_aligned_dst, g_aligned_src, 8));
 }
 UT_CREATE_CASE(string, memcpy, nothing_to_copy, "Test with nbytes == 0, then nothing must be copied")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes_to_compare);
-	UT_LOG_CALL(memset(expected_result, 0, nbytes_to_compare));
-	UT_EXPECT_EQMEM(expected_result, memcpy(aligned_dst, aligned_src, 0), nbytes_to_compare);
+	memset(g_aligned_dst, 0, nbytes_to_compare);
+	UT_LOG_CALL(memset(g_expected_result, 0, nbytes_to_compare));
+	UT_EXPECT_EQMEM(g_expected_result, memcpy(g_aligned_dst, g_aligned_src, 0), nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memcpy, direction_flag, "Set direction flag, and must still copying forward")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes);
+	memset(g_aligned_dst, 0, nbytes);
 	__asm__("std");
-	UT_EXPECT_EQMEM(aligned_src, memcpy(aligned_dst, aligned_src, nbytes), nbytes);
+	UT_EXPECT_EQMEM(g_aligned_src, memcpy(g_aligned_dst, g_aligned_src, nbytes), nbytes);
 }
 UT_CREATE_CASE(string, memcpy, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(aligned_src, memcpy(aligned_dst, aligned_src, nbytes), nbytes);
+	memset(g_aligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_aligned_src, memcpy(g_aligned_dst, g_aligned_src, nbytes), nbytes);
 }
 UT_CREATE_CASE(string, memcpy, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(unaligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(unaligned_src, memcpy(unaligned_dst, unaligned_src, nbytes), nbytes);
+	memset(g_unaligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_unaligned_src, memcpy(g_unaligned_dst, g_unaligned_src, nbytes), nbytes);
 }
 
 /*
@@ -93,8 +94,8 @@ UT_CREATE_CASE(string, memcpy, unaligned_memory, "Test with memory unaligned to 
 UT_CREATE_SUITE(string, mempcpy, "Test mempcpy function")
 UT_CREATE_CASE(string, mempcpy, return_val_check, "Test if the return address match dest + nbytes")
 {
-	UT_EXPECT_EQ(aligned_dst, mempcpy(aligned_dst, aligned_src, 0));
-	UT_EXPECT_EQ(aligned_dst + 8, mempcpy(aligned_dst, aligned_src, 8));
+	UT_EXPECT_EQ(g_aligned_dst, mempcpy(g_aligned_dst, g_aligned_src, 0));
+	UT_EXPECT_EQ(g_aligned_dst + 8, mempcpy(g_aligned_dst, g_aligned_src, 8));
 }
 
 /*
@@ -109,25 +110,25 @@ UT_CREATE_CASE(string, memmove, return_val_check, "Test if the return address ma
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 	const uint32_t	noverlap = nbytes * 0.10;
 
-	UT_EXPECT_EQ(aligned_dst, memmove(aligned_dst, aligned_dst + noverlap, nbytes));
-	UT_EXPECT_EQ(aligned_dst + noverlap, memmove(aligned_dst + noverlap, aligned_dst, nbytes));
+	UT_EXPECT_EQ(g_aligned_dst, memmove(g_aligned_dst, g_aligned_dst + noverlap, nbytes));
+	UT_EXPECT_EQ(g_aligned_dst + noverlap, memmove(g_aligned_dst + noverlap, g_aligned_dst, nbytes));
 }
 UT_CREATE_CASE(string, memmove, overlap_nothing_to_copy, "Test overlap with nbytes == 0, then nothing must be copied")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 	const uint32_t	noverlap = nbytes_to_compare * 0.10;
 
-	memcpy(aligned_dst, aligned_src, nbytes_to_compare);
-	UT_LOG_CALL(memcpy(expected_result, aligned_dst, nbytes_to_compare));
-	UT_LOG_CALL(memmove(aligned_dst + noverlap, aligned_dst, 0));
-	UT_EXPECT_EQMEM(expected_result, aligned_dst, nbytes_to_compare);
+	memcpy(g_aligned_dst, g_aligned_src, nbytes_to_compare);
+	UT_LOG_CALL(memcpy(g_expected_result, g_aligned_dst, nbytes_to_compare));
+	UT_LOG_CALL(memmove(g_aligned_dst + noverlap, g_aligned_dst, 0));
+	UT_EXPECT_EQMEM(g_expected_result, g_aligned_dst, nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memmove, is_direction_flag_clean, "Test if direction flag is clean after call")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 	const uint32_t	noverlap = nbytes * 0.10;
 
-	UT_LOG_CALL(memmove(aligned_dst + noverlap, aligned_dst, nbytes));
+	UT_LOG_CALL(memmove(g_aligned_dst + noverlap, g_aligned_dst, nbytes));
 	UT_EXPECT_EQ(0, cpu_flags_get() & CPU_FLAGS_DF);
 }
 UT_CREATE_CASE(string, memmove, overlap_aligned_memory, "Test overlap with memory aligned to 32-bit chunk")
@@ -135,16 +136,16 @@ UT_CREATE_CASE(string, memmove, overlap_aligned_memory, "Test overlap with memor
 	const uint32_t	noverlap = 8;
 	const uint32_t	nbytes = SRC_SIZE - noverlap;
 
-	UT_LOG_CALL(memcpy(aligned_dst, aligned_src, nbytes));
-	UT_EXPECT_EQMEM(aligned_src, memmove(aligned_dst + noverlap, aligned_dst, nbytes), nbytes);
+	UT_LOG_CALL(memcpy(g_aligned_dst, g_aligned_src, nbytes));
+	UT_EXPECT_EQMEM(g_aligned_src, memmove(g_aligned_dst + noverlap, g_aligned_dst, nbytes), nbytes);
 }
 UT_CREATE_CASE(string, memmove, overlap_unaligned_memory, "Test overlap with memory unaligned to 32-bit chunk")
 {
 	const uint32_t	noverlap = 7;
 	const uint32_t	nbytes = SRC_SIZE - noverlap;
 
-	UT_LOG_CALL(memcpy(unaligned_dst, unaligned_src, nbytes));
-	UT_EXPECT_EQMEM(unaligned_src, memmove(unaligned_dst + noverlap, unaligned_dst, nbytes), nbytes);
+	UT_LOG_CALL(memcpy(g_unaligned_dst, g_unaligned_src, nbytes));
+	UT_EXPECT_EQMEM(g_unaligned_src, memmove(g_unaligned_dst + noverlap, g_unaligned_dst, nbytes), nbytes);
 }
 
 /*
@@ -156,32 +157,32 @@ UT_CREATE_CASE(string, memmove, overlap_unaligned_memory, "Test overlap with mem
 UT_CREATE_SUITE(string, memicpy8, "Test memicpy8 function")
 UT_CREATE_CASE(string, memicpy8, return_val_check, "Test if the return addresss match dest's address")
 {
-	UT_EXPECT_EQ(aligned_dst, memicpy8(aligned_dst, aligned_src, 0, 0xFF));
-	UT_EXPECT_EQ(aligned_dst, memicpy8(aligned_dst, aligned_src, 8, 0xFF));
+	UT_EXPECT_EQ(g_aligned_dst, memicpy8(g_aligned_dst, g_aligned_src, 0, 0xFF));
+	UT_EXPECT_EQ(g_aligned_dst, memicpy8(g_aligned_dst, g_aligned_src, 8, 0xFF));
 }
 UT_CREATE_CASE(string, memicpy8, nothing_to_copy, "Test with nbytes == 0, then nothing must be copied")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes_to_compare);
-	UT_LOG_CALL(memcpy(expected_result, aligned_dst, nbytes_to_compare));
-	UT_EXPECT_EQMEM(expected_result, memicpy8(aligned_dst, aligned_src, 0, 0xFF), nbytes_to_compare);
+	memset(g_aligned_dst, 0, nbytes_to_compare);
+	UT_LOG_CALL(memcpy(g_expected_result, g_aligned_dst, nbytes_to_compare));
+	UT_EXPECT_EQMEM(g_expected_result, memicpy8(g_aligned_dst, g_aligned_src, 0, 0xFF), nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memicpy8, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
 	const uint32_t	nwords = SRC_SIZE_1_PERCENT;
 	const uint32_t	nbytes = nwords * sizeof(uint16_t);
 
-	memset(aligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(attributed_src, memicpy8(aligned_dst, aligned_src, nwords, SRC_ATTR), nbytes);
+	memset(g_aligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_attributed_src, memicpy8(g_aligned_dst, g_aligned_src, nwords, SRC_ATTR), nbytes);
 }
 UT_CREATE_CASE(string, memicpy8, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
 	const uint32_t	nwords = SRC_SIZE_1_PERCENT;
 	const uint32_t	nbytes = nwords * sizeof(uint16_t);
 
-	memset(unaligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(attributed_src, memicpy8(unaligned_dst, unaligned_src, nwords, SRC_ATTR), nbytes);
+	memset(g_unaligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_attributed_src, memicpy8(g_unaligned_dst, g_unaligned_src, nwords, SRC_ATTR), nbytes);
 }
 
 /*
@@ -190,13 +191,13 @@ UT_CREATE_CASE(string, memicpy8, unaligned_memory, "Test with memory unaligned t
  * Function to compare n bytes of s1 and s2 memory areas
  * */
 UT_CREATE_SUITE(string, memcmp, "Test memcmp function")
-static const char	aligned_src_eq[17] __attribute__((aligned(ALIGN_32))) = "|..............|";
-static const char	aligned_src_lt[17] __attribute__((aligned(ALIGN_32))) = "|.............A|";
-static const char	aligned_src_gt[17] __attribute__((aligned(ALIGN_32))) = "|.............Z|";
+static const char	g_aligned_src_eq[17] __attribute__((aligned(ALIGN_32))) = "|..............|";
+static const char	g_aligned_src_lt[17] __attribute__((aligned(ALIGN_32))) = "|.............A|";
+static const char	g_aligned_src_gt[17] __attribute__((aligned(ALIGN_32))) = "|.............Z|";
 
-static const char	*unaligned_src_eq = aligned_src_eq + 1;
-static const char	*unaligned_src_lt = aligned_src_lt + 1;
-static const char	*unaligned_src_gt = aligned_src_gt + 1;
+static const char	*g_unaligned_src_eq = g_aligned_src_eq + 1;
+static const char	*g_unaligned_src_lt = g_aligned_src_lt + 1;
+static const char	*g_unaligned_src_gt = g_aligned_src_gt + 1;
 
 UT_CREATE_CASE(string, memcmp, nothing_to_compare, "Test with nbytes == 0, then should always return 0")
 {
@@ -227,15 +228,15 @@ UT_CREATE_CASE(string, memcmp, difference_inside_chunk, "Test with difference in
 }
 UT_CREATE_CASE(string, memcmp, aligned_memory, "Test comparisons with memory aligned to 32-bit chunk")
 {
-	UT_EXPECT_LT(0, memcmp(aligned_src_lt, aligned_src_gt, 16));
-	UT_EXPECT_EQ(0, memcmp(aligned_src_eq, aligned_src_eq, 16));
-	UT_EXPECT_GT(0, memcmp(aligned_src_gt, aligned_src_lt, 16));
+	UT_EXPECT_LT(0, memcmp(g_aligned_src_lt, g_aligned_src_gt, 16));
+	UT_EXPECT_EQ(0, memcmp(g_aligned_src_eq, g_aligned_src_eq, 16));
+	UT_EXPECT_GT(0, memcmp(g_aligned_src_gt, g_aligned_src_lt, 16));
 }
 UT_CREATE_CASE(string, memcmp, unaligned_memory, "Test comparisons with memory unaligned to 32-bit chunk")
 {
-	UT_EXPECT_LT(0, memcmp(unaligned_src_lt, unaligned_src_gt, 16));
-	UT_EXPECT_EQ(0, memcmp(unaligned_src_eq, unaligned_src_eq, 16));
-	UT_EXPECT_GT(0, memcmp(unaligned_src_gt, unaligned_src_lt, 16));
+	UT_EXPECT_LT(0, memcmp(g_unaligned_src_lt, g_unaligned_src_gt, 16));
+	UT_EXPECT_EQ(0, memcmp(g_unaligned_src_eq, g_unaligned_src_eq, 16));
+	UT_EXPECT_GT(0, memcmp(g_unaligned_src_gt, g_unaligned_src_lt, 16));
 }
 
 /*
@@ -246,38 +247,38 @@ UT_CREATE_CASE(string, memcmp, unaligned_memory, "Test comparisons with memory u
 UT_CREATE_SUITE(string, memset, "Test memset function")
 UT_CREATE_CASE(string, memset, return_val_check, "Test if the return address match the dest's address")
 {
-	UT_EXPECT_EQ(aligned_dst, memset(aligned_dst, 0, 0));
-	UT_EXPECT_EQ(aligned_dst, memset(aligned_dst, 0, 8));
+	UT_EXPECT_EQ(g_aligned_dst, memset(g_aligned_dst, 0, 0));
+	UT_EXPECT_EQ(g_aligned_dst, memset(g_aligned_dst, 0, 8));
 }
 UT_CREATE_CASE(string, memset, nothing_to_set, "Test with nbytes == 0, then nothing must be set")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 
-	memcpy(aligned_dst, aligned_src, nbytes_to_compare);
-	UT_LOG_CALL(memcpy(expected_result, aligned_dst, nbytes_to_compare));
-	UT_EXPECT_EQMEM(expected_result, memset(aligned_dst, 1, 0), nbytes_to_compare);
+	memcpy(g_aligned_dst, g_aligned_src, nbytes_to_compare);
+	UT_LOG_CALL(memcpy(g_expected_result, g_aligned_dst, nbytes_to_compare));
+	UT_EXPECT_EQMEM(g_expected_result, memset(g_aligned_dst, 1, 0), nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memset, direction_flag, "Set direction flag, and must still forward memory setting")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes);
+	memset(g_aligned_dst, 0, nbytes);
 	__asm__("std");
-	UT_EXPECT_EQMEM(uniform_bytes_src, memset(aligned_dst, SRC_UNIFORM_BYTE, nbytes), nbytes);
+	UT_EXPECT_EQMEM(g_uniform_bytes_src, memset(g_aligned_dst, SRC_UNIFORM_BYTE, nbytes), nbytes);
 }
 UT_CREATE_CASE(string, memset, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(uniform_bytes_src, memset(aligned_dst, SRC_UNIFORM_BYTE, nbytes), nbytes);
+	memset(g_aligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_uniform_bytes_src, memset(g_aligned_dst, SRC_UNIFORM_BYTE, nbytes), nbytes);
 }
 UT_CREATE_CASE(string, memset, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(unaligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(uniform_bytes_src, memset(unaligned_dst, SRC_UNIFORM_BYTE, nbytes), nbytes);
+	memset(g_unaligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_uniform_bytes_src, memset(g_unaligned_dst, SRC_UNIFORM_BYTE, nbytes), nbytes);
 }
 
 
@@ -289,41 +290,41 @@ UT_CREATE_CASE(string, memset, unaligned_memory, "Test with memory unaligned to 
 UT_CREATE_SUITE(string, memsetw, "Test memsetw function")
 UT_CREATE_CASE(string, memsetw, return_val_check, "Test if the return address match the dest's address")
 {
-	UT_EXPECT_EQ(aligned_dst, memsetw(aligned_dst, 0, 0));
-	UT_EXPECT_EQ(aligned_dst, memsetw(aligned_dst, 0, 4));
+	UT_EXPECT_EQ(g_aligned_dst, memsetw(g_aligned_dst, 0, 0));
+	UT_EXPECT_EQ(g_aligned_dst, memsetw(g_aligned_dst, 0, 4));
 }
 UT_CREATE_CASE(string, memsetw, nothing_to_set, "Test with nwords == 0, then nothing must be set")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 
-	memcpy(aligned_dst, aligned_src, nbytes_to_compare);
-	UT_LOG_CALL(memcpy(expected_result, aligned_dst, nbytes_to_compare));
-	UT_EXPECT_EQMEM(expected_result, memsetw(aligned_dst, 1, 0), nbytes_to_compare);
+	memcpy(g_aligned_dst, g_aligned_src, nbytes_to_compare);
+	UT_LOG_CALL(memcpy(g_expected_result, g_aligned_dst, nbytes_to_compare));
+	UT_EXPECT_EQMEM(g_expected_result, memsetw(g_aligned_dst, 1, 0), nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memsetw, direction_flag, "Set direction flag, and must still forward memory setting")
 {
 	const uint32_t	nwords = SRC_SIZE_1_PERCENT;
 	const uint32_t	nbytes = nwords * sizeof(uint16_t);
 
-	memset(aligned_dst, 0, nbytes);
+	memset(g_aligned_dst, 0, nbytes);
 	__asm__("std");
-	UT_EXPECT_EQMEM(uniform_words_src, memsetw(aligned_dst, SRC_UNIFORM_WORD, nwords), nbytes);
+	UT_EXPECT_EQMEM(g_uniform_words_src, memsetw(g_aligned_dst, SRC_UNIFORM_WORD, nwords), nbytes);
 }
 UT_CREATE_CASE(string, memsetw, aligned_memory, "Test with memory aligned to 32-bit chunk")
 {
 	const uint32_t	nwords = SRC_SIZE_1_PERCENT;
 	const uint32_t	nbytes = nwords * sizeof(uint16_t);
 
-	memset(aligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(uniform_words_src, memsetw(aligned_dst, SRC_UNIFORM_WORD, nwords), nbytes);
+	memset(g_aligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_uniform_words_src, memsetw(g_aligned_dst, SRC_UNIFORM_WORD, nwords), nbytes);
 }
 UT_CREATE_CASE(string, memsetw, unaligned_memory, "Test with memory unaligned to 32-bit chunk")
 {
 	const uint32_t	nwords = SRC_SIZE_1_PERCENT;
 	const uint32_t	nbytes = nwords * sizeof(uint16_t);
 
-	memset(unaligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(uniform_words_src, memsetw(unaligned_dst, SRC_UNIFORM_WORD, nwords), nbytes);
+	memset(g_unaligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_uniform_words_src, memsetw(g_unaligned_dst, SRC_UNIFORM_WORD, nwords), nbytes);
 }
 
 
@@ -337,38 +338,38 @@ UT_CREATE_CASE(string, memsetw, unaligned_memory, "Test with memory unaligned to
 UT_CREATE_SUITE(string, memset_pattern, "Test memset_pattern function")
 UT_CREATE_CASE(string, memset_pattern, return_val_check, "Test if the return address match the dest's address")
 {
-	UT_EXPECT_EQ(aligned_dst, memset_pattern(aligned_dst, "123", 3, 0));
-	UT_EXPECT_EQ(aligned_dst, memset_pattern(aligned_dst, "123", 3, 32));
+	UT_EXPECT_EQ(g_aligned_dst, memset_pattern(g_aligned_dst, "123", 3, 0));
+	UT_EXPECT_EQ(g_aligned_dst, memset_pattern(g_aligned_dst, "123", 3, 32));
 }
 UT_CREATE_CASE(string, memset_pattern, nothing_to_set, "Test with nbytes == 0, then nothing must be set")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes_to_compare);
-	UT_LOG_CALL(memcpy(expected_result, aligned_dst, nbytes_to_compare));
-	UT_EXPECT_EQMEM(expected_result, memset_pattern(aligned_dst, "123", 3, 0), nbytes_to_compare);
+	memset(g_aligned_dst, 0, nbytes_to_compare);
+	UT_LOG_CALL(memcpy(g_expected_result, g_aligned_dst, nbytes_to_compare));
+	UT_EXPECT_EQMEM(g_expected_result, memset_pattern(g_aligned_dst, "123", 3, 0), nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memset_pattern, empty_pattern, "Test with pattern size == 0, then nothing must be set")
 {
 	const uint32_t	nbytes_to_compare = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes_to_compare);
-	UT_LOG_CALL(memcpy(expected_result, aligned_dst, nbytes_to_compare));
-	UT_EXPECT_EQMEM(expected_result, memset_pattern(aligned_dst, "", 0, nbytes_to_compare), nbytes_to_compare);
+	memset(g_aligned_dst, 0, nbytes_to_compare);
+	UT_LOG_CALL(memcpy(g_expected_result, g_aligned_dst, nbytes_to_compare));
+	UT_EXPECT_EQMEM(g_expected_result, memset_pattern(g_aligned_dst, "", 0, nbytes_to_compare), nbytes_to_compare);
 }
 UT_CREATE_CASE(string, memset_pattern, pattern_greater_than_count, "Test with pattern size exceeding the number of entries to set")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(aligned_src, memset_pattern(aligned_dst, aligned_src, SRC_SIZE, nbytes), nbytes);
+	memset(g_aligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_aligned_src, memset_pattern(g_aligned_dst, g_aligned_src, SRC_SIZE, nbytes), nbytes);
 }
 UT_CREATE_CASE(string, memset_pattern, count_greater_than_pattern, "Test with number of entries to set exceeding the pattern size")
 {
 	const uint32_t	nbytes = SRC_SIZE_1_PERCENT;
 
-	memset(aligned_dst, 0, nbytes);
-	UT_EXPECT_EQMEM(aligned_src, memset_pattern(aligned_dst, SRC_PATTERN, SRC_PATTERN_SIZE, nbytes), nbytes);
+	memset(g_aligned_dst, 0, nbytes);
+	UT_EXPECT_EQMEM(g_aligned_src, memset_pattern(g_aligned_dst, SRC_PATTERN, SRC_PATTERN_SIZE, nbytes), nbytes);
 }
 
 /*
@@ -420,30 +421,30 @@ UT_CREATE_CASE(string, strlen, len_gt_0, "Test with strings of length > 0")
  * *len is set to n.
  */
 UT_CREATE_SUITE(string, strnlen_strict, "Test strnlen_strict function")
-static uint32_t	len;
+static uint32_t	g_len;
 
 UT_CREATE_CASE(string, strnlen_strict, return_val_check_valid, "Test with s length <= n, then return val must be 0")
 {
-	UT_EXPECT_EQ(0, strnlen_strict("", 0, &len));
-	UT_EXPECT_EQ(0, strnlen_strict("", 3, &len));
-	UT_EXPECT_EQ(0, strnlen_strict("abc", 3, &len));
+	UT_EXPECT_EQ(0, strnlen_strict("", 0, &g_len));
+	UT_EXPECT_EQ(0, strnlen_strict("", 3, &g_len));
+	UT_EXPECT_EQ(0, strnlen_strict("abc", 3, &g_len));
 }
 UT_CREATE_CASE(string, strnlen_strict, len_val_valid, "Test length calculation with s length <= n")
 {
-	UT_LOG_CALL(strnlen_strict("", 0, &len));
-	UT_EXPECT_EQ(0, len);
-	UT_LOG_CALL(strnlen_strict("abc", 3, &len));
-	UT_EXPECT_EQ(3, len);
+	UT_LOG_CALL(strnlen_strict("", 0, &g_len));
+	UT_EXPECT_EQ(0, g_len);
+	UT_LOG_CALL(strnlen_strict("abc", 3, &g_len));
+	UT_EXPECT_EQ(3, g_len);
 }
 UT_CREATE_CASE(string, strnlen_strict, return_val_check_invalid, "Test with s length > n, then return val must be -ENAMETOOLONG")
 {
-	UT_EXPECT_EQ(-ENAMETOOLONG, strnlen_strict("a", 0, &len));
-	UT_EXPECT_EQ(-ENAMETOOLONG, strnlen_strict("abcd", 3, &len));
+	UT_EXPECT_EQ(-ENAMETOOLONG, strnlen_strict("a", 0, &g_len));
+	UT_EXPECT_EQ(-ENAMETOOLONG, strnlen_strict("abcd", 3, &g_len));
 }
 UT_CREATE_CASE(string, strnlen_strict, len_val_invalid, "Test with s length > n, then length calculation should be equal to n")
 {
-	UT_LOG_CALL(strnlen_strict("a", 0, &len));
-	UT_EXPECT_EQ(0, len);
-	UT_LOG_CALL(strnlen_strict("abcd", 3, &len));
-	UT_EXPECT_EQ(3, len);
+	UT_LOG_CALL(strnlen_strict("a", 0, &g_len));
+	UT_EXPECT_EQ(0, g_len);
+	UT_LOG_CALL(strnlen_strict("abcd", 3, &g_len));
+	UT_EXPECT_EQ(3, g_len);
 }
