@@ -32,12 +32,25 @@ static char					g_expected_result[SRC_SIZE];
 
 static const uint32_t		SRC_SIZE_1_PERCENT = SRC_SIZE * 0.01;
 
-// TODO: Manually set memory pattern instead of calling the memset_pattern()
 __attribute__((constructor))
 static void	test_string_src_init(void)
 {
-	memset_pattern(g_aligned_src, SRC_PATTERN, SRC_PATTERN_SIZE, SRC_SIZE);
-	memset_pattern(g_unaligned_src, SRC_PATTERN, SRC_PATTERN_SIZE, SRC_SIZE);
+	uint32_t	nentries;
+	char		*aligned_src_ptr;
+	char		*unaligned_src_ptr;
+
+	aligned_src_ptr = g_aligned_src;
+	unaligned_src_ptr = g_unaligned_src;
+	for (nentries = SRC_SIZE; nentries >= SRC_PATTERN_SIZE; nentries -= SRC_PATTERN_SIZE)
+	{
+		aligned_src_ptr = mempcpy(aligned_src_ptr, SRC_PATTERN, SRC_PATTERN_SIZE);
+		unaligned_src_ptr = mempcpy(unaligned_src_ptr, SRC_PATTERN, SRC_PATTERN_SIZE);
+	}
+	if (nentries > 0)
+	{
+		memcpy(aligned_src_ptr, SRC_PATTERN, nentries);
+		memcpy(unaligned_src_ptr, SRC_PATTERN, nentries);
+	}
 	for (int i = 0; i < SRC_SIZE; i++)
 		g_attributed_src[i] = (SRC_ATTR << 8) | g_aligned_src[i];
 }
