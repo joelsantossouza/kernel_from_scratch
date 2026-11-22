@@ -15,19 +15,29 @@
 
 typedef struct s_video_text_config
 {
-	uint32_t					width;
-	uint32_t					height;
-	uint32_t					screensize;
-	uint32_t					last_row;
+	struct
+	{
+		uint32_t	columns;
+		uint32_t	lines;
+		uint32_t	cells;
+	}	dimensions;
+	uint32_t					last_line;
+	uint32_t					history_max_lines;
 }	t_video_text_config;
 
 typedef struct s_video_text_history
 {
 	uint16_t					data[VIDEO_TEXT_HISTORY_MAX];
-	uint32_t					offset;
-	uint32_t					size;
-	uint32_t					nlines;
-	uint32_t					line_offset;
+	struct
+	{
+		uint32_t	column;
+		uint32_t	cell;
+	}	offset;
+	struct
+	{
+		uint32_t	nlines;
+		uint32_t	ncells;
+	}	size;
 }	t_video_text_history;
 
 typedef struct s_video_text
