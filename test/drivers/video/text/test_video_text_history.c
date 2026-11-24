@@ -34,31 +34,31 @@ static t_video_text	g_video_text_test = {
 	.screen_offset = 0,
 	.scroll = 0
 };
-static t_video_text_history						*g_history_test_ptr = &g_video_text_test.history;
-static const t_video_text_config				*g_config_ptr = &g_video_text_config_default;
-static const typeof(g_config_ptr->dimensions)	*g_dimensions_ptr = &g_video_text_config_default.dimensions;
+static t_video_text_history					*g_history_test_ptr = &g_video_text_test.history;
+static const t_video_text_config			*g_config_ptr = &g_video_text_config_default;
+static const typeof(g_config_ptr->geometry)	*g_geometry_ptr = &g_video_text_config_default.geometry;
 
 static
 void	history_test_init(t_video_text_history *history_test, uint32_t offset_cell, uint32_t size_ncells)
 {
 	history_test->offset.cell = offset_cell;
-	history_test->offset.column = offset_cell % g_dimensions_ptr->columns;
-	history_test->size.ncells = size_ncells;
-	history_test->size.nlines = size_ncells / g_dimensions_ptr->columns;
+	history_test->offset.column = offset_cell % g_geometry_ptr->ncolumns;
+	history_test->occupancy.ncells = size_ncells;
+	history_test->occupancy.nlines = size_ncells / g_geometry_ptr->ncolumns;
 	memset(history_test->data, 0, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
 	memset(g_result, 0, VIDEO_TEXT_HISTORY_MAX * sizeof(uint16_t));
 }
 
-static t_video_text_history						g_history_expect;
-static uint32_t									g_ret;
+static t_video_text_history					g_history_expect;
+static uint32_t								g_ret;
 
 static
 void	history_expect_side_effects_append(t_video_text_history *history_expect, const t_video_text_history *history_test, uint32_t ncells)
 {
 	history_expect->offset.cell = circbuf_offset_advance(history_test->offset.cell, ncells, VIDEO_TEXT_HISTORY_MAX);
-	history_expect->offset.column = history_expect->offset.cell % g_dimensions_ptr->columns;
-	history_expect->size.ncells = circbuf_size_increment(history_test->size.ncells, ncells, VIDEO_TEXT_HISTORY_MAX);
-	history_expect->size.nlines = history_expect->size.ncells / g_dimensions_ptr->columns;
+	history_expect->offset.column = history_expect->offset.cell % g_geometry_ptr->ncolumns;
+	history_expect->occupancy.ncells = circbuf_size_increment(history_test->occupancy.ncells, ncells, VIDEO_TEXT_HISTORY_MAX);
+	history_expect->occupancy.nlines = history_expect->occupancy.ncells / g_geometry_ptr->ncolumns;
 }
 
 static
@@ -66,8 +66,8 @@ void	history_expect_side_effects_compare(const t_video_text_history *history_exp
 {
 	UT_EXPECT_EQ(history_expect->offset.cell, history_test->offset.cell);
 	UT_EXPECT_EQ(history_expect->offset.column, history_test->offset.column);
-	UT_EXPECT_EQ(history_expect->size.ncells, history_test->size.ncells);
-	UT_EXPECT_EQ(history_expect->size.nlines, history_test->size.nlines);
+	UT_EXPECT_EQ(history_expect->occupancy.ncells, history_test->occupancy.ncells);
+	UT_EXPECT_EQ(history_expect->occupancy.nlines, history_test->occupancy.nlines);
 }
 
 /*

@@ -12,32 +12,19 @@
 # include "drivers/video/text/config.h"
 # include "string/string.h"
 # include "math/math.h"
+# include "grid/grid.h"
 
 typedef struct s_video_text_config
 {
-	struct
-	{
-		uint32_t	columns;
-		uint32_t	lines;
-		uint32_t	cells;
-	}	dimensions;
-	uint32_t					last_line;
+	t_grid_geometry				geometry;
 	uint32_t					history_max_lines;
 }	t_video_text_config;
 
 typedef struct s_video_text_history
 {
 	uint16_t					data[VIDEO_TEXT_HISTORY_MAX];
-	struct
-	{
-		uint32_t	column;
-		uint32_t	cell;
-	}	offset;
-	struct
-	{
-		uint32_t	nlines;
-		uint32_t	ncells;
-	}	size;
+	t_grid_position				offset;
+	t_grid_dimensions			occupancy;
 }	t_video_text_history;
 
 typedef struct s_video_text

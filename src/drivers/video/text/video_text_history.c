@@ -15,26 +15,26 @@
 static inline
 void	video_text_history_offset_advance_bounded(t_video_text *video_text, uint32_t history_max_bounded_ncells)
 {
-	t_video_text_history				* const history = &video_text->history;
-	const t_video_text_config			* const config = video_text->config;
-	const typeof(config->dimensions)	* const dimensions = &config->dimensions;
+	t_video_text_history			* const history = &video_text->history;
+	const t_video_text_config		* const config = video_text->config;
+	const typeof(config->geometry)	* const geometry = &config->geometry;
 
 	history->offset.cell = circbuf_offset_advance_bounded(history->offset.cell, history_max_bounded_ncells, VIDEO_TEXT_HISTORY_MAX);
-	history->offset.column = circbuf_offset_advance(history->offset.column, history_max_bounded_ncells, dimensions->columns);
+	history->offset.column = circbuf_offset_advance(history->offset.column, history_max_bounded_ncells, geometry->ncolumns);
 }
 
 static inline
 void	video_text_history_size_increment(t_video_text *video_text, uint32_t ncells)
 {
-	t_video_text_history				* const history = &video_text->history;
-	const t_video_text_config			* const config = video_text->config;
-	const typeof(config->dimensions)	* const dimensions = &config->dimensions;
-	const uint32_t						history_size_ncells = history->size.ncells;
+	t_video_text_history			* const history = &video_text->history;
+	const t_video_text_config		* const config = video_text->config;
+	const typeof(config->geometry)	* const geometry = &config->geometry;
+	const uint32_t					history_size_ncells = history->occupancy.ncells;
 
 	if (history_size_ncells != VIDEO_TEXT_HISTORY_MAX)
 	{
-		history->size.ncells = circbuf_size_increment(history_size_ncells, ncells, VIDEO_TEXT_HISTORY_MAX);
-		history->size.nlines = history->size.ncells / dimensions->columns;
+		history->occupancy.ncells = circbuf_size_increment(history_size_ncells, ncells, VIDEO_TEXT_HISTORY_MAX);
+		history->occupancy.nlines = history->occupancy.ncells / geometry->ncolumns;
 	}
 }
 
@@ -120,11 +120,11 @@ void	video_text_history_size_increment(t_video_text *video_text, uint32_t ncells
  * */
 uint32_t	video_text_history_write(t_video_text *video_text, const char *text, uint32_t count, uint8_t attr)
 {
-	t_video_text_history				* const history = &video_text->history;
-	const t_video_text_config			* const config = video_text->config;
-	const typeof(config->dimensions)	* const dimensions = &config->dimensions;
-	uint32_t							ncells_until_wrap_up;
-	uint32_t							overwrite_tail_ncells;
+	t_video_text_history			* const history = &video_text->history;
+	const t_video_text_config		* const config = video_text->config;
+	const typeof(config->geometry)	* const geometry = &config->geometry;
+	uint32_t						ncells_until_wrap_up;
+	uint32_t						overwrite_tail_ncells;
 
 	if (count > VIDEO_TEXT_HISTORY_MAX)
 	{
@@ -134,7 +134,7 @@ uint32_t	video_text_history_write(t_video_text *video_text, const char *text, ui
 		count = VIDEO_TEXT_HISTORY_MAX;
 	}
 	else
-		history->offset.column = circbuf_offset_advance(history->offset.column, count, dimensions->columns);
+		history->offset.column = circbuf_offset_advance(history->offset.column, count, geometry->ncolumns);
 	ncells_until_wrap_up = VIDEO_TEXT_HISTORY_MAX - history->offset.cell;
 	if (count > ncells_until_wrap_up)
 	{
@@ -158,10 +158,10 @@ uint32_t	video_text_history_read(const t_video_text *video_text, uint32_t rewind
 	uint32_t					second_chunk_ncells;
 	uint32_t					offset_cell;
 
-	if (rewind >= history->size.ncells)
+	if (rewind >= history->occupancy.ncells)
 		return (0);
 	offset_cell = circbuf_offset_rewind_bounded(history->offset.cell, rewind + 1, VIDEO_TEXT_HISTORY_MAX);
-	count = MIN(count, history->size.ncells - rewind);
+	count = MIN(count, history->occupancy.ncells - rewind);
 	ncells_until_wrap_down = offset_cell + 1;
 	if (count > ncells_until_wrap_down)
 	{
@@ -180,14 +180,14 @@ uint32_t	video_text_history_read(const t_video_text *video_text, uint32_t rewind
 
 uint32_t	video_text_history_set(t_video_text *video_text, uint32_t rewind, uint16_t set, uint32_t count)
 {
-	t_video_text_history				* const history = &video_text->history;
-	const t_video_text_config			* const config = video_text->config;
-	const typeof(config->dimensions)	* const dimensions = &config->dimensions;
-	uint32_t							ncells_until_wrap_up;
-	uint32_t							ncells_appended;
-	uint32_t							offset_cell;
+	t_video_text_history			* const history = &video_text->history;
+	const t_video_text_config		* const config = video_text->config;
+	const typeof(config->geometry)	* const geometry = &config->geometry;
+	uint32_t						ncells_until_wrap_up;
+	uint32_t						ncells_appended;
+	uint32_t						offset_cell;
 
-	if (rewind > history->size.ncells)
+	if (rewind > history->occupancy.ncells)
 		return (0);
 	if (count >= VIDEO_TEXT_HISTORY_MAX)
 	{
@@ -196,8 +196,8 @@ uint32_t	video_text_history_set(t_video_text *video_text, uint32_t rewind, uint1
 			ncells_appended += VIDEO_TEXT_HISTORY_MAX;
 		ncells_appended -= rewind;
 		video_text_history_offset_advance_bounded(video_text, ncells_appended);
-		history->size.ncells = VIDEO_TEXT_HISTORY_MAX;
-		history->size.nlines = config->history_max_lines;
+		history->occupancy.ncells = VIDEO_TEXT_HISTORY_MAX;
+		history->occupancy.nlines = config->history_max_lines;
 		memsetw(history->data, set, VIDEO_TEXT_HISTORY_MAX);
 		return (VIDEO_TEXT_HISTORY_MAX);
 	}
@@ -218,7 +218,7 @@ uint32_t	video_text_history_set(t_video_text *video_text, uint32_t rewind, uint1
 		return (count);
 	ncells_appended = count - rewind;
 	history->offset.cell = offset_cell;
-	history->offset.column = circbuf_offset_advance(history->offset.column, ncells_appended, dimensions->columns);
+	history->offset.column = circbuf_offset_advance(history->offset.column, ncells_appended, geometry->ncolumns);
 	video_text_history_size_increment(video_text, ncells_appended);
 	return (count);
 }
